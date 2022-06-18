@@ -1,0 +1,15 @@
+case : 4.b
+nodes_config :
+  hostsfile : hosts.conf
+  switchesfile : "switches.case."
+  sourcequeuemapfile : source.queue.map.q2.tab
+  traffic_class : traffic_class.conf
+exec_config : 
+  clientconfig : load.conf.l3.tab
+  clientswitch : clientswitch.map.tab
+
+
+
+
+
+
