@@ -1,0 +1,18 @@
+
+# VLC media player VLM command batch
+# http://www.videolan.org/vlc/
+
+new BigBuckBunnyMedium vod enabled
+setup BigBuckBunnyMedium input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyMedium.mp4"
+setup BigBuckBunnyMedium input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyMedium.mp4"
+setup BigBuckBunnyMedium input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyMedium.mp4"
+setup BigBuckBunnyMedium input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyMedium.mp4"
+setup BigBuckBunnyMedium input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyMedium.mp4"
+setup BigBuckBunnyMedium option file-caching=300
+setup BigBuckBunnyMedium option file-caching=300
+setup BigBuckBunnyMedium option file-caching=300
+setup BigBuckBunnyMedium option file-caching=300
+setup BigBuckBunnyMedium option file-caching=300
+new BigBuckBunnyHigh vod enabled
+setup BigBuckBunnyHigh input "file:///home/ubuntu/thesis/SDNQoS/server2/BigBuckBunnyHigh.mp4"
+setup BigBuckBunnyHigh option file-caching=300

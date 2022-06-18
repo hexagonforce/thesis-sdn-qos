@@ -1,3 +1,7 @@
+# This file outputs pickle files to pkl/algo and pkl/topo
+# by reading the relevant configurations from config/class_profile_functionname.yml
+# and config/topology_definitions.yml
+
 from sdn_algorithms import *
 
 BASEDIR = os.getcwd()

@@ -32,10 +32,16 @@ import pickle, yaml, json
 sys.modules['sdn_algorithms'] = sdn_algorithms
 
 BASEDIR = os.getcwd()
+USECASE_YML = f"{BASEDIR}/config/class_profile_functionname.yml"
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-
+    """ The starting point for testing the QoS Algorithms
+    Attributes:
+    case: The case number loaded from the config file
+    usecases: Class profiles loaded from the USECASE_YML directory. Class profile contain cases with their associated QoS Algorithms.
+    algo: The QOS algorithm being tested (Write the algorithms in sdn_algorithms.py)
+    """
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.name = "Josiah Eleazar Regencia"
@@ -46,9 +52,9 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         self.case = CONF.case.replace("\"", "")
 
-        self.usecase_yml = f"{BASEDIR}/config/class_profile_functionname.yml"
+        # self.usecase_yml = f"{BASEDIR}/config/class_profile_functionname.yml"
 
-        with open(self.usecase_yml, "rb") as yml_file:
+        with open(USECASE_YML, "rb") as yml_file:
             self.usecases = yaml.load(yml_file, Loader=yaml.FullLoader)['class_profiles']
 
         if self.case == self.usecases:

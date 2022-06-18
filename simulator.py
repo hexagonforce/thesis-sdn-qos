@@ -2,7 +2,7 @@
 # Description: Python Program for initiating test execution.
 # Filename   : executeTest.py
 # Author     : O. V. Chato
-# Execution  : To be run mininet interpreter command prompt.
+# Execution  : To be run by the mininet interpreter command prompt.
 #*************************************************************
 #!/usr/bin/python
 
