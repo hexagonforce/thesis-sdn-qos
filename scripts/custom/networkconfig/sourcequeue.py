@@ -4,6 +4,8 @@
 # PROBLEM: IF MULTIPLE CLIENTS HAVE SIMILAR SWITCHES
 """
 This module emits the source.queue.map.q2 file which is used for source based queueing.
+For each client, list the switches in the shortest path to the core, followed by a queue number.
+Then, list the core switch, followed by the same queue number.
 """
 import csv
 import yaml

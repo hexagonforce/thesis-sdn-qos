@@ -1,3 +1,10 @@
+###
+# This module takes the serialized topology file from pkl/topo/topo_{name}.pkl
+# loads the topology-generating function and executes the function all in Mininet.
+# Honestly, I don't know why the functions were not implemented as classes and then simply imported.
+# Literally, just create an interface and have all the other topologies implement that instead. there's no need for this
+###
+
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI

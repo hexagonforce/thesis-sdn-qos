@@ -1,6 +1,9 @@
 #!/bin/python
 
 # Value-object class for "Switch"
+# Not a value object as equality by the values of the attributes are not enforced at all.
+# This is a struct.
+
 class Switch:
     def __init__ (self, id = -1, name = "", dpid = "", type = "", core_port = -1, server_port = -1, leaf_ports = [], queue_count = 0, qos_type = "", qos_port = -1, hosts_entries = []):
         self.id = id

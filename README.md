@@ -26,3 +26,5 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 # Using the test framework
 First, generate the necessary pickle files and configuration files using `pkl_generator.sh`
 Then, run `run_mininet.py` and `controller.py`
+
+Remember to change the directories for `measure/run-ipstat.sh` and all the scripts in `scripts/custom/simulation`
