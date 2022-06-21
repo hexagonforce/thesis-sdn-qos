@@ -27,7 +27,7 @@ def save_to_conf(basedir):
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 		
-	ceil = topo['topology']['fat_tree']['clients']
+	ceil = topo['topology']['fat_tree']['details']['clients']
 
 	for i in  range (1, ceil+1):
 		h_counter = h_counter + 1

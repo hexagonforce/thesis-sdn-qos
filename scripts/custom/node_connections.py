@@ -58,8 +58,8 @@ with open (yml, 'rb') as yml_file:
     topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
 shortest_path_dict = {}
-ceil = topo['topology']['fat_tree']['clients']
-layers = topo['topology']['fat_tree']['leaf_switch_layers']
+ceil = topo['topology']['fat_tree']['details']['clients']
+layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
 total_switches = 2 ** (layers+1)
 layer_1 = 2 ** layers
 ranges = range_divider.divider(ceil, layer_1)

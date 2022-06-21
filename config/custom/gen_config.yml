@@ -1,4 +1,4 @@
-case : 4.b
+case : 1.a
 nodes_config :
   hostsfile : hosts.conf
   switchesfile : "switches.case."
@@ -7,9 +7,3 @@ nodes_config :
 exec_config : 
   clientconfig : load.conf.l3.tab
   clientswitch : clientswitch.map.tab
-
-
-
-
-
-

@@ -1,8 +1,9 @@
 # This class is used exclusively by nodes_config.py to parse the config files
 # and create lists of hosts and lists of switches.
 # Refer to the node_classes.py for more information.
-from node_classes import Host
-from node_classes import Switch
+
+from .node_classes import Host
+from .node_classes import Switch
 
 def get_host_entries(host_entries):
     hosts_list = []

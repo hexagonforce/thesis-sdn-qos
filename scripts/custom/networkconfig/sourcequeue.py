@@ -33,8 +33,8 @@ def save_to_conf(basedir):
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-	ceil = topo['topology']['fat_tree']['clients']
-	layers = topo['topology']['fat_tree']['leaf_switch_layers']
+	ceil = topo['topology']['fat_tree']['details']['clients']
+	layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
 	fat_tree = range_divider.switch_layers()
 	divider = range_divider.divider(ceil, 2 ** layers)
 	leaf_switches_cnt = 2 ** layers

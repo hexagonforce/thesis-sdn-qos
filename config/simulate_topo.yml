@@ -1,7 +1,9 @@
- topology :
-  twoway_linear:
+topology :
+  fat_tree:
     details : 
-      clients : 2
+      clients : 12
+      leaf_switch_layers: 2
+      fanout: 2
 
 
 

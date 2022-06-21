@@ -17,8 +17,8 @@ def save_to_conf(basedir, execdir):
     with open (yml, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    layers = topo['topology']['fat_tree']['leaf_switch_layers']
-    clients = topo['topology']['fat_tree']['clients']
+    layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
+    clients = topo['topology']['fat_tree']['details']['clients']
     fat_tree = range_divider.switch_layers()
     ranges = range_divider.divider(clients, 2 ** layers)
     keys = len(fat_tree.keys())

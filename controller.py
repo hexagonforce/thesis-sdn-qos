@@ -68,6 +68,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         with open(self.usecase_func_pkl, 'rb') as func_pkl:
             self.algo = pickle.load(func_pkl)
 
+        nodes_config_filepath = f"{BASEDIR}/config/custom/usecase_{self.case}_nodes_configuration.json"
+        with open(nodes_config_filepath, 'r') as nodes_config_file:
+            self.nodes_configuration = json.load(nodes_config_file)
+            self.switches_list = self.nodes_configuration['switches_list']
+        self.mac_to_port = {}
+
+
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
         datapath = ev.msg.datapath
@@ -112,11 +119,23 @@ class SimpleSwitch13(app_manager.RyuApp):
         datapath = msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-        in_port = msg.match['in_port']
+        dpid = datapath.id
+        self.mac_to_port.setdefault(dpid, {})
 
         pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocols(ethernet.ethernet)[0]
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
+        dst = eth_pkt.dst
+        src = eth_pkt.src
 
+        in_port = msg.match['in_port']
+        self.mac_to_port[dpid][src] = in_port
+
+        if dst in self.mac_to_port[dpid]:
+            dest_port = self.mac_to_port[dpid][dst]
+        else:
+            dest_port = ofproto.OFPP_FLOOD
+
+        # If it's an ARP or a LLDP packet then just flood everywhere
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)
         actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
@@ -131,16 +150,12 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         datapath.send_msg(mod)
 
-        self.algo(ev)
+        # If it's an IP packet then actually go to the correct queue in the correct port
+        # print(f"packet_in event from switch{datapath.id}")
+        messaging_switch = self.switches_list[str(datapath.id)]
+        self.algo(ev, messaging_switch, self.nodes_configuration, dest_port)
 
-        # match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP)
-        # actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
-        # inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        # mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match, instructions=inst)
 
-        # datapath.send_msg(mod)
-
-        
 
 
 

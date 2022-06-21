@@ -6,7 +6,11 @@
 # python3 scripts/custom/ifstat_generator.py
 
 python3 scripts/serialize.py
-for file in scripts/custom/*.py; do python3 "$file"; done
+for file in scripts/custom/*.py; 
+do
+	echo "Running $file"
+	python3 "$file"; 
+done
 
 sudo pkill -f python3
 sudo pkill -f vlc

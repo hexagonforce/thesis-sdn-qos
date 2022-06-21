@@ -83,8 +83,8 @@ def save_to_conf(basedir):
         config_file = open(f"{basedir}/switches.case.{case}.conf", "w")
         qos_type = cases['class_profiles'][case]['qos_type']
         test_case = cases['class_profiles'][case]['test_case']
-        layers = topo['topology']['fat_tree']['leaf_switch_layers']
-        divider = range_divider.divider(topo['topology']['fat_tree']['clients'], 2 ** layers)
+        layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
+        divider = range_divider.divider(topo['topology']['fat_tree']['details']['clients'], 2 ** layers)
         layer_1 = fat_tree[1]
         core_switch = 'switch{}'.format(int(fat_tree[keys][1].split('h')[1])+1)
         server_switch = 'switch{}'.format(int(fat_tree[keys][1].split('h')[1])+2)

@@ -24,9 +24,9 @@ def save_to_conf(basedir):
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
 	print (f"\n\n\n{topo}\n\n\n")
-	ceil = topo['topology']['fat_tree']['clients']
+	ceil = topo['topology']['fat_tree']['details']['clients']
 	print (f"CEIL: {ceil}")
-	leaf_switches_cnt = 2 ** topo['topology']['fat_tree']['leaf_switch_layers']
+	leaf_switches_cnt = 2 ** topo['topology']['fat_tree']['details']['leaf_switch_layers']
 	rng_list = range_divider.divider(ceil, leaf_switches_cnt)
 	print (f"range list: {rng_list}\n")
 	rng_index = 0

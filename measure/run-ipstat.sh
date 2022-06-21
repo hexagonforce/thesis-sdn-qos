@@ -32,19 +32,19 @@ if [ $# -gt 3 ]; then
     sleeptime=$4
 fi
 
-cd /home/ubuntu/thesis/SDNQoS/
+cd /home/mininet/thesis/SDNQoS/
 
-sudo -u ubuntu ifstat -i switch7-eth3 -t -n > /home/ubuntu/thesis/SDNQoS/test.results/ifstat-results-$usecase-$loadcase-$queuecase.csv &
+sudo -u mininet ifstat -i switch7-eth3 -t -n > /home/mininet/thesis/SDNQoS/test.results/ifstat-results-$usecase-$loadcase-$queuecase.csv &
 
 sleep $sleeptime;
 
 serversleeptime=$((sleeptime + 20))
 
 sudo pkill -f ifstat &
-# (sleep $serversleeptime; (sudo -u ubuntu nohup echo "Killing VLC Server Process"; sudo nohup pkill -f vlc)) &
+# (sleep $serversleeptime; (sudo -u mininet nohup echo "Killing VLC Server Process"; sudo nohup pkill -f vlc)) &
 
-# (sleep $serversleeptime; (sudo -u ubuntu nohup echo "Stopping HTTPD and Killing apache2 Server Process"; sudo nohup /etc/init.d/apache2 stop; sudo nohup pkill -f apache2)) &
+# (sleep $serversleeptime; (sudo -u mininet nohup echo "Stopping HTTPD and Killing apache2 Server Process"; sudo nohup /etc/init.d/apache2 stop; sudo nohup pkill -f apache2)) &
 
-# (sleep $serversleeptime; (sudo -u ubuntu nohup echo "Clearing QoS"; sudo /home/ubuntu/thesis/SDNQoS/Load_Generation/stop-ovs-vsctl.sh)) &
+# (sleep $serversleeptime; (sudo -u mininet nohup echo "Clearing QoS"; sudo /home/mininet/thesis/SDNQoS/Load_Generation/stop-ovs-vsctl.sh)) &
 
 exit 0

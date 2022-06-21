@@ -33,8 +33,8 @@ def switch_layers():
     with open (yml, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    ceil = topo['topology']['fat_tree']['clients']
-    layers = topo['topology']['fat_tree']['leaf_switch_layers']
+    ceil = topo['topology']['fat_tree']['details']['clients']
+    layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
     total_switches = 2 ** (layers+1)
     layer_1 = 2 ** layers
     for i in range(1, total_switches+1):

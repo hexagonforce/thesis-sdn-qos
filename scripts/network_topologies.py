@@ -10,6 +10,7 @@ import json
 BASEDIR = os.getcwd()
 vhost_mapping = f"{BASEDIR}/pcap/vhost_mapping.json"
 
+NUM_SERVERS = 6
 def fat_tree(net, topo):
     """
     Generates a fat_tree topology
@@ -33,14 +34,13 @@ def fat_tree(net, topo):
             last_client_number_list.append(clients_per_leaf + last_client_number_list[-1])
             
         return last_client_number_list
-
-    def switch_layers(layers, layer_1, switches):
+    def switch_layers(layers, layer_1, switches, fanout):
         """
         layers: number of layers in the topology
         layer_1: number of switches in layer 1
         switches: map of switch numbers to the actual switch objects
         returns a dict whose keys are the layer numbers starting from layer 1 (the ones with the leaf switches)
-        all the way up to layer `layers`.
+        all the way up to layer `layers`, and whose values are the list of actual switch objects in that layer.
         """
         fat_tree = {}
         keys = list(switches.keys())
@@ -48,54 +48,50 @@ def fat_tree(net, topo):
 
         for i in range(1, layers+1):
             layer_switches = []
-            for j in range(0, int(switches_count)):
-                switch_num = keys.pop(0) # Get the first number
+            for j in range(0, switches_count):
+                switch_num = keys.pop(0)
                 layer_switches.append(switches[switch_num])
             fat_tree[i] = layer_switches
-            switches_count = switches_count / 2
+            switches_count = switches_count // fanout
 
         return fat_tree
 
-    print (net)
-    print (topo)
     ceil = topo['details']['clients']
     layers = topo['details']['leaf_switch_layers']
-    total_switches = 2 ** (layers+1)
-    leaf_switches_cnt = 2 ** layers
+    fanout = topo['details']['fanout']
+    total_switches = fanout ** (layers+1)
+    leaf_switches_cnt = fanout ** layers
     ranges = divider (ceil, leaf_switches_cnt)
     index = 0
 
-    ip = 1
-
-    with open(vhost_mapping, 'rb') as json_file:
-        vhost_map = json.load(json_file)
-        print (vhost_map)
-
-    # start_host = net.addHost('host1')
-    vhosts = {}
-    for vhost in vhost_map:
-        vhosts[vhost] = net.addSwitch(vhost)
-
-    hosts = {}
-    for vhost in vhosts:
-        hosts[vhost] = net.addHost(f"host{vhost}", ip=f"10.0.0.{ip}")
-        net.addLink(hosts[vhost], vhosts[vhost])
-        ip += 1
+    # Add hosts and switches
+    clients = {}
+    for x in range(1, ceil+1):
+        clients[x] = net.addHost('client%s' % x)
+    server1 = net.addHost( 'server1', ip="10.0.1.101" ) # inNamespace=False
+    server2 = net.addHost( 'server2', ip="10.0.1.102" ) 
+    server3 = net.addHost( 'server3', ip="10.0.1.103" ) 
+    server4 = net.addHost( 'server4', ip="10.0.1.104" ) 
+    server5 = net.addHost( 'server5', ip="10.0.1.105" ) 
+    server6 = net.addHost( 'server6', ip="10.0.1.106" )
 
     switches = {}
     for i in range(1, (total_switches+1)):
+        # implement similar to clients
         switches[i] = net.addSwitch('switch%s' % i)
 
-    for i in range(1, total_switches+1):
-        if i <= ceil / 2:
-            net.addLink(vhosts[f"vhost{i}"], switches[index+1])
+    # Add Links for First Layers
+    # TODO: REWORK EVERYTHING UP TO LINE 108
+    for i in  range (1, ceil+1):
+        if i <= ranges[index]:
+            net.addLink( clients[i], switches[index+1])
         else:
             index = index + 1
-            net.addLink(vhosts[f"vhost{i}"], switches[index+1])
-
-    fat_tree = switch_layers(layers, leaf_switches_cnt, switches)
-    print (fat_tree)
+            net.addLink( clients[i], switches[index+1])
+    
+    fat_tree = switch_layers(layers, leaf_switches_cnt, switches, fanout)
     core_switch = switches[(int(fat_tree[layers][1].name.split('switch')[1])+1)]
+    server_switch = switches[(int(fat_tree[layers][1].name.split('h')[1])+2)]
 
     for i in range(1, layers):
         ranges = divider(len(fat_tree[i]), len(fat_tree[i+1]))
@@ -115,10 +111,50 @@ def fat_tree(net, topo):
     for switch in fat_tree[layers]:
         net.addLink(switch, core_switch)
 
-    end_host = net.addHost(f'host{ceil+1}', ip=f"10.0.0.{ip}")
-    net.addLink(end_host, core_switch)
+    # Link Core Switch to Server Switch
+    net.addLink(core_switch, server_switch)
+    net.addLink( server_switch, server1 )
+    net.addLink( server_switch, server2 )
+    net.addLink( server_switch, server3 )
+    net.addLink( server_switch, server4 )
+    net.addLink( server_switch, server5 )
+    net.addLink( server_switch, server6 )
 
-    return switches
+def mesh(net, topo):
+    num_switches = topo['details']['switches']
+    num_client_switches = topo['details']['switches']
+    num_clients = topo['details']['clients']
+    assert(num_client_switches < num_clients)
+    # Initialize all the clients and switches first
+    list_clients = [net.addHost(f'client{x}') for x in range(1, num_clients + 1)]
+    list_switches = [net.addSwitch(f'switch{x}') for x in range(1, num_switches + 1)]
+
+    # Distribute all the clients equally among client_switches "leaf switches"
+    clients_per_switch = num_clients // num_client_switches
+    remaining_clients = num_clients % num_client_switches
+    num_clients_for_each_switch = [clients_per_switch+1 if x < remaining_clients else clients_per_switch for x in range(num_client_switches)]
+    client_index = 0
+    for switch_index, x in enumerate(num_clients_for_each_switch):
+        for i in range(x):
+            net.addLink(list_clients[client_index], list_switches[switch_index])
+            client_index += 1
+
+    # Connect the core switch (defined as the switch with the largest number) to the server_switch
+    core_switch = list_switches[-1]
+    server_switch = net.addSwitch(f'switch{num_switches + 1}')
+    net.addLink(core_switch, server_switch)
+
+    # pairwise connect all the switches
+    for a in list_switches:
+        for b in list_switches:
+            if a != b:
+                net.addLink(a, b)
+    # add the servers to the server switch
+    for ip in range(1, NUM_SERVERS + 1):
+        server = net.addHost(f'server{ip}', ip=f'10.0.1.{100 + ip}')
+        net.addLink(server_switch, server)
+    
+
 
 def twoway_linear(net, topo):
     left_host = net.addHost('LeftHost')

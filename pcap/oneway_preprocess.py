@@ -10,7 +10,7 @@ BASEDIR = os.getcwd().split('pcap')[0]
 
 topo_yml = f"{BASEDIR}config/simulate_topo.yml"
 
-os.system('tshark -T fields -n -r smallFlows.pcap -E header=y -E separator=, -E occurrence=f -e ip.src -e ip.dst > ip.csv')
+#os.system('tshark -T fields -n -r smallFlows.pcap -E header=y -E separator=, -E occurrence=f -e ip.src -e ip.dst > ip.csv')
 
 ip_list = []
 
@@ -35,7 +35,6 @@ gen = get_chunks(ip_list, hosts, chunks)
 for i in range(1,hosts+1):
 	vhosts[f"vhost{i}"] = next(gen)
 
-# print (vhosts)
 
 total = []
 
@@ -48,26 +47,4 @@ with open('vhost_mapping.json', 'w') as json_file:
 	json_file.write(vhosts_json)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("complete")

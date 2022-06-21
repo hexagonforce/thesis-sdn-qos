@@ -24,7 +24,31 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 `scripts/custom/node_connections.py` and `scripts/custom/nodes_config.py` is supposed to provide information about how the nodes are connected, however, they are not used in Regencia's tests.
 
 # Using the test framework
-First, generate the necessary pickle files and configuration files using `pkl_generator.sh`
-Then, run `run_mininet.py` and `controller.py`
+Remember to change the directories for `measure/run-ipstat.sh`.
 
-Remember to change the directories for `measure/run-ipstat.sh` and all the scripts in `scripts/custom/simulation`
+First, generate the necessary pickle files and configuration files using `pkl_generator.sh`
+<!--Then, run the pcap/oneway_preprocess.py to generate the correct vhost_mapping-->
+
+Then, run `run_mininet.py` to start the Mininet topology.
+Then, run the following commands to destroy the OVS-vSwitch Queues and QoS configs.
+```
+sudo ovs-vsctl --all destroy qos
+sudo ovs-vsctl --all destroy queue
+```
+Then run the generated `scripts/custom/run.ovs-vsctl.case.{profile}.sh` to configure the QoSsettings on the OpenFlow OVS switches.
+Then start the Ryu controller using `Controller.sh`.
+
+# Replicating previous research with apachebenchmark and VLC
+- Start the Python3 http webservers by running appropriate bash commands
+- Start the VLC VOD servers by running appropriate bash commands
+- Start the ifstat command with `measure/run-ipstat.sh
+- Make the requests. For each client, make 1 HTTP request and 1 VLC request.
+- Run the tests for 5 minutes.
+- Stop the HTTP clients.
+- Stop the VLC clients.
+- Stop IFSTAT.
+- Stop VLC servers.
+- Stop HTTP servers.
+- Stop Ryu Controller.
+- Stop Mininet Topology.
+- Destroy the Queue and QoS configs.

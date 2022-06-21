@@ -1,5 +1,5 @@
 # This module changes the measure/run-ipstat.sh file.
-# It literally only shcanges the 
+# It literally only changes the switch number depending on what the name of the root switch is.
 #
 
 import re

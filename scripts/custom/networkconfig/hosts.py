@@ -7,11 +7,12 @@
 #	- nwproto: the IP Protocol that the server uses (6 = TCP)
 #	- tpdst: the destination port
 # 	- proto_priority: the priority of the protocol (higher means more prioritized)
-# 	- proto_queue_id: 
+# 	- proto_queue_id: no idea
 import csv
 import yaml
 import range_divider
 
+NUMBER_OF_SERVERS = 6
 
 def generate_conf(i, switch, port):
 	return f"10.0.0.{i}\tname=client{i}\tswitch={switch}\tport={port}\t\n"
@@ -27,8 +28,8 @@ def save_to_conf(basedir):
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-	ceil = topo['topology']['fat_tree']['clients']
-	layers = topo['topology']['fat_tree']['leaf_switch_layers']
+	ceil = topo['topology']['fat_tree']['details']['clients']
+	layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
 	leaf_switches_cnt = 2 ** layers
 	total_switches = 2 ** (layers + 1)
 	rng_list = range_divider.divider(ceil, leaf_switches_cnt)
@@ -62,7 +63,7 @@ def save_to_conf(basedir):
 			config_file.write(generate_conf(i, switch, port))
 		port = port + 1
 
-	for i in range(1, 7):
+	for i in range(1, NUMBER_OF_SERVERS + 1):
 		port = i + 1
 		if i % 2 == 0:
 			config_file.write(generate_server(i, total_switches, port, 'vlc', 5004, 1000, 1, i-1))
