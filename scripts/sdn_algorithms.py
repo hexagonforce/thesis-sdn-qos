@@ -17,7 +17,7 @@ def test_algo(event):
     match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP)
     actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
     inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-    mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match, instructions=inst)
+    mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=5, match=match, instructions=inst)
 
     datapath.send_msg(mod)
 
@@ -36,13 +36,11 @@ def basic_cbq_leaves(event, switch, nodes_config, dest_port):
     # We don't enforce anything if it's not a leaf switch
     if not 'client-leaf' in switch['type']:
         test_algo(event)
+        return
     
     # We also don't enforce anything if the destination port is not the QoS Port
     if dest_port != qos_port:
-        actions = [ofp_parser.OFPActionOutput(ofp.OFPP_FLOOD)]
-        out = ofp_parser.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id, in_port=in_port,
-            actions=actions, data=msg.data)
-        dp.send_msg(out)
+        test_algo(event)
         return
 
     # flow mods for the protocols we are testing (found in custom/traffic_class.conf)

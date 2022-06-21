@@ -68,7 +68,7 @@ def fat_tree(net, topo):
     clients = {}
     for x in range(1, ceil+1):
         clients[x] = net.addHost('client%s' % x)
-    server1 = net.addHost( 'server1', ip="10.0.1.101" ) # inNamespace=False
+    server1 = net.addHost( 'server1', ip="10.0.1.101" )
     server2 = net.addHost( 'server2', ip="10.0.1.102" ) 
     server3 = net.addHost( 'server3', ip="10.0.1.103" ) 
     server4 = net.addHost( 'server4', ip="10.0.1.104" ) 

@@ -10,3 +10,9 @@ class_profiles :
     func_name: basic_cbq_leaves
     qos_type: basic
     test_case: leaves
+  
+  1.b:
+    description: Basic CBQ at the core
+    func_name: basic_cbq_core
+    qos_type: basic
+    test_case: core

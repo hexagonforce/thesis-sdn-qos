@@ -43,6 +43,8 @@ Then start the Ryu controller using `Controller.sh`.
 - Start the VLC VOD servers by running appropriate bash commands
 - Start the ifstat command with `measure/run-ipstat.sh
 - Make the requests. For each client, make 1 HTTP request and 1 VLC request.
+    - run the ab_tests within mininet
+    - 
 - Run the tests for 5 minutes.
 - Stop the HTTP clients.
 - Stop the VLC clients.
