@@ -1,9 +1,0 @@
-topology :
-  fat_tree :
-    details :
-      clients : number of client hosts in the network topology
-      leaf_switch_layers : number of client leaf switch layers
-      fanout: number of children per internal switch
-  twoway_linear:
-    details : 
-      clients : number of hosts
