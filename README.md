@@ -59,3 +59,4 @@ Then start the Ryu controller using `Controller.sh`.
 scripts/custom/switch_configs.py: 
 - Don't simply assume that the "leaf switches" are the ones with higher switch dpid. Instead, use some bfs/prims to find the spanning tree and then use that tree instead for the leaf switches.
 - the whole script works if we assume that each edge switch is connected to all the clients and one other switch. Otherwise, it works, but it might not choose the optimal switch based on STP.
+- remember to change `config/custom/gen_config.yml`

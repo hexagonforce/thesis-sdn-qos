@@ -135,7 +135,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         else:
             dest_port = ofproto.OFPP_FLOOD
 
-        print(dpid, src, dst, dest_port)
+        #print(dpid, src, dst, dest_port)
 
         # If it's an ARP or a LLDP packet then just flood everywhere
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)

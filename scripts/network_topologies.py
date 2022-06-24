@@ -29,7 +29,7 @@ import yaml
 import os
 
 BASEDIR = os.getcwd()
-NUM_SERVERS = 6
+NUM_SERVERS = 4
 
 def divider(clients, leaves):
     """
@@ -137,51 +137,48 @@ def mesh(topo):
     assert(num_client_switches < num_switches)
 
     # Initialize all the clients and switches first
+    core_switch = 'switch1'
+    edge_switches = [f'switch{x}' for x in range(2, num_client_switches + 2)]
+    internal_switches = [f'switch{x}' for x in range(num_client_switches + 2, num_switches + 1)]
+    server_switch = f'switch{num_switches + 1}'
+    all_switches = edge_switches + internal_switches + [core_switch]
+
     list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
-    list_switches = [f'switch{x}' for x in range(1, num_switches)]
     list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
-    list_edges = []
 
-    core_switch = list_switches[-1]
-    server_switch = f'switch{num_client_switches + 1}'
+    switch_port_num = {switch : 0 for switch in [f'switch{x}' for x in range(1, num_switches + 2)]}
+    adjlist = {}
+    edgelist = set()
 
-    switch_ports = {switch : 0 for switch in list_switches}
-    switch_ports[server_switch] = 0
-
-    # Distribute all the clients equally among client_switches "leaf switches"
-    clients_per_switch = num_clients // num_client_switches
-    remaining_clients = num_clients % num_client_switches
-    num_clients_for_each_switch = [clients_per_switch+1 if x < remaining_clients else clients_per_switch for x in range(num_client_switches)]
-    
-    client_index = 0
-    for switch_index, x in enumerate(num_clients_for_each_switch):
-        for i in range(x):
-            switch = list_switches[switch_index]
-            client = list_clients[client_index]
-            switch_ports[switch] += 1
-            list_edges.add((switch, client, switch_ports[switch], 0))
-            client_index += 1
+    client_ranges = divider(num_clients, num_client_switches)
+    for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
+        for clientnum in range(prev + 1, upper_bound + 1):
+            switch_port_num, adjlist, edgelist = add_edge(f'client{clientnum}', edge_switches[idx],
+                                                switch_port_num, adjlist, edgelist)
 
     # pairwise connect all the switches
-    for a in list_switches:
-        for b in list_switches:
+    for a in all_switches:
+        for b in all_switches:
             if a != b:
-                switch_ports[a] += 1
-                switch_ports[b] += 1
-                list_edges.append((a, b, switch_ports[a], switch_ports[b]))
+                add_edge(a, b, switch_port_num, adjlist, edgelist)
 
     # Connect the core switch (defined as the switch with the largest number) to the server_switch
-    switch_ports[core_switch] += 1
-    switch_ports[server_switch] += 1
-    list_edges.append((core_switch, server_switch, switch_ports[core_switch], switch_ports[server_switch]))
+    add_edge(core_switch, server_switch, switch_port_num, adjlist, edgelist)
     
     # add the servers to the server switch
     for server in list_servers:
-        switch_ports[server_switch] += 1
-        list_edges.append((server_switch, server, switch_ports[server_switch], 0))
-    
-    leaf_switches = list_switches[:num_client_switches]
-    internal_switches = list_switches[num_client_switches:num_switches-1]
+        add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
+    result = {
+        "core_switch" : core_switch,
+        "internal_switches": internal_switches,
+        "edge_switches": edge_switches,
+        "server_switch": server_switch,
+        "list_clients": list_clients,
+        "list_servers": list_servers,
+        "adjlist": adjlist,
+        "edgelist": edgelist
+    }
+    return result
 
 if __name__ == '__main__':
     TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
