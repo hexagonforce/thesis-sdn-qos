@@ -29,7 +29,7 @@ import yaml
 import os
 
 BASEDIR = os.getcwd()
-NUM_SERVERS = 6
+NUM_SERVERS = 4
 
 def divider(clients, leaves):
     """

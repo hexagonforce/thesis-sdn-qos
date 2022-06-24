@@ -27,10 +27,6 @@ adjlist:
     switch14: 0
   server4:
     switch14: 0
-  server5:
-    switch14: 0
-  server6:
-    switch14: 0
   switch1:
     switch14: 4
     switch2: 1
@@ -54,8 +50,6 @@ adjlist:
     server2: 3
     server3: 4
     server4: 5
-    server5: 6
-    server6: 7
     switch1: 1
   switch2:
     switch1: 1
@@ -184,18 +178,6 @@ edgelist: !!set
   - 5
   : null
   ? !!python/tuple
-  - server5
-  - switch14
-  - 0
-  - 6
-  : null
-  ? !!python/tuple
-  - server6
-  - switch14
-  - 0
-  - 7
-  : null
-  ? !!python/tuple
   - switch1
   - switch14
   - 4
@@ -293,6 +275,4 @@ list_servers:
 - server2
 - server3
 - server4
-- server5
-- server6
 server_switch: switch14

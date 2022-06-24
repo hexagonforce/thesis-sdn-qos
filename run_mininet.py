@@ -30,10 +30,10 @@ def create_network():
     with open(TOPOYML, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    net.addSwitch(topo['core_switch'])
-    net.addSwitch(topo['server_switch'])
+    net.addSwitch(topo['core_switch'], protocols=["OpenFlow13"])
+    net.addSwitch(topo['server_switch'], protocols=["OpenFlow13"])
     for switch in topo['edge_switches'] + topo['internal_switches']:
-        net.addSwitch(switch)
+        net.addSwitch(switch, protocols=["OpenFlow13"])
 
     for host in topo['list_clients']:
         net.addHost(host, ip=f'10.0.0.{dpid(host)}')
