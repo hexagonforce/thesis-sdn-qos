@@ -1,0 +1,206 @@
+adjlist:
+  client1:
+    switch2: 0
+  client2:
+    switch2: 0
+  client3:
+    switch2: 0
+  client4:
+    switch3: 0
+  client5:
+    switch3: 0
+  client6:
+    switch3: 0
+  server1:
+    switch6: 0
+  server2:
+    switch6: 0
+  server3:
+    switch6: 0
+  server4:
+    switch6: 0
+  switch1:
+    switch2: 1
+    switch3: 2
+    switch4: 3
+    switch5: 4
+    switch6: 5
+  switch2:
+    client1: 1
+    client2: 2
+    client3: 3
+    switch1: 7
+    switch3: 4
+    switch4: 5
+    switch5: 6
+  switch3:
+    client4: 1
+    client5: 2
+    client6: 3
+    switch1: 7
+    switch2: 4
+    switch4: 5
+    switch5: 6
+  switch4:
+    switch1: 4
+    switch2: 1
+    switch3: 2
+    switch5: 3
+  switch5:
+    switch1: 4
+    switch2: 1
+    switch3: 2
+    switch4: 3
+  switch6:
+    server1: 2
+    server2: 3
+    server3: 4
+    server4: 5
+    switch1: 1
+core_switch: switch1
+edge_switches:
+- switch2
+- switch3
+edgelist: !!set
+  ? !!python/tuple
+  - client1
+  - switch2
+  - 0
+  - 1
+  : null
+  ? !!python/tuple
+  - client2
+  - switch2
+  - 0
+  - 2
+  : null
+  ? !!python/tuple
+  - client3
+  - switch2
+  - 0
+  - 3
+  : null
+  ? !!python/tuple
+  - client4
+  - switch3
+  - 0
+  - 1
+  : null
+  ? !!python/tuple
+  - client5
+  - switch3
+  - 0
+  - 2
+  : null
+  ? !!python/tuple
+  - client6
+  - switch3
+  - 0
+  - 3
+  : null
+  ? !!python/tuple
+  - server1
+  - switch6
+  - 0
+  - 2
+  : null
+  ? !!python/tuple
+  - server2
+  - switch6
+  - 0
+  - 3
+  : null
+  ? !!python/tuple
+  - server3
+  - switch6
+  - 0
+  - 4
+  : null
+  ? !!python/tuple
+  - server4
+  - switch6
+  - 0
+  - 5
+  : null
+  ? !!python/tuple
+  - switch1
+  - switch2
+  - 1
+  - 7
+  : null
+  ? !!python/tuple
+  - switch1
+  - switch3
+  - 2
+  - 7
+  : null
+  ? !!python/tuple
+  - switch1
+  - switch4
+  - 3
+  - 4
+  : null
+  ? !!python/tuple
+  - switch1
+  - switch5
+  - 4
+  - 4
+  : null
+  ? !!python/tuple
+  - switch1
+  - switch6
+  - 5
+  - 1
+  : null
+  ? !!python/tuple
+  - switch2
+  - switch3
+  - 4
+  - 4
+  : null
+  ? !!python/tuple
+  - switch2
+  - switch4
+  - 5
+  - 1
+  : null
+  ? !!python/tuple
+  - switch2
+  - switch5
+  - 6
+  - 1
+  : null
+  ? !!python/tuple
+  - switch3
+  - switch4
+  - 5
+  - 2
+  : null
+  ? !!python/tuple
+  - switch3
+  - switch5
+  - 6
+  - 2
+  : null
+  ? !!python/tuple
+  - switch4
+  - switch5
+  - 3
+  - 3
+  : null
+internal_switches:
+- switch4
+- switch5
+list_clients:
+- client1
+- client2
+- client3
+- client4
+- client5
+- client6
+list_servers:
+- server1
+- server2
+- server3
+- server4
+server_switch: switch6

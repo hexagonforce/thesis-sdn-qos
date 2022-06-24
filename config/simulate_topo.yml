@@ -1,0 +1,6 @@
+ topology :
+  mesh:
+    details:
+      switches: 5
+      client-switches: 2
+      clients: 6
