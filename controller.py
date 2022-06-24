@@ -156,32 +156,3 @@ class SimpleSwitch13(app_manager.RyuApp):
     
         messaging_switch = self.switches_list[str(datapath.id)]
         self.algo(ev, messaging_switch, self.nodes_configuration, dst, dest_port)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

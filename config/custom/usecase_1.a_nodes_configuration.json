@@ -1,47 +1,6 @@
 {
     "usecase": "1.a",
-    "sourceQueueMapDict": {
-        "10.0.0.1": [
-            "[1, 5, 7]:0",
-            "[7]:0"
-        ],
-        "10.0.0.2": [
-            "[1, 5, 7]:1",
-            "[7]:1"
-        ],
-        "10.0.0.3": [
-            "[2, 5, 7]:2",
-            "[7]:2"
-        ],
-        "10.0.0.4": [
-            "[2, 5, 7]:0",
-            "[7]:0"
-        ],
-        "10.0.0.5": [
-            "[3, 6, 7]:1",
-            "[7]:1"
-        ],
-        "10.0.0.6": [
-            "[3, 6, 7]:2",
-            "[7]:2"
-        ],
-        "10.0.0.7": [
-            "[3, 6, 7]:0",
-            "[7]:0"
-        ],
-        "10.0.0.8": [
-            "[4, 6, 7]:1",
-            "[7]:1"
-        ],
-        "10.0.0.9": [
-            "[4, 6, 7]:2",
-            "[7]:2"
-        ],
-        "10.0.0.10": [
-            "[4, 6, 7]:0",
-            "[7]:0"
-        ]
-    },
+    "sourceQueueMapDict": {},
     "traffic": {
         "http": {
             "nwproto": 6,
@@ -65,57 +24,37 @@
     "host_entries": {
         "10.0.0.1": [
             "name=client1",
-            "switch=5",
+            "switch=2",
             "port=1"
         ],
         "10.0.0.2": [
             "name=client2",
-            "switch=6",
-            "port=1"
+            "switch=2",
+            "port=2"
         ],
         "10.0.0.3": [
             "name=client3",
-            "switch=7",
-            "port=1"
+            "switch=2",
+            "port=3"
         ],
         "10.0.0.4": [
             "name=client4",
-            "switch=8",
+            "switch=3",
             "port=1"
         ],
         "10.0.0.5": [
             "name=client5",
-            "switch=9",
-            "port=1"
+            "switch=3",
+            "port=2"
         ],
         "10.0.0.6": [
             "name=client6",
-            "switch=10",
-            "port=1"
-        ],
-        "10.0.0.7": [
-            "name=client7",
-            "switch=11",
-            "port=1"
-        ],
-        "10.0.0.8": [
-            "name=client8",
-            "switch=12",
-            "port=1"
-        ],
-        "10.0.0.9": [
-            "name=client9",
-            "switch=13",
-            "port=1"
-        ],
-        "10.0.0.10": [
-            "name=client10",
-            "switch=13",
-            "port=2"
+            "switch=3",
+            "port=3"
         ],
         "10.0.1.101": [
             "name=server1",
-            "switch=14",
+            "switch=6",
             "port=2",
             "protocol=http",
             "nwproto=6",
@@ -126,7 +65,7 @@
         ],
         "10.0.1.102": [
             "name=server2",
-            "switch=14",
+            "switch=6",
             "port=3",
             "protocol=vlc",
             "nwproto=6",
@@ -137,7 +76,7 @@
         ],
         "10.0.1.103": [
             "name=server3",
-            "switch=14",
+            "switch=6",
             "port=4",
             "protocol=http",
             "nwproto=6",
@@ -148,7 +87,7 @@
         ],
         "10.0.1.104": [
             "name=server4",
-            "switch=14",
+            "switch=6",
             "port=5",
             "protocol=vlc",
             "nwproto=6",
@@ -159,112 +98,39 @@
         ]
     },
     "switches_entries": {
-        "name=switch5": [
-            "name=switch5",
-            "dpid=00-00-00-00-00-05",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch6": [
-            "name=switch6",
-            "dpid=00-00-00-00-00-06",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch7": [
-            "name=switch7",
-            "dpid=00-00-00-00-00-07",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch8": [
-            "name=switch8",
-            "dpid=00-00-00-00-00-08",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch9": [
-            "name=switch9",
-            "dpid=00-00-00-00-00-09",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch10": [
-            "name=switch10",
-            "dpid=00-00-00-00-00-10",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch11": [
-            "name=switch11",
-            "dpid=00-00-00-00-00-11",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch12": [
-            "name=switch12",
-            "dpid=00-00-00-00-00-12",
-            "type=client-leaf",
-            "core_port=2",
-            "queues=3",
-            "qos=basic",
-            "qos_port=2"
-        ],
-        "name=switch13": [
-            "name=switch13",
-            "dpid=00-00-00-00-00-13",
-            "type=client-leaf",
-            "core_port=3",
-            "queues=3",
-            "qos=basic",
-            "qos_port=3"
-        ],
         "name=switch2": [
             "name=switch2",
             "dpid=00-00-00-00-00-02",
-            "type=client-leaf-ext",
-            "leaf_ports=5:2,6:3,7:4",
-            "core_port=1",
+            "type=client-leaf",
+            "core_port=4",
             "queues=3",
             "qos=basic",
-            "qos_port=1"
+            "qos_port=4"
         ],
         "name=switch3": [
             "name=switch3",
             "dpid=00-00-00-00-00-03",
-            "type=client-leaf-ext",
-            "leaf_ports=10:4,8:2,9:3",
-            "core_port=1",
+            "type=client-leaf",
+            "core_port=4",
             "queues=3",
             "qos=basic",
-            "qos_port=1"
+            "qos_port=4"
         ],
         "name=switch4": [
             "name=switch4",
             "dpid=00-00-00-00-00-04",
             "type=client-leaf-ext",
-            "leaf_ports=11:2,12:3,13:4",
+            "leaf_ports=5:7",
+            "core_port=1",
+            "queues=3",
+            "qos=basic",
+            "qos_port=1"
+        ],
+        "name=switch5": [
+            "name=switch5",
+            "dpid=00-00-00-00-00-05",
+            "type=client-leaf-ext",
+            "leaf_ports=",
             "core_port=1",
             "queues=3",
             "qos=basic",
@@ -274,17 +140,17 @@
             "name=switch1",
             "dpid=00-00-00-00-00-01",
             "type=core",
-            "leaf_ports=2:1,3:2,4:3",
-            "server_port=4",
+            "leaf_ports=2:5,3:6,4:7,5:8",
+            "server_port=9",
             "queues=0",
             "qos=none",
             "qos_port=0"
         ],
-        "name=switch14": [
-            "name=switch14",
-            "dpid=00-00-00-00-00-14",
+        "name=switch6": [
+            "name=switch6",
+            "dpid=00-00-00-00-00-06",
             "type=server-leaf",
-            "core_port=4",
+            "core_port=9",
             "qos=basic",
             "qos_port=0"
         ]
@@ -293,7 +159,7 @@
         {
             "ip": "10.0.0.1",
             "name": "client1",
-            "switch_id": 5,
+            "switch_id": 2,
             "port": 1,
             "is_server": false,
             "protocol": "",
@@ -306,8 +172,8 @@
         {
             "ip": "10.0.0.2",
             "name": "client2",
-            "switch_id": 6,
-            "port": 1,
+            "switch_id": 2,
+            "port": 2,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -319,8 +185,8 @@
         {
             "ip": "10.0.0.3",
             "name": "client3",
-            "switch_id": 7,
-            "port": 1,
+            "switch_id": 2,
+            "port": 3,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -332,7 +198,7 @@
         {
             "ip": "10.0.0.4",
             "name": "client4",
-            "switch_id": 8,
+            "switch_id": 3,
             "port": 1,
             "is_server": false,
             "protocol": "",
@@ -345,8 +211,8 @@
         {
             "ip": "10.0.0.5",
             "name": "client5",
-            "switch_id": 9,
-            "port": 1,
+            "switch_id": 3,
+            "port": 2,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -358,60 +224,8 @@
         {
             "ip": "10.0.0.6",
             "name": "client6",
-            "switch_id": 10,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.7",
-            "name": "client7",
-            "switch_id": 11,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.8",
-            "name": "client8",
-            "switch_id": 12,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.9",
-            "name": "client9",
-            "switch_id": 13,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.10",
-            "name": "client10",
-            "switch_id": 13,
-            "port": 2,
+            "switch_id": 3,
+            "port": 3,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -423,7 +237,7 @@
         {
             "ip": "10.0.1.101",
             "name": "server1",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 2,
             "is_server": true,
             "protocol": "http",
@@ -436,7 +250,7 @@
         {
             "ip": "10.0.1.102",
             "name": "server2",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 3,
             "is_server": true,
             "protocol": "vlc",
@@ -449,7 +263,7 @@
         {
             "ip": "10.0.1.103",
             "name": "server3",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 4,
             "is_server": true,
             "protocol": "http",
@@ -462,7 +276,7 @@
         {
             "ip": "10.0.1.104",
             "name": "server4",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 5,
             "is_server": true,
             "protocol": "vlc",
@@ -477,7 +291,7 @@
         {
             "ip": "10.0.0.1",
             "name": "client1",
-            "switch_id": 5,
+            "switch_id": 2,
             "port": 1,
             "is_server": false,
             "protocol": "",
@@ -490,8 +304,8 @@
         {
             "ip": "10.0.0.2",
             "name": "client2",
-            "switch_id": 6,
-            "port": 1,
+            "switch_id": 2,
+            "port": 2,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -503,8 +317,8 @@
         {
             "ip": "10.0.0.3",
             "name": "client3",
-            "switch_id": 7,
-            "port": 1,
+            "switch_id": 2,
+            "port": 3,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -516,7 +330,7 @@
         {
             "ip": "10.0.0.4",
             "name": "client4",
-            "switch_id": 8,
+            "switch_id": 3,
             "port": 1,
             "is_server": false,
             "protocol": "",
@@ -529,8 +343,8 @@
         {
             "ip": "10.0.0.5",
             "name": "client5",
-            "switch_id": 9,
-            "port": 1,
+            "switch_id": 3,
+            "port": 2,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -542,60 +356,8 @@
         {
             "ip": "10.0.0.6",
             "name": "client6",
-            "switch_id": 10,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.7",
-            "name": "client7",
-            "switch_id": 11,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.8",
-            "name": "client8",
-            "switch_id": 12,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.9",
-            "name": "client9",
-            "switch_id": 13,
-            "port": 1,
-            "is_server": false,
-            "protocol": "",
-            "nw_proto": -1,
-            "tp_dst": -1,
-            "proto_priority": -1,
-            "proto_queue_id": -1,
-            "dst_queue_id": -1
-        },
-        {
-            "ip": "10.0.0.10",
-            "name": "client10",
-            "switch_id": 13,
-            "port": 2,
+            "switch_id": 3,
+            "port": 3,
             "is_server": false,
             "protocol": "",
             "nw_proto": -1,
@@ -609,7 +371,7 @@
         {
             "ip": "10.0.1.101",
             "name": "server1",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 2,
             "is_server": true,
             "protocol": "http",
@@ -622,7 +384,7 @@
         {
             "ip": "10.0.1.102",
             "name": "server2",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 3,
             "is_server": true,
             "protocol": "vlc",
@@ -635,7 +397,7 @@
         {
             "ip": "10.0.1.103",
             "name": "server3",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 4,
             "is_server": true,
             "protocol": "http",
@@ -648,7 +410,7 @@
         {
             "ip": "10.0.1.104",
             "name": "server4",
-            "switch_id": 14,
+            "switch_id": 6,
             "port": 5,
             "is_server": true,
             "protocol": "vlc",
@@ -660,246 +422,22 @@
         }
     ],
     "switches_list": {
-        "5": {
-            "id": 5,
-            "name": "switch5",
-            "dpid": "00-00-00-00-00-05",
+        "2": {
+            "id": 2,
+            "name": "switch2",
+            "dpid": "00-00-00-00-00-02",
             "type": "client-leaf",
-            "core_port": 2,
+            "core_port": 4,
             "server_port": [],
             "leaf_ports": [],
             "queue_count": 3,
             "qos_type": "basic",
-            "qos_port": 2,
+            "qos_port": 4,
             "hosts_entries": [
                 {
                     "ip": "10.0.0.1",
                     "name": "client1",
-                    "switch_id": 5,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "6": {
-            "id": 6,
-            "name": "switch6",
-            "dpid": "00-00-00-00-00-06",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.2",
-                    "name": "client2",
-                    "switch_id": 6,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "7": {
-            "id": 7,
-            "name": "switch7",
-            "dpid": "00-00-00-00-00-07",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.3",
-                    "name": "client3",
-                    "switch_id": 7,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "8": {
-            "id": 8,
-            "name": "switch8",
-            "dpid": "00-00-00-00-00-08",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.4",
-                    "name": "client4",
-                    "switch_id": 8,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "9": {
-            "id": 9,
-            "name": "switch9",
-            "dpid": "00-00-00-00-00-09",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.5",
-                    "name": "client5",
-                    "switch_id": 9,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "10": {
-            "id": 10,
-            "name": "switch10",
-            "dpid": "00-00-00-00-00-10",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.6",
-                    "name": "client6",
-                    "switch_id": 10,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "11": {
-            "id": 11,
-            "name": "switch11",
-            "dpid": "00-00-00-00-00-11",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.7",
-                    "name": "client7",
-                    "switch_id": 11,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "12": {
-            "id": 12,
-            "name": "switch12",
-            "dpid": "00-00-00-00-00-12",
-            "type": "client-leaf",
-            "core_port": 2,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 2,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.8",
-                    "name": "client8",
-                    "switch_id": 12,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                }
-            ],
-            "comments": ""
-        },
-        "13": {
-            "id": 13,
-            "name": "switch13",
-            "dpid": "00-00-00-00-00-13",
-            "type": "client-leaf",
-            "core_port": 3,
-            "server_port": [],
-            "leaf_ports": [],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 3,
-            "hosts_entries": [
-                {
-                    "ip": "10.0.0.9",
-                    "name": "client9",
-                    "switch_id": 13,
+                    "switch_id": 2,
                     "port": 1,
                     "is_server": false,
                     "protocol": "",
@@ -910,10 +448,23 @@
                     "dst_queue_id": -1
                 },
                 {
-                    "ip": "10.0.0.10",
-                    "name": "client10",
-                    "switch_id": 13,
+                    "ip": "10.0.0.2",
+                    "name": "client2",
+                    "switch_id": 2,
                     "port": 2,
+                    "is_server": false,
+                    "protocol": "",
+                    "nw_proto": -1,
+                    "tp_dst": -1,
+                    "proto_priority": -1,
+                    "proto_queue_id": -1,
+                    "dst_queue_id": -1
+                },
+                {
+                    "ip": "10.0.0.3",
+                    "name": "client3",
+                    "switch_id": 2,
+                    "port": 3,
                     "is_server": false,
                     "protocol": "",
                     "nw_proto": -1,
@@ -925,40 +476,58 @@
             ],
             "comments": ""
         },
-        "2": {
-            "id": 2,
-            "name": "switch2",
-            "dpid": "00-00-00-00-00-02",
-            "type": "client-leaf-ext",
-            "core_port": 1,
-            "server_port": [],
-            "leaf_ports": [
-                "5:2",
-                "6:3",
-                "7:4"
-            ],
-            "queue_count": 3,
-            "qos_type": "basic",
-            "qos_port": 1,
-            "hosts_entries": [],
-            "comments": ""
-        },
         "3": {
             "id": 3,
             "name": "switch3",
             "dpid": "00-00-00-00-00-03",
-            "type": "client-leaf-ext",
-            "core_port": 1,
+            "type": "client-leaf",
+            "core_port": 4,
             "server_port": [],
-            "leaf_ports": [
-                "10:4",
-                "8:2",
-                "9:3"
-            ],
+            "leaf_ports": [],
             "queue_count": 3,
             "qos_type": "basic",
-            "qos_port": 1,
-            "hosts_entries": [],
+            "qos_port": 4,
+            "hosts_entries": [
+                {
+                    "ip": "10.0.0.4",
+                    "name": "client4",
+                    "switch_id": 3,
+                    "port": 1,
+                    "is_server": false,
+                    "protocol": "",
+                    "nw_proto": -1,
+                    "tp_dst": -1,
+                    "proto_priority": -1,
+                    "proto_queue_id": -1,
+                    "dst_queue_id": -1
+                },
+                {
+                    "ip": "10.0.0.5",
+                    "name": "client5",
+                    "switch_id": 3,
+                    "port": 2,
+                    "is_server": false,
+                    "protocol": "",
+                    "nw_proto": -1,
+                    "tp_dst": -1,
+                    "proto_priority": -1,
+                    "proto_queue_id": -1,
+                    "dst_queue_id": -1
+                },
+                {
+                    "ip": "10.0.0.6",
+                    "name": "client6",
+                    "switch_id": 3,
+                    "port": 3,
+                    "is_server": false,
+                    "protocol": "",
+                    "nw_proto": -1,
+                    "tp_dst": -1,
+                    "proto_priority": -1,
+                    "proto_queue_id": -1,
+                    "dst_queue_id": -1
+                }
+            ],
             "comments": ""
         },
         "4": {
@@ -969,9 +538,23 @@
             "core_port": 1,
             "server_port": [],
             "leaf_ports": [
-                "11:2",
-                "12:3",
-                "13:4"
+                "5:7"
+            ],
+            "queue_count": 3,
+            "qos_type": "basic",
+            "qos_port": 1,
+            "hosts_entries": [],
+            "comments": ""
+        },
+        "5": {
+            "id": 5,
+            "name": "switch5",
+            "dpid": "00-00-00-00-00-05",
+            "type": "client-leaf-ext",
+            "core_port": 1,
+            "server_port": [],
+            "leaf_ports": [
+                ""
             ],
             "queue_count": 3,
             "qos_type": "basic",
@@ -986,12 +569,13 @@
             "type": "core",
             "core_port": -1,
             "server_port": [
-                "4"
+                "9"
             ],
             "leaf_ports": [
-                "2:1",
-                "3:2",
-                "4:3"
+                "2:5",
+                "3:6",
+                "4:7",
+                "5:8"
             ],
             "queue_count": 0,
             "qos_type": "none",
@@ -1000,7 +584,7 @@
                 {
                     "ip": "10.0.0.1",
                     "name": "client1",
-                    "switch_id": 5,
+                    "switch_id": 2,
                     "port": 1,
                     "is_server": false,
                     "protocol": "",
@@ -1013,8 +597,8 @@
                 {
                     "ip": "10.0.0.2",
                     "name": "client2",
-                    "switch_id": 6,
-                    "port": 1,
+                    "switch_id": 2,
+                    "port": 2,
                     "is_server": false,
                     "protocol": "",
                     "nw_proto": -1,
@@ -1026,8 +610,8 @@
                 {
                     "ip": "10.0.0.3",
                     "name": "client3",
-                    "switch_id": 7,
-                    "port": 1,
+                    "switch_id": 2,
+                    "port": 3,
                     "is_server": false,
                     "protocol": "",
                     "nw_proto": -1,
@@ -1039,7 +623,7 @@
                 {
                     "ip": "10.0.0.4",
                     "name": "client4",
-                    "switch_id": 8,
+                    "switch_id": 3,
                     "port": 1,
                     "is_server": false,
                     "protocol": "",
@@ -1052,8 +636,8 @@
                 {
                     "ip": "10.0.0.5",
                     "name": "client5",
-                    "switch_id": 9,
-                    "port": 1,
+                    "switch_id": 3,
+                    "port": 2,
                     "is_server": false,
                     "protocol": "",
                     "nw_proto": -1,
@@ -1065,60 +649,8 @@
                 {
                     "ip": "10.0.0.6",
                     "name": "client6",
-                    "switch_id": 10,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                },
-                {
-                    "ip": "10.0.0.7",
-                    "name": "client7",
-                    "switch_id": 11,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                },
-                {
-                    "ip": "10.0.0.8",
-                    "name": "client8",
-                    "switch_id": 12,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                },
-                {
-                    "ip": "10.0.0.9",
-                    "name": "client9",
-                    "switch_id": 13,
-                    "port": 1,
-                    "is_server": false,
-                    "protocol": "",
-                    "nw_proto": -1,
-                    "tp_dst": -1,
-                    "proto_priority": -1,
-                    "proto_queue_id": -1,
-                    "dst_queue_id": -1
-                },
-                {
-                    "ip": "10.0.0.10",
-                    "name": "client10",
-                    "switch_id": 13,
-                    "port": 2,
+                    "switch_id": 3,
+                    "port": 3,
                     "is_server": false,
                     "protocol": "",
                     "nw_proto": -1,
@@ -1130,7 +662,7 @@
                 {
                     "ip": "10.0.1.101",
                     "name": "server1",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 2,
                     "is_server": true,
                     "protocol": "http",
@@ -1143,7 +675,7 @@
                 {
                     "ip": "10.0.1.102",
                     "name": "server2",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 3,
                     "is_server": true,
                     "protocol": "vlc",
@@ -1156,7 +688,7 @@
                 {
                     "ip": "10.0.1.103",
                     "name": "server3",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 4,
                     "is_server": true,
                     "protocol": "http",
@@ -1169,7 +701,7 @@
                 {
                     "ip": "10.0.1.104",
                     "name": "server4",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 5,
                     "is_server": true,
                     "protocol": "vlc",
@@ -1182,12 +714,12 @@
             ],
             "comments": ""
         },
-        "14": {
-            "id": 14,
-            "name": "switch14",
-            "dpid": "00-00-00-00-00-14",
+        "6": {
+            "id": 6,
+            "name": "switch6",
+            "dpid": "00-00-00-00-00-06",
             "type": "server-leaf",
-            "core_port": 4,
+            "core_port": 9,
             "server_port": [],
             "leaf_ports": [],
             "queue_count": 0,
@@ -1197,7 +729,7 @@
                 {
                     "ip": "10.0.1.101",
                     "name": "server1",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 2,
                     "is_server": true,
                     "protocol": "http",
@@ -1210,7 +742,7 @@
                 {
                     "ip": "10.0.1.102",
                     "name": "server2",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 3,
                     "is_server": true,
                     "protocol": "vlc",
@@ -1223,7 +755,7 @@
                 {
                     "ip": "10.0.1.103",
                     "name": "server3",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 4,
                     "is_server": true,
                     "protocol": "http",
@@ -1236,7 +768,7 @@
                 {
                     "ip": "10.0.1.104",
                     "name": "server4",
-                    "switch_id": 14,
+                    "switch_id": 6,
                     "port": 5,
                     "is_server": true,
                     "protocol": "vlc",
