@@ -1,6 +1,3 @@
-"""
-    JETR
-"""
 from ryu.lib.packet import ether_types
 
 import pickle
