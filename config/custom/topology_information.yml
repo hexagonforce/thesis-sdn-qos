@@ -20,37 +20,37 @@ adjlist:
   server4:
     switch6: 0
   switch1:
-    switch2: 5
-    switch3: 6
-    switch4: 7
-    switch5: 8
-    switch6: 9
+    switch2: 1
+    switch3: 2
+    switch4: 3
+    switch5: 4
+    switch6: 5
   switch2:
     client1: 1
     client2: 2
     client3: 3
-    switch1: 11
-    switch3: 8
-    switch4: 9
-    switch5: 10
+    switch1: 7
+    switch3: 4
+    switch4: 5
+    switch5: 6
   switch3:
     client4: 1
     client5: 2
     client6: 3
-    switch1: 11
-    switch2: 5
-    switch4: 9
-    switch5: 10
-  switch4:
-    switch1: 8
-    switch2: 3
-    switch3: 4
-    switch5: 7
-  switch5:
-    switch1: 8
+    switch1: 7
     switch2: 4
-    switch3: 5
-    switch4: 6
+    switch4: 5
+    switch5: 6
+  switch4:
+    switch1: 4
+    switch2: 1
+    switch3: 2
+    switch5: 3
+  switch5:
+    switch1: 4
+    switch2: 1
+    switch3: 2
+    switch4: 3
   switch6:
     server1: 2
     server2: 3
@@ -130,50 +130,26 @@ edgelist: !!set
   : null
   ? !!python/tuple
   - switch1
-  - switch2
-  - 5
-  - 11
-  : null
-  ? !!python/tuple
-  - switch1
   - switch3
   - 2
-  - 8
-  : null
-  ? !!python/tuple
-  - switch1
-  - switch3
-  - 6
-  - 11
+  - 7
   : null
   ? !!python/tuple
   - switch1
   - switch4
   - 3
-  - 6
-  : null
-  ? !!python/tuple
-  - switch1
-  - switch4
-  - 7
-  - 8
+  - 4
   : null
   ? !!python/tuple
   - switch1
   - switch5
   - 4
-  - 7
-  : null
-  ? !!python/tuple
-  - switch1
-  - switch5
-  - 8
-  - 8
+  - 4
   : null
   ? !!python/tuple
   - switch1
   - switch6
-  - 9
+  - 5
   - 1
   : null
   ? !!python/tuple
@@ -181,12 +157,6 @@ edgelist: !!set
   - switch3
   - 4
   - 4
-  : null
-  ? !!python/tuple
-  - switch2
-  - switch3
-  - 8
-  - 5
   : null
   ? !!python/tuple
   - switch2
@@ -196,57 +166,27 @@ edgelist: !!set
   : null
   ? !!python/tuple
   - switch2
-  - switch4
-  - 9
-  - 3
-  : null
-  ? !!python/tuple
-  - switch2
   - switch5
   - 6
   - 1
   : null
   ? !!python/tuple
-  - switch2
-  - switch5
-  - 10
-  - 4
-  : null
-  ? !!python/tuple
   - switch3
   - switch4
-  - 6
-  - 2
-  : null
-  ? !!python/tuple
-  - switch3
-  - switch4
-  - 9
-  - 4
-  : null
-  ? !!python/tuple
-  - switch3
-  - switch5
-  - 7
+  - 5
   - 2
   : null
   ? !!python/tuple
   - switch3
   - switch5
-  - 10
-  - 5
-  : null
-  ? !!python/tuple
-  - switch4
-  - switch5
-  - 5
-  - 3
-  : null
-  ? !!python/tuple
-  - switch4
-  - switch5
-  - 7
   - 6
+  - 2
+  : null
+  ? !!python/tuple
+  - switch4
+  - switch5
+  - 3
+  - 3
   : null
 internal_switches:
 - switch4

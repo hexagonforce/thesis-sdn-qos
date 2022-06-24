@@ -159,7 +159,7 @@ def mesh(topo):
     # pairwise connect all the switches
     for a in all_switches:
         for b in all_switches:
-            if a != b:
+            if a < b:
                 add_edge(a, b, switch_port_num, adjlist, edgelist)
 
     # Connect the core switch (defined as the switch with the largest number) to the server_switch
