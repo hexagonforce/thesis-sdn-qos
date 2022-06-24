@@ -1,0 +1,9 @@
+ topology :
+  fat_tree:
+    details:
+      clients : 10
+      leaf_switch_layers : 2
+      fanout: 3
+
+
+

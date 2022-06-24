@@ -1,0 +1,14 @@
+topology :
+  fat_tree :
+    details :
+      clients : number of client hosts in the network topology
+      leaf_switch_layers : number of client leaf switch layers
+      fanout: the number of children per node
+  mesh:
+    details:
+      switches : number of switches
+      client-switches: number of switches at the edge (connecting to the clients)
+      clients : number of hosts
+
+
+

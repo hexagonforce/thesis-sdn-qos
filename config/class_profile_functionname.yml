@@ -1,0 +1,9 @@
+class_profiles :
+  1.a : 
+    description: Test Algorithm
+    func_name : basic_cbq_leaves
+    qos_type : basic
+    test_case: leaves
+
+
+
