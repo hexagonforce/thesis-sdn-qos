@@ -5,17 +5,28 @@
 import re
 import os
 import yaml
-import range_divider
 
 BASEDIR = os.getcwd()
-ifstat = f"{BASEDIR}/measure/run-ipstat.sh"
+ifstat = "/home/mininet/thesis-code/simulation/run-ipstat.sh"
+TOPO_INFO = f'{BASEDIR}/config/custom/topology_information.yml'
 
 filein = open(ifstat, 'rt')
 cmd = filein.read()
 
-fat_tree = range_divider.switch_layers()
-keys = len(fat_tree.keys())
-core_switch = 'switch{}-eth3'.format(int(fat_tree[keys][1].split('h')[1])+1)
+with open(TOPO_INFO, 'r') as yml_data:
+    topo_data = yaml.load(yml_data)
+
+core_switch = topo_data['core_switch']
+server_switch = topo_data['server_switch']
+
+core_switch_port = 0
+for dest, port in topo_data['adjlist'][core_switch].items():
+    if (dest == server_switch):
+        core_switch_port = port
+        break
+
+core_switch = f'{core_switch}-eth{core_switch_port}'
+
 init_intf = re.search("switch.*-eth.*", cmd)
 changed_intf = init_intf.group().split(" ")[0]
 cmd = cmd.replace(changed_intf, core_switch)

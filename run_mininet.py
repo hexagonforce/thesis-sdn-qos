@@ -3,25 +3,25 @@
 # loads the topology-generating function and executes the function all in Mininet.
 ###
 
+from curses.ascii import isdigit
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
-from scripts import network_topologies
 
 import yaml
 import os, sys
 import math
 import pickle
 
-sys.modules['network_topologies'] = network_topologies
 BASEDIR = os.getcwd()
-TOPOYML = "{}/config/simulate_topo.yml".format(BASEDIR)
-
+TOPOYML = "{}/config/custom/topology_information.yml".format(BASEDIR)
+def dpid(node):
+    return int(''.join((c for c in node if c.isdigit())))
 def create_network():
 
-    net = Mininet (controller=RemoteController)
+    net = Mininet(controller=RemoteController)
 
     info('*** Adding controller\n')
     net.addController('c0', controller=RemoteController)
@@ -30,13 +30,18 @@ def create_network():
     with open(TOPOYML, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    [[key,value]] = topo['topology'].items()  # Python3
-    topo_pkl = f"{BASEDIR}/pkl/topo/topo_{key}.pkl"
+    net.addSwitch(topo['core_switch'])
+    net.addSwitch(topo['server_switch'])
+    for switch in topo['edge_switches'] + topo['internal_switches']:
+        net.addSwitch(switch)
 
-    with open(topo_pkl, 'rb') as func_pkl:
-        func_topo = pickle.load(func_pkl)
+    for host in topo['list_clients']:
+        net.addHost(host, ip=f'10.0.0.{dpid(host)}')
+    for host in topo['list_servers']:
+        net.addHost(host, ip=f'10.0.1.{dpid(host)+100}')
 
-    func_topo(net, value)
+    for node1, node2, port1, port2 in topo['edgelist']:
+        net.addLink(node1, node2, port1, port2)
 
     info ('*** Starting network\n')
     net.start()

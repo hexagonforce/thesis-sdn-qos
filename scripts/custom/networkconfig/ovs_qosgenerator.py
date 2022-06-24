@@ -4,49 +4,45 @@
 
 import os
 import yaml
-import range_divider
 
 def generate_script(interface):
     return f"sudo ovs-vsctl -- set Port {interface} qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=1000000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=0 -- --id=@q1 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=1 -- --id=@q2 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=2\n"
 
 def save_to_conf(basedir, execdir):
     print (f"BASEDIR: {basedir}")
-    yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
+    yml = f"{basedir}/topology_information.yml"
     usecase_yml = f"{basedir.split('custom')[0]}/classprofile_functionname.yml"
     cases = ["at_core", "at_leaf"]
     with open (yml, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
-    clients = topo['topology']['fat_tree']['details']['clients']
-    fat_tree = range_divider.switch_layers()
-    ranges = range_divider.divider(clients, 2 ** layers)
-    keys = len(fat_tree.keys())
-    core_switch = f"switch{int(fat_tree[keys][1].split('h')[1])+1}"
-    print (f"Switch Layers: {fat_tree}")
-    print (f"\nDivider: {ranges}\n\n")
-    outports = [ranges[0]+1]
-    for i in range(1, len(ranges)):
-        outports.append((ranges[i]-ranges[i-1])+1)
-    print (f"Outports : {outports}")
+    core_switch = topo['core_switch']
+    server_switch = topo['server_switch']
+
 
     for case in cases:
         config_file = open(f"{execdir}/run.ovs-vsctl.case.{case}.sh", "w")
         if case == "at_core":
-            print (f"\n{case}")
-            interface = f"{core_switch}-eth3"
+            to_server_port = ''
+            to_core_port = ''
+            for node, port in topo['adjlist'][core_switch].items():
+                if node == server_switch:
+                    to_server_port = port
+                    break
+            for node, port in topo['adjlist'][server_switch].items():
+                if node == core_switch:
+                    to_core_port = port
+                    break
+            interface = f"{core_switch}-eth{to_server_port}"
             config_file.write(generate_script(interface))
+            interface2 = f"{server_switch}-eth{to_core_port}"
+            config_file.write(generate_script(interface2))
 
         elif case == "at_leaf":
-            print (f"\n{case}")
-            for i in range(0, len(fat_tree[1])):
-                interface = f"{fat_tree[1][i]}-eth{outports[i]}"
-                config_file.write(generate_script(interface))
+            for switch in topo['edge_switches'] + topo['internal_switches']:
+                for node, port in topo['adjlist'][switch].items():
+                    config_file.write(generate_script(f"{switch}-eth{port}"))
 
-            for i in range(2, keys+1):
-                for switch in fat_tree[i]:
-                    interface = f"{switch}-eth3"
-                    config_file.write(generate_script(interface))
 
 
 

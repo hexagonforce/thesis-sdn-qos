@@ -1,6 +1,5 @@
 import csv
 import yaml
-import range_divider
 
 ###
 # This module takes both the topology yml file and the class profile yml file.
@@ -19,6 +18,9 @@ import range_divider
 #   - qos-port: the port which 
 ###
 
+def dpid(switch_name):
+    return int(switch_name.replace('switch', ''))
+
 def generate_conf(name, dpid, switch_type, core_port, leaf_ports, qos_type, test_case):
     queues = 0
     if switch_type == 'client-leaf':
@@ -30,7 +32,7 @@ def generate_conf(name, dpid, switch_type, core_port, leaf_ports, qos_type, test
             qos_port = 0
             qos_type = 'none'
             
-        return f"name={name}\tdpid=00-00-00-00-00-0{dpid}\ttype={switch_type}\tcore_port={core_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
+        return f"name={name}\tdpid=00-00-00-00-00-{dpid:02}\ttype={switch_type}\tcore_port={core_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
 
     elif switch_type == 'client-leaf-ext':
         # print (f'client-leaf-ext test case: {test_case}')
@@ -40,88 +42,70 @@ def generate_conf(name, dpid, switch_type, core_port, leaf_ports, qos_type, test
         elif test_case == 'core':
             qos_type = 'none'
             qos_port = 0
-        return f"name={name}\tdpid=00-00-00-00-00-0{dpid}\ttype={switch_type}\tleaf_ports={leaf_ports}\tcore_port={core_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
+        return f"name={name}\tdpid=00-00-00-00-00-{dpid:02}\ttype={switch_type}\tleaf_ports={leaf_ports}\tcore_port={core_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
 
     elif switch_type == 'core':
-        first = int(name.split('switch')[1])-2
-        second = int(name.split('switch')[1])-1
-        leaf_ports = f'{first}:1,{second}:2'
-        server_port = 3
+        server_port = core_port
         if test_case == 'leaves':
             queues = 0
             qos_port = 0
             qos_type = 'none'
         elif test_case == 'core':
             queues = 3
-            qos_port = 3
+            qos_port = server_port
             
-        return f"name={name}\tdpid=00-00-00-00-00-0{dpid}\ttype={switch_type}\tleaf_ports={leaf_ports}\tserver_port={server_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
+        return f"name={name}\tdpid=00-00-00-00-00-{dpid:02}\ttype={switch_type}\tleaf_ports={leaf_ports}\tserver_port={server_port}\tqueues={queues}\tqos={qos_type}\tqos_port={qos_port}\n"
 
     elif switch_type == 'server-leaf':
         qos_port = 0
         # core_port = 1
-        return f"name={name}\tdpid=00-00-00-00-00-0{dpid}\ttype={switch_type}\tcore_port={core_port}\tqos={qos_type}\tqos_port={qos_port}\n"
+        return f"name={name}\tdpid=00-00-00-00-00-{dpid:02}\ttype={switch_type}\tcore_port={core_port}\tqos={qos_type}\tqos_port={qos_port}\n"
 
 def save_to_conf(basedir):
-
-    # config_file = open(f"{basedir}/hosts.conf", "w")
-    fat_tree = range_divider.switch_layers()
-    print (fat_tree)
-    yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
     usecase_yml = f"{basedir.split('custom')[0]}class_profile_functionname.yml"
-    with open (yml, 'rb') as yml_file:
+    topo_yml = f"{basedir}/topology_information.yml"
+
+    with open (topo_yml, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
     with open(usecase_yml, 'rb') as yml_file:
         cases = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-    keys = len(fat_tree.keys())
-    print (f"Keys: {keys}")
-    print ("\n\n")
-
     for case in cases['class_profiles']:
         config_file = open(f"{basedir}/switches.case.{case}.conf", "w")
+
         qos_type = cases['class_profiles'][case]['qos_type']
         test_case = cases['class_profiles'][case]['test_case']
-        layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
-        divider = range_divider.divider(topo['topology']['fat_tree']['details']['clients'], 2 ** layers)
-        layer_1 = fat_tree[1]
-        core_switch = 'switch{}'.format(int(fat_tree[keys][1].split('h')[1])+1)
-        server_switch = 'switch{}'.format(int(fat_tree[keys][1].split('h')[1])+2)
-        start = 0
+        core_switch = topo['core_switch']
+        server_switch = topo['server_switch']
+        edge_switches = topo['edge_switches']
 
-        for i in range(0, len(divider)):
-            end = divider[i] - start
-            start = divider[i]
-            divider[i] = end
+        for edge_switch in edge_switches:
+            core_port = sum(1 for node in topo['adjlist'][edge_switch] if 'client' in node) + 1
+            dp_id = dpid(edge_switch)
+            config_file.write(generate_conf(edge_switch, dp_id, 'client-leaf', core_port, None, qos_type, test_case))
 
-        for i in range(0, len(fat_tree[1])):
-            qos_type = cases['class_profiles'][case]['qos_type']
-            test_case = cases['class_profiles'][case]['test_case']
-            core_port = divider[i] + 1
-            name = fat_tree[1][i]
-            dpid = name.split("switch")[1]
-            config_file.write(generate_conf(name, dpid, 'client-leaf', core_port, None, qos_type, test_case))
+        for internal_switch in topo['internal_switches']: # for now we assume that whatever switches have larger number are the leaves
+            dp_id = dpid(internal_switch)
+            leaf_ports=','.join((f"{dpid(node)}:{portnum}" for (node, portnum) 
+                        in topo['adjlist'][internal_switch].items()
+                        if 'switch' in node and dpid(node) > dp_id))
+            core_port = sum(1 for node in topo['adjlist'][edge_switch] if 'client' in node)
+            config_file.write(generate_conf(internal_switch, dp_id, 'client-leaf-ext', 1, leaf_ports, qos_type, test_case))
 
-        for i in range(2, keys+1):
-            print (f'Layer {i} switches: {fat_tree[i]}')
-            for j in range(0, len(fat_tree[i])):
-                dpid = fat_tree[i][j].split("switch")[1]
-                prev_layer = 2 ** layers
-                print (f'switch: {fat_tree[i][j]}\tprev_layer: {prev_layer}')
-                first =  (int(fat_tree[i][j].split('switch')[1]) - prev_layer) + j
-                second = (int(fat_tree[i][j].split('switch')[1]) - prev_layer) + (j + 1)
-                leaf_ports = f'{first}:1,{second}:2'
-                config_file.write(generate_conf(fat_tree[i][j], dpid, 'client-leaf-ext', 3, leaf_ports, qos_type, test_case))
-            print ('\n')
-            layers = layers - 1
 
-        first = int(core_switch.split('switch')[1])-2
-        second = int(core_switch.split('switch')[1])-1
-        leaf_ports = f'{first}:1,{second}:2'
-
-        config_file.write(generate_conf(core_switch, core_switch.split("switch")[1], 'core', 3, leaf_ports, qos_type, test_case))
-        config_file.write(generate_conf(server_switch, server_switch.split("switch")[1], 'server-leaf', 1, None, qos_type, test_case))
+        leaf_of_core = ','.join((f"{dpid(node)}:{portnum}" for (node, portnum) 
+                        in topo['adjlist'][core_switch].items()
+                        if 'switch' in node and 
+                        dpid(node) > dpid(core_switch) and 
+                        dpid(node) != dpid(server_switch)))
+        # due to the idiosyncracies of current code, core port of the core switch is defined
+        # to be the port that connects the core switch to the server switch
+        core_port = topo['adjlist'][core_switch][server_switch]
+        server_to_core = topo['adjlist'][core_switch][server_switch]
+        config_file.write(generate_conf(core_switch, dpid(core_switch), 'core', core_port, leaf_of_core, qos_type, test_case))
+        config_file.write(generate_conf(server_switch, dpid(server_switch), 'server-leaf', server_to_core, None, qos_type, test_case))
+        config_file.close()
 
 def main():
     save_to_conf()

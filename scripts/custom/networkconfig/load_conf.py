@@ -11,8 +11,8 @@ import csv
 import yaml
 
 
-def generate_conf(i, http, vlc, val):
-	return "client{}\thttp-{}-{}\tvod-{}-{}\n".format(i, http, val, vlc, val)
+def generate_conf(client, http, vlc, val):
+	return f"{client}\thttp-{http}-{val}\tvod-{vlc}-{val}\n"
 
 def save_to_conf(basedir):
 
@@ -23,18 +23,16 @@ def save_to_conf(basedir):
 	vlc = 0
 	h_counter = 0
 	v_counter = 0
-	yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
+	yml = f"{basedir}/topology_information.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-		
-	ceil = topo['topology']['fat_tree']['details']['clients']
 
-	for i in  range (1, ceil+1):
+	for client in topo['list_clients']: # this is so badly written that I'm not bothering to fix this
 		h_counter = h_counter + 1
 		v_counter = v_counter + 1
 		if val > 3:
 			val = 1
-		config_file.write(generate_conf(i, types[http], types[vlc], val))
+		config_file.write(generate_conf(client, types[http], types[vlc], val))
 		val = val + 1
 
 		if h_counter == 6:

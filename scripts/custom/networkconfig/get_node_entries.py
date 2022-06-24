@@ -32,7 +32,7 @@ def get_host_entries(host_entries):
                     try:
                         h_switch_id = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 # elif param[0].strip() == "layered_switches":
                 #     if len(param[1].split(":")) > 1:
                 #         try:
@@ -44,34 +44,34 @@ def get_host_entries(host_entries):
                     try:
                         h_port = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "protocol":
                     h_protocol = param[1].strip()
                 elif param[0].strip() == "nwproto":
                     try:
                         h_nwproto = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "tpdst":
                     try:
                         h_tpdst = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "proto_priority":
                     try:
                         h_proto_priority = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "proto_queue_id":
                     try:
                         h_proto_queue_id = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "dst_queue_id":
                     try:
                         h_dst_queue_id = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
         if h_ip.strip() != "" and h_name != "" and h_switch_id > 0 and h_port > 0:
             if h_protocol != "" and h_nwproto > 0 and h_tpdst > 0:
                 h_is_server = True
@@ -87,7 +87,6 @@ def get_host_entries(host_entries):
             hosts_list.append(Host(ip=h_ip.strip(), name=h_name, switch_id=h_switch_id, 
                                         port=h_port, is_server=h_is_server, protocol=h_protocol, 
                                         nw_proto=h_nwproto, tp_dst=h_tpdst, proto_priority=h_proto_priority))
-
     return hosts_list, clients_list, servers_list
 
 def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list):
@@ -124,7 +123,7 @@ def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list)
                     try:
                         sw_core_port = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "server_port":
                     server_port_str = param[1].strip()
                     server_port_str_list = server_port_str.split(",")
@@ -134,7 +133,7 @@ def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list)
                             server_port = server_port_entry
                             sw_server_port.append(server_port)
                         except ValueError:
-                            pass
+                            raise(ValueError)
                 elif param[0].strip() == "leaf_ports":
                     leaf_port_str = param[1].strip()
                     leaf_port_str_list = leaf_port_str.split(",")
@@ -144,19 +143,19 @@ def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list)
                             leaf_port = leaf_port_entry
                             sw_leaf_ports.append(leaf_port)
                         except ValueError:
-                            pass
+                            raise(ValueError)
                 elif param[0].strip() == "queues":
                     try:
                         sw_queue_count = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
                 elif param[0].strip() == "qos":
                     sw_qos_type = param[1].strip()
                 elif param[0].strip() == "qos_port":
                     try:
                         sw_qos_port = int(param[1].strip())
                     except ValueError:
-                        pass
+                        raise(ValueError)
 
         if sw_id > 0 and sw_name != "" and sw_dpid != "" and sw_type != "":
             if sw_type == "core":

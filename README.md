@@ -54,3 +54,8 @@ Then start the Ryu controller using `Controller.sh`.
 - Stop Ryu Controller.
 - Stop Mininet Topology.
 - Destroy the Queue and QoS configs.
+
+# TO DO List:
+scripts/custom/switch_configs.py: 
+- Don't simply assume that the "leaf switches" are the ones with higher switch dpid. Instead, use some bfs/prims to find the spanning tree and then use that tree instead for the leaf switches.
+- the whole script works if we assume that each edge switch is connected to all the clients and one other switch. Otherwise, it works, but it might not choose the optimal switch based on STP.

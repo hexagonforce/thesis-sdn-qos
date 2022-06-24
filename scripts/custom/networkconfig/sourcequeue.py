@@ -9,7 +9,7 @@ Then, list the core switch, followed by the same queue number.
 """
 import csv
 import yaml
-import range_divider
+from . import range_divider
 import math
 
 def generate_conf(ip, leaf, queue, core):

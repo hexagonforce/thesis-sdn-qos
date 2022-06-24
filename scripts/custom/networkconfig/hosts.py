@@ -10,65 +10,41 @@
 # 	- proto_queue_id: no idea
 import csv
 import yaml
-import range_divider
 
 NUMBER_OF_SERVERS = 6
 
+def dpid(node):
+	return int(''.join(c for c in node if c.isdigit()))
+
 def generate_conf(i, switch, port):
-	return f"10.0.0.{i}\tname=client{i}\tswitch={switch}\tport={port}\t\n"
+	return f"10.0.0.{i}\tname=client{i}\tswitch={switch}\tport={port}\n"
 
 def generate_server(i, switch, port, protocol, tpdst, priority, proto_queue_id, dst_queue_id):
-	return f"10.0.1.10{i}\tname=server{i}\tswitch={switch}\tport={port}\tprotocol={protocol}\tnwproto=6\ttpdst={tpdst}\tproto_priority={priority}\tproto_queue_id={proto_queue_id}\tdst_queue_id={dst_queue_id}\n"
+	return f"10.0.1.{100 + i}\tname=server{i}\tswitch={switch}\tport={port}\tprotocol={protocol}\tnwproto=6\ttpdst={tpdst}\tproto_priority={priority}\tproto_queue_id={proto_queue_id}\tdst_queue_id={dst_queue_id}\n"
 
 def save_to_conf(basedir):
 
 	config_file = open(f"{basedir}/hosts.conf", "w")
 	print (f'config file: {config_file}')
-	yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
+	yml = f"{basedir}/topology_information.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
+	server_switch = topo['server_switch']
+	
+	for client in topo['list_clients']:
+		i = dpid(client)
+		for switch in topo['adjlist'][client]:
+			port = topo['adjlist'][switch][client]
+			config_file.write(generate_conf(i, dpid(switch), port))
 
-	ceil = topo['topology']['fat_tree']['details']['clients']
-	layers = topo['topology']['fat_tree']['details']['leaf_switch_layers']
-	leaf_switches_cnt = 2 ** layers
-	total_switches = 2 ** (layers + 1)
-	rng_list = range_divider.divider(ceil, leaf_switches_cnt)
-	rng_index = 0
-	rng = rng_list[rng_index]
-	switch = 1
-	port = 1
-	powers_2 = []
-	for i in range(1, layers+1):
-		powers_2.append(2**i)
-
-	powers_2.reverse()
-	print (powers_2)
-
-	# if layers > 1:
-	# 			switches = [switch]
-	# 			sw = switch
-	# 			for j in powers_2:
-	# 				sw = sw + j
-	# 				switches.append(sw)
-	# 			print (f"Client: {i}\tSwitches: {switches}")
-	# 		else:
-
-	for i in  range (1, ceil+1):
-		if i <= rng_list[rng_index]:
-			config_file.write(generate_conf(i, switch, port))
-		else:
-			rng_index = rng_index + 1
-			switch = rng_index + 1
-			port = 1
-			config_file.write(generate_conf(i, switch, port))
-		port = port + 1
-
-	for i in range(1, NUMBER_OF_SERVERS + 1):
-		port = i + 1
-		if i % 2 == 0:
-			config_file.write(generate_server(i, total_switches, port, 'vlc', 5004, 1000, 1, i-1))
-		else:
-			config_file.write(generate_server(i, total_switches, port, 'http', 80, 100, 0, i-1))
+	for server in topo['list_servers']:
+		i = dpid(server)
+		for switch in topo['adjlist'][server]:
+			port = topo['adjlist'][switch][server]
+			if i % 2 == 0:
+				config_file.write(generate_server(i, dpid(server_switch), port, 'vlc', 5004, 1000, 1, i-1))
+			else:
+				config_file.write(generate_server(i, dpid(server_switch), port, 'http', 80, 100, 0, i-1))
 
 def main():
 	save_to_conf()

@@ -97,10 +97,6 @@ with open(config_path['switchesfile'], 'rt') as csv_file:
 	for row in csv.reader(csv_file, delimiter='\t'):
 		config_data['switches_entries'][row[0]] = row # row[1:]
 
-print ("\n\n\n\n")
-print (config_path['switchesfile'])
-print ("\n\n\n\n")
-
 config_data['hosts_list'] = get_host_entries(config_data['host_entries'])[0]
 config_data['clients_list'] = get_host_entries(config_data['host_entries'])[1]
 config_data['servers_list']  = get_host_entries(config_data['host_entries'])[2]

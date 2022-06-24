@@ -135,6 +135,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         else:
             dest_port = ofproto.OFPP_FLOOD
 
+        print(dpid, src, dst, dest_port)
+
         # If it's an ARP or a LLDP packet then just flood everywhere
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)
         actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
@@ -150,10 +152,10 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         datapath.send_msg(mod)
 
-        # If it's an IP packet then actually go to the correct queue in the correct port
-        # print(f"packet_in event from switch{datapath.id}")
+        #If it's an IP packet, install flows if we know the port
+    
         messaging_switch = self.switches_list[str(datapath.id)]
-        self.algo(ev, messaging_switch, self.nodes_configuration, dest_port)
+        self.algo(ev, messaging_switch, self.nodes_configuration, dst, dest_port)
 
 
 

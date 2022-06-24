@@ -1,183 +1,194 @@
 """
-    JETR
+    Functions in this module should output a yml file containing the client hosts, server hosts, switches,
+    and all the links in the following order:
+
+    First, we connect all the edge swtiches to the clients.
+    Then, we connect all the edges within the switches.
+    Then, we connect a "core" switch (defined to be the switch1) to the server switch
+    Finally, we connect all the server hosts to the server switch.
+
+    To have more switches in the server side, please modify the code yourself, as that
+    is not within the scope of this research framework.
+
+    Switches have the following types: server, core, edge, internal.
+
+    The functions should return the following:
+    result = {
+        "core_switch" : core_switch,
+        "internal_switches": internal_switches,
+        "edge_switches": edge_switches,
+        "server_switch": server_switch,
+        "list_clients": list_clients,
+        "list_servers": list_servers,
+        "adjlist": adjlist,
+        "edgelist": edgelist
+    }
 """
 
-import pickle
 import yaml
 import os
-import json
 
 BASEDIR = os.getcwd()
-vhost_mapping = f"{BASEDIR}/pcap/vhost_mapping.json"
-
 NUM_SERVERS = 6
-def fat_tree(net, topo):
+
+def divider(clients, leaves):
+    """
+    Evenly divides the clients to the leaf switches and gives the 
+    last client numbers per leaf (1 indexed)
+    example: 70 Clients and 8 Leaves will result in 2 leaves with 8 clients and 6 leaves with 9 clients, therefore the output of 
+    divider(70, 8) is [0, 8, 16, 25, 34, 43, 52, 61, 70]
+    """
+    clients_per_leaf = clients // leaves
+    remaining_clients = clients % leaves
+    last_client_number_list = [0, clients_per_leaf]
+    for i in range(1, leaves):
+        if i == leaves - remaining_clients:
+            clients_per_leaf += 1
+        last_client_number_list.append(clients_per_leaf + last_client_number_list[-1])
+        
+    return last_client_number_list
+
+def add_edge(node1, node2, switch_port_num, adjlist, edgelist):
+    port1 = 0
+    port2 = 0
+    if (node1 in switch_port_num):
+        switch_port_num[node1] += 1
+        port1 = switch_port_num[node1]
+    if (node2 in switch_port_num):
+        switch_port_num[node2] += 1
+        port2 = switch_port_num[node2]
+    if (not node1 in adjlist):
+        adjlist[node1] = {}
+    if (not node2 in adjlist):
+        adjlist[node2] = {}
+    
+    adjlist[node1][node2] = port1
+    adjlist[node2][node1] = port2
+    if (node1 > node2):
+        node1, node2 = node2, node1
+        port1, port2 = port2, port1
+    edgelist.add((node1, node2, port1, port2))
+    return switch_port_num, adjlist, edgelist
+
+def fat_tree(topo):
     """
     Generates a fat_tree topology
-    net is a Mininet Object, and topo is the parsed YAML configuration file from simulate_topo.yml.
-    Virtual host addresses are provided by pcap/vhost_mapping.json
+    Arguments: topo is the parsed YAML configuration file from simulate_topo.yml.
+    Outputs: config/custom/topology_information.yml
+    Format: edges are the tuple (node1, node2, port1, port2)
     """
-    def divider(clients, leaves):
-        """
-        Evenly divides the clients to the leaf switches and gives the 
-        last client numbers per leaf (1 indexed)
-        example: 70 Clients and 8 Leaves will result in 2 leaves with 8 clients and 6 leaves with 9 clients, therefore the output of 
-        divider(70, 8) is [8, 16, 25, 34, 43, 52, 61, 70]
-        
-        """
-        clients_per_leaf = clients // leaves
-        remaining_clients = clients % leaves
-        last_client_number_list = [clients_per_leaf]
-        for i in range(1, leaves):
-            if i == leaves - remaining_clients:
-                clients_per_leaf += 1
-            last_client_number_list.append(clients_per_leaf + last_client_number_list[-1])
-            
-        return last_client_number_list
-    def switch_layers(layers, layer_1, switches, fanout):
-        """
-        layers: number of layers in the topology
-        layer_1: number of switches in layer 1
-        switches: map of switch numbers to the actual switch objects
-        returns a dict whose keys are the layer numbers starting from layer 1 (the ones with the leaf switches)
-        all the way up to layer `layers`, and whose values are the list of actual switch objects in that layer.
-        """
-        fat_tree = {}
-        keys = list(switches.keys())
-        switches_count = layer_1
-
-        for i in range(1, layers+1):
-            layer_switches = []
-            for j in range(0, switches_count):
-                switch_num = keys.pop(0)
-                layer_switches.append(switches[switch_num])
-            fat_tree[i] = layer_switches
-            switches_count = switches_count // fanout
-
-        return fat_tree
-
-    ceil = topo['details']['clients']
+    # parameters from the file
+    num_clients = topo['details']['clients']
     layers = topo['details']['leaf_switch_layers']
     fanout = topo['details']['fanout']
-    total_switches = fanout ** (layers+1)
-    leaf_switches_cnt = fanout ** layers
-    ranges = divider (ceil, leaf_switches_cnt)
-    index = 0
 
-    # Add hosts and switches
-    clients = {}
-    for x in range(1, ceil+1):
-        clients[x] = net.addHost('client%s' % x)
-    server1 = net.addHost( 'server1', ip="10.0.1.101" )
-    server2 = net.addHost( 'server2', ip="10.0.1.102" ) 
-    server3 = net.addHost( 'server3', ip="10.0.1.103" ) 
-    server4 = net.addHost( 'server4', ip="10.0.1.104" ) 
-    server5 = net.addHost( 'server5', ip="10.0.1.105" ) 
-    server6 = net.addHost( 'server6', ip="10.0.1.106" )
+    num_total_switches = (fanout ** (layers+1) - 1) // (fanout - 1) # Sum of geometric series
+    num_edge_switches = fanout ** layers # Last layer
+    num_internal_switches = num_total_switches - num_edge_switches - 1
 
-    switches = {}
-    for i in range(1, (total_switches+1)):
-        # implement similar to clients
-        switches[i] = net.addSwitch('switch%s' % i)
+    # The graph
+    core_switch = 'switch1'
+    internal_switches = [f'switch{x}' for x in range(2, num_internal_switches + 2)]
+    edge_switches = [f'switch{x}' for x in range(num_internal_switches + 2, num_total_switches + 1)]
+    server_switch = f'switch{num_total_switches + 1}'
 
-    # Add Links for First Layers
-    # TODO: REWORK EVERYTHING UP TO LINE 108
-    for i in  range (1, ceil+1):
-        if i <= ranges[index]:
-            net.addLink( clients[i], switches[index+1])
-        else:
-            index = index + 1
-            net.addLink( clients[i], switches[index+1])
+    list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
+    list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
     
-    fat_tree = switch_layers(layers, leaf_switches_cnt, switches, fanout)
-    core_switch = switches[(int(fat_tree[layers][1].name.split('switch')[1])+1)]
-    server_switch = switches[(int(fat_tree[layers][1].name.split('h')[1])+2)]
+    switch_port_num = {switch : 0 for switch in [f'switch{x}' for x in range(1, num_total_switches + 2)]}
+    adjlist = {}
+    edgelist = set()
 
-    for i in range(1, layers):
-        ranges = divider(len(fat_tree[i]), len(fat_tree[i+1]))
-        ranges.append(len(fat_tree[i])) # check this
-        index = 0
-        layer_min = int(fat_tree[i][0].name.split('h')[1])
-        layer_max = int(fat_tree[i][len(fat_tree[i])-1].name.split('h')[1])
+    #add all the edge switch - client connections
+    client_ranges = divider(num_clients, num_edge_switches)
+    for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
+        for clientnum in range(prev + 1, upper_bound + 1):
+            switch_port_num, adjlist, edgelist = add_edge(f'client{clientnum}', edge_switches[idx],
+                                                switch_port_num, adjlist, edgelist)
+    
+    #add all the tree edges
+    for parent_num in range(1, num_internal_switches + 2):
+        childstart = (parent_num - 1) * fanout + 1 + 1
+        for child_num in range(childstart, childstart + fanout):
+            switch_port_num, adjlist, edgelist = add_edge(f'switch{parent_num}', f'switch{child_num}',
+                                                switch_port_num, adjlist, edgelist)
 
-        for j in range(0, len(fat_tree[i])):
-            if j < ranges[index]:
-                net.addLink(switches[int(fat_tree[i][j].name.split('h')[1])], switches[int(fat_tree[i+1][index].name.split('h')[1])])
-            else:
-                index = index + 1
-                net.addLink(switches[int(fat_tree[i][j].name.split('h')[1])], switches[int(fat_tree[i+1][index].name.split('h')[1])])
+    switch_port_num, adjlist, edgelist = add_edge(core_switch, server_switch, switch_port_num, adjlist, edgelist)
+    
+    for server in list_servers:
+        switch_port_num, adjlist, edgelist = add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
 
-    # Add Link to Core Switch
-    for switch in fat_tree[layers]:
-        net.addLink(switch, core_switch)
+    result = {
+        "core_switch" : core_switch,
+        "internal_switches": internal_switches,
+        "edge_switches": edge_switches,
+        "server_switch": server_switch,
+        "list_clients": list_clients,
+        "list_servers": list_servers,
+        "adjlist": adjlist,
+        "edgelist": edgelist
+    }
+    return result
 
-    # Link Core Switch to Server Switch
-    net.addLink(core_switch, server_switch)
-    net.addLink( server_switch, server1 )
-    net.addLink( server_switch, server2 )
-    net.addLink( server_switch, server3 )
-    net.addLink( server_switch, server4 )
-    net.addLink( server_switch, server5 )
-    net.addLink( server_switch, server6 )
-
-def mesh(net, topo):
+def mesh(topo):
     num_switches = topo['details']['switches']
-    num_client_switches = topo['details']['switches']
+    num_client_switches = topo['details']['client-switches']
     num_clients = topo['details']['clients']
-    assert(num_client_switches < num_clients)
+    assert(num_client_switches < num_switches)
+
     # Initialize all the clients and switches first
-    list_clients = [net.addHost(f'client{x}') for x in range(1, num_clients + 1)]
-    list_switches = [net.addSwitch(f'switch{x}') for x in range(1, num_switches + 1)]
+    list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
+    list_switches = [f'switch{x}' for x in range(1, num_switches)]
+    list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
+    list_edges = []
+
+    core_switch = list_switches[-1]
+    server_switch = f'switch{num_client_switches + 1}'
+
+    switch_ports = {switch : 0 for switch in list_switches}
+    switch_ports[server_switch] = 0
 
     # Distribute all the clients equally among client_switches "leaf switches"
     clients_per_switch = num_clients // num_client_switches
     remaining_clients = num_clients % num_client_switches
     num_clients_for_each_switch = [clients_per_switch+1 if x < remaining_clients else clients_per_switch for x in range(num_client_switches)]
+    
     client_index = 0
     for switch_index, x in enumerate(num_clients_for_each_switch):
         for i in range(x):
-            net.addLink(list_clients[client_index], list_switches[switch_index])
+            switch = list_switches[switch_index]
+            client = list_clients[client_index]
+            switch_ports[switch] += 1
+            list_edges.add((switch, client, switch_ports[switch], 0))
             client_index += 1
-
-    # Connect the core switch (defined as the switch with the largest number) to the server_switch
-    core_switch = list_switches[-1]
-    server_switch = net.addSwitch(f'switch{num_switches + 1}')
-    net.addLink(core_switch, server_switch)
 
     # pairwise connect all the switches
     for a in list_switches:
         for b in list_switches:
             if a != b:
-                net.addLink(a, b)
-    # add the servers to the server switch
-    for ip in range(1, NUM_SERVERS + 1):
-        server = net.addHost(f'server{ip}', ip=f'10.0.1.{100 + ip}')
-        net.addLink(server_switch, server)
+                switch_ports[a] += 1
+                switch_ports[b] += 1
+                list_edges.append((a, b, switch_ports[a], switch_ports[b]))
+
+    # Connect the core switch (defined as the switch with the largest number) to the server_switch
+    switch_ports[core_switch] += 1
+    switch_ports[server_switch] += 1
+    list_edges.append((core_switch, server_switch, switch_ports[core_switch], switch_ports[server_switch]))
     
+    # add the servers to the server switch
+    for server in list_servers:
+        switch_ports[server_switch] += 1
+        list_edges.append((server_switch, server, switch_ports[server_switch], 0))
+    
+    leaf_switches = list_switches[:num_client_switches]
+    internal_switches = list_switches[num_client_switches:num_switches-1]
 
-
-def twoway_linear(net, topo):
-    left_host = net.addHost('LeftHost')
-    right_host = net.addHost('RightHost')
-
-    left_switch = net.addSwitch('src1')
-    right_switch = net.addSwitch('dst2')
-
-    core_switch = net.addSwitch('cs3')
-
-    print (f"\n\nLeft Switch: {int(left_switch.dpid)}\nRight Switch: {int(right_switch.dpid)}\nCore Switch: {int(core_switch.dpid)}\n\n")
-
-    net.addLink(left_host, left_switch)
-    net.addLink(right_host, right_switch)
-    net.addLink(left_switch, right_switch)
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
+    with open(TOPOYML, 'rb') as yml_file:
+        topo = yaml.load(yml_file, Loader=yaml.FullLoader)
+    [[topo_name, details]] = topo['topology'].items()
+    topo_func = globals()[topo_name]
+    result = topo_func(details)
+    with open(f'{BASEDIR}/config/custom/topology_information.yml', 'w') as file:
+        yaml.dump(result, file)
