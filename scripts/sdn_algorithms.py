@@ -47,7 +47,7 @@ def basic_cbq_leaves(event, switch, nodes_config, src_eth, dest_eth, dest_port):
             if details['nwproto'] == 6:
                 match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
                                         eth_src=src_eth, eth_dst=dest_eth,
-                                        ip_proto=6, tcp_dst=details['tpdst'])
+                                        ip_proto=6)
             elif details['nwproto'] == 17:
                 match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
                                         eth_src=src_eth, eth_dst=dest_eth,
@@ -91,7 +91,7 @@ def basic_cbq_core(event, switch, nodes_config, src_eth, dest_eth, dest_port):
             if details['nwproto'] == 6:
                 match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
                                             eth_src=src_eth, eth_dst=dest_eth,
-                                            ip_proto=6, tcp_dst=details['tpdst'])
+                                            ip_proto=6)
             elif details['nwproto'] == 17:
                 match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP,
                                             eth_src=src_eth, eth_dst=dest_eth,

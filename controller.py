@@ -128,17 +128,17 @@ class SimpleSwitch13(app_manager.RyuApp):
         src = eth_pkt.src
 
         # For debugging
-        ip_pkt = pkt.get_protocol(ipv4.ipv4)
-        icmp_pkt = pkt.get_protocol(icmp.icmp)
-        ipdst = 0
-        ipsrc = 0
-        if ip_pkt:
-            ipdst = ip_pkt.dst
-            ipsrc = ip_pkt.src
-        elif icmp_pkt:
-            ipdst = ip_pkt.dst
-            ipsrc = ip_pkt.src
-        print(f"packet in event from {dpid} for packet IP: {ipsrc} -> {ipdst}")
+        # ip_pkt = pkt.get_protocol(ipv4.ipv4)
+        # icmp_pkt = pkt.get_protocol(icmp.icmp)
+        # ipdst = 0
+        # ipsrc = 0
+        # if ip_pkt:
+        #     ipdst = ip_pkt.dst
+        #     ipsrc = ip_pkt.src
+        # elif icmp_pkt:
+        #     ipdst = ip_pkt.dst
+        #     ipsrc = ip_pkt.src
+        # print(f"packet in event from {dpid} for packet IP: {ipsrc} -> {ipdst}")
         # End of Debug code
 
         in_port = msg.match['in_port']
