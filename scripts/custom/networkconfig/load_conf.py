@@ -19,7 +19,7 @@ VLC_SERVERS = 2
 
 def save_to_conf(basedir):
 	config_file = open(f"{basedir}/load.conf.l3.tab", "w")
-	types = ['low', 'high']
+	types = ['medium', 'high']
 	yml = f"{basedir}/topology_information.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)

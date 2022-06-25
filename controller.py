@@ -146,7 +146,6 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         if dst in self.mac_to_port[dpid]:
             dest_port = self.mac_to_port[dpid][dst]
-            print(f"need to send packet for {ipdst} to {dest_port}")
         else:
             dest_port = ofproto.OFPP_FLOOD
 
