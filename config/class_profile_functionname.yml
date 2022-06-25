@@ -1,9 +1,13 @@
 class_profiles :
   1.a : 
-    description: Test Algorithm
+    description: Basic cbq at the leaves
     func_name : basic_cbq_leaves
     qos_type : basic
     test_case: leaves
-
+  1.b : 
+      description: Basic cbq at the core
+      func_name : basic_cbq_core
+      qos_type : basic
+      test_case: leaves
 
 

@@ -26,16 +26,11 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 # Using the test framework
 Remember to change the directories for `measure/run-ipstat.sh`.
 
-First, generate the necessary pickle files and configuration files using `pkl_generator.sh`
+First, generate the necessary pickle files and configuration files using `runscripts.sh`
 <!--Then, run the pcap/oneway_preprocess.py to generate the correct vhost_mapping-->
 
 Then, run `run_mininet.py` to start the Mininet topology.
-Then, run the following commands to destroy the OVS-vSwitch Queues and QoS configs.
-```
-sudo ovs-vsctl --all destroy qos
-sudo ovs-vsctl --all destroy queue
-```
-Then run the generated `scripts/custom/run.ovs-vsctl.case.{profile}.sh` to configure the QoSsettings on the OpenFlow OVS switches.
+Then, run `reset_qos.sh at_leaf` to reset the OVS Switch QoS settings.
 Then start the Ryu controller using `Controller.sh`.
 
 # Replicating previous research with apachebenchmark and VLC
@@ -43,8 +38,8 @@ Then start the Ryu controller using `Controller.sh`.
 - Start the VLC VOD servers by running appropriate bash commands
 - Start the ifstat command with `measure/run-ipstat.sh
 - Make the requests. For each client, make 1 HTTP request and 1 VLC request.
-    - run the ab_tests within mininet
-    - 
+    - run the ab_tests
+    - and the 
 - Run the tests for 5 minutes.
 - Stop the HTTP clients.
 - Stop the VLC clients.
@@ -56,7 +51,4 @@ Then start the Ryu controller using `Controller.sh`.
 - Destroy the Queue and QoS configs.
 
 # TO DO List:
-scripts/custom/switch_configs.py: 
-- Don't simply assume that the "leaf switches" are the ones with higher switch dpid. Instead, use some bfs/prims to find the spanning tree and then use that tree instead for the leaf switches.
-- the whole script works if we assume that each edge switch is connected to all the clients and one other switch. Otherwise, it works, but it might not choose the optimal switch based on STP.
-- remember to change `config/custom/gen_config.yml`
+- Need to optimize the number of flows installed: currently, we have a flow installed for each source-destination pair, but we want it so that only the destination matters. Let the number of clients = C and Let the number of servers = S. Currently, we have O(C * S) flows, but we want O(C + S) flows. O(C * S) is viable for probably up to 5000 Clients and 5000 servers only.

@@ -184,7 +184,7 @@ if __name__ == '__main__':
     TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
     with open(TOPOYML, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-    [[topo_name, details]] = topo['topology'].items()
+    topo_name, details = list(topo['topology'].items())[0]
     topo_func = globals()[topo_name]
     result = topo_func(details)
     with open(f'{BASEDIR}/config/custom/topology_information.yml', 'w') as file:

@@ -19,7 +19,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
+from ryu.lib.packet import ethernet, ipv4, icmp
 from ryu.lib.packet import ether_types
 from ryu import cfg
 
@@ -127,15 +127,29 @@ class SimpleSwitch13(app_manager.RyuApp):
         dst = eth_pkt.dst
         src = eth_pkt.src
 
+        # For debugging
+        ip_pkt = pkt.get_protocol(ipv4.ipv4)
+        icmp_pkt = pkt.get_protocol(icmp.icmp)
+        ipdst = 0
+        ipsrc = 0
+        if ip_pkt:
+            ipdst = ip_pkt.dst
+            ipsrc = ip_pkt.src
+        elif icmp_pkt:
+            ipdst = ip_pkt.dst
+            ipsrc = ip_pkt.src
+        print(f"packet in event from {dpid} for packet IP: {ipsrc} -> {ipdst}")
+        # End of Debug code
+
         in_port = msg.match['in_port']
         self.mac_to_port[dpid][src] = in_port
 
         if dst in self.mac_to_port[dpid]:
             dest_port = self.mac_to_port[dpid][dst]
+            print(f"need to send packet for {ipdst} to {dest_port}")
         else:
             dest_port = ofproto.OFPP_FLOOD
 
-        #print(dpid, src, dst, dest_port)
 
         # If it's an ARP or a LLDP packet then just flood everywhere
         match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)
@@ -155,7 +169,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         #If it's an IP packet, install flows if we know the port
     
         messaging_switch = self.switches_list[str(datapath.id)]
-        self.algo(ev, messaging_switch, self.nodes_configuration, dst, dest_port)
+        self.algo(ev, messaging_switch, self.nodes_configuration, src, dst, dest_port)
 
 
 
