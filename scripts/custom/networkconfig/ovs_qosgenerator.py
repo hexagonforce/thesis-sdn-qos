@@ -42,6 +42,8 @@ def save_to_conf(basedir, execdir):
             for switch in topo['edge_switches'] + topo['internal_switches']:
                 for node, port in topo['adjlist'][switch].items():
                     config_file.write(generate_script(f"{switch}-eth{port}"))
+        os.system(f"chmod a+x {execdir}/run.ovs-vsctl.case.{case}.sh")
+        
 
 
 

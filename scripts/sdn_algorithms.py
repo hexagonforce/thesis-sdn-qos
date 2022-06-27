@@ -32,13 +32,13 @@ def basic_cbq_leaves(event, switch, nodes_config, src_eth, dest_eth, dest_port):
     # If it's not the leaf we don't apply any QoS flows
     if not 'client-leaf' in switch['type']:
         test_algo(event)
-
-    elif out_port == ofp.OFPP_FLOOD:
-        out = ofp_parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER,
-                                      in_port=in_port, actions=[ofp_parser.OFPActionOutput(dest_port)],
-                                      data=msg.data)
-        dp.send_msg(out)
-    else:
+    elif out_port != ofp.OFPP_FLOOD:
+    #     out = ofp_parser.OFPPacketOut(datapath=dp, buffer_id=ofp.OFP_NO_BUFFER,
+    #                                   in_port=in_port, actions=[ofp_parser.OFPActionOutput(dest_port)],
+    #                                   data=msg.data)
+    #     dp.send_msg(out)
+    # else:
+        print("We are installing flows!")
         for trcls, details in nodes_config['traffic'].items():
             actions = [ofp_parser.OFPActionSetQueue(queue_id=nodes_config['traffic'][trcls]['proto_queue_id']),
                         ofp_parser.OFPActionOutput(out_port)]
