@@ -8,6 +8,4 @@ class_profiles :
       description: Basic cbq at the core
       func_name : basic_cbq_core
       qos_type : basic
-      test_case: leaves
-
-
+      test_case: core
