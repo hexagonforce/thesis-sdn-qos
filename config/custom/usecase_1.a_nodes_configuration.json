@@ -8,12 +8,6 @@
             "proto_priority": 100,
             "proto_queue_id": 0
         },
-        "vlc": {
-            "nwproto": 6,
-            "tpdst": 5004,
-            "proto_priority": 1000,
-            "proto_queue_id": 1
-        },
         "vlc-video": {
             "nwproto": 17,
             "tpdst": 49520,

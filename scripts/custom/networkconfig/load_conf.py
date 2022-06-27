@@ -8,71 +8,35 @@
 # 
 
 import csv
-import yaml
+import yaml, os
 
 
-def generate_conf(client, http, vlc, val):
-	return f"{client}\thttp-{http}-{val}\tvod-{vlc}-{val}\n"
+def generate_conf(client, http, vlc, val, val2):
+	return f"{client}\thttp-{http}-{val}\tvod-{vlc}-{val2}\n"
+
+HTTP_SERVERS = 2
+VLC_SERVERS = 2
 
 def save_to_conf(basedir):
-
 	config_file = open(f"{basedir}/load.conf.l3.tab", "w")
-	types = ['low', 'high']
-	val = 1
-	http = 0
-	vlc = 0
-	h_counter = 0
-	v_counter = 0
+	types = ['medium', 'high']
 	yml = f"{basedir}/topology_information.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-	for client in topo['list_clients']: # this is so badly written that I'm not bothering to fix this
-		h_counter = h_counter + 1
-		v_counter = v_counter + 1
-		if val > 3:
-			val = 1
-		config_file.write(generate_conf(client, types[http], types[vlc], val))
-		val = val + 1
-
-		if h_counter == 6:
-			h_counter = 0
-			if http == 0:
-				http = 1
-			else:
-				http = 0
-
-		if v_counter == 6:
-			v_counter = 0
-			if vlc == 0:
-				vlc = 1
-			else:
-				vlc = 0
+	def nth_odd(n): # 0th odd number is 1
+		return 2 * n + 1
+	def nth_even(n): # 0th even number is 2
+		return 2 * n + 2
+	
+	for idx, client in enumerate(topo['list_clients']):
+		typeidx = idx // (HTTP_SERVERS + VLC_SERVERS) % len(types)
+		httpservernum = nth_odd(idx % HTTP_SERVERS)
+		vlcservernum = nth_even(idx % VLC_SERVERS)
+		config_file.write(generate_conf(client, types[typeidx], types[typeidx], httpservernum, vlcservernum))
 
 def main():
-	save_to_conf()
+	save_to_conf(f'{os.getcwd()}/config/custom')
 
 if __name__ == '__main__':
 	main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
