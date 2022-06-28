@@ -1,14 +1,14 @@
 topology :
+  mesh:
+    details:
+      switches: 5
+      client-switches: 2
+      clients: 9
   fat_tree:
     details:
       clients : 9
       leaf_switch_layers : 2
       fanout: 3
-  mesh:
-    details:
-      switches: 5
-      client-switches: 2
-      clients: 6
 
 
 

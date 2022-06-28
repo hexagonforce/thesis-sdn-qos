@@ -55,7 +55,7 @@ config_path = {
 	'hostsfile' : "{}/{}".format(PARDIR, yml_data['nodes_config']['hostsfile']),
 	'switchesfile' : "{}/{}{}.conf".format(PARDIR, yml_data['nodes_config']['switchesfile'], yml_data['case']),
 	'sourcequeuemapfile' : "{}/{}".format(PARDIR, yml_data['nodes_config']['sourcequeuemapfile']),
-	'traffic_class' : "{}/{}".format(PARDIR, yml_data['nodes_config']['traffic_class']),
+	'traffic_class' : f"{BASEDIR}/config/traffic_class.yml",
 	'clientconfig_file' : "{}/{}".format(PARDIR, yml_data['exec_config']['clientconfig']),
 	'clientswitch_file' : "{}/{}".format(PARDIR, yml_data['exec_config']['clientswitch'])
 }
@@ -75,18 +75,21 @@ with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
 print ("\n\n\nsourceQueueMapDict: {}\n\n\n".format(config_data['sourceQueueMapDict']))
 
 # Get traffic class
-with open(config_path['traffic_class'], 'rt') as csv_file:
-	for row in csv.reader(csv_file, delimiter='\t'):
-		protocol = row[0].split('=')[1]
-		config_data['traffic'][protocol] = {}
-		for item in row[1:]:
-			item = item.split('=')
-			values = item[1].split(',')
-			if len(values) > 1:
-				values = [int(v) for v in values]
-				config_data['traffic'][protocol][item[0]] = values
-			else:
-				config_data['traffic'][protocol][item[0]] = int(item[1])
+with open(config_path['traffic_class'], 'rt') as traffic_yml:
+	traffic = yaml.load(traffic_yml)
+	for protocol, details in traffic.items():
+		config_data['traffic'][protocol] = details
+	# for row in csv.reader(csv_file, delimiter='\t'):
+	# 	protocol = row[0].split('=')[1]
+	# 	config_data['traffic'][protocol] = {}
+	# 	for item in row[1:]:
+	# 		item = item.split('=')
+	# 		values = item[1].split(',')
+	# 		if len(values) > 1:
+	# 			values = [int(v) for v in values]
+	# 			config_data['traffic'][protocol][item[0]] = values
+	# 		else:
+	# 			config_data['traffic'][protocol][item[0]] = int(item[1])
 
 # Get Hosts File
 with open(config_path['hostsfile'], 'rt') as csv_file:

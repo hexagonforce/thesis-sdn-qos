@@ -147,23 +147,23 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         # Installing the flow
     
         # If it's an ARP or a LLDP packet then just flood everywhere
-        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)
-        actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
+        messaging_switch = self.switches_list[str(datapath.id)]
+
+        last_queue_of_switch = messaging_switch['queue_count']
+        if last_queue_of_switch > 0:
+            last_queue_of_switch -= 1
+
+        match_arp = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP)
+        match_lldp = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_LLDP)
+        actions = [parser.OFPActionSetQueue(queue_id=last_queue_of_switch), parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match, instructions=inst)
-
+        mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match_arp, instructions=inst)
+        mod2 = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match_lldp, instructions=inst)
         datapath.send_msg(mod)
-
-        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_LLDP)
-        actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        mod = parser.OFPFlowMod(datapath=datapath, buffer_id=msg.buffer_id, priority=10, match=match, instructions=inst)
-
-        datapath.send_msg(mod)
+        datapath.send_msg(mod2)
 
         #If it's an IP packet, install flows if we know the port
     
-        messaging_switch = self.switches_list[str(datapath.id)]
         self.algo(ev, messaging_switch, self.nodes_configuration, src, dst, dest_port)
 
         data = None
