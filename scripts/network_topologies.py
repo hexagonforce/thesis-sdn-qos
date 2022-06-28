@@ -49,6 +49,9 @@ def divider(clients, leaves):
     return last_client_number_list
 
 def add_edge(node1, node2, switch_port_num, adjlist, edgelist):
+    '''
+    adds an edge to the adjacency list and edgelist, and updates the switch port numbers accordingly.
+    '''
     port1 = 0
     port2 = 0
     if (node1 in switch_port_num):
@@ -132,7 +135,7 @@ def fat_tree(topo):
 
 def mesh(topo):
     num_switches = topo['details']['switches']
-    num_client_switches = topo['details']['client-switches']
+    num_client_switches = topo['details']['client_switches']
     num_clients = topo['details']['clients']
     assert(num_client_switches < num_switches)
 
@@ -168,6 +171,72 @@ def mesh(topo):
     # add the servers to the server switch
     for server in list_servers:
         add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
+    result = {
+        "core_switch" : core_switch,
+        "internal_switches": internal_switches,
+        "edge_switches": edge_switches,
+        "server_switch": server_switch,
+        "list_clients": list_clients,
+        "list_servers": list_servers,
+        "adjlist": adjlist,
+        "edgelist": edgelist
+    }
+    return result
+
+def zoo_data(topo):
+    import networkx as nx
+
+    filename = topo['details']['filename']
+    filepath = f'{BASEDIR}/zoo_data/{filename}'
+    G = nx.read_graphml(filepath)
+
+    core_switch_num = int(topo['details']['core_switch_num'])
+    num_switches = nx.number_of_nodes(G)
+    num_client_switches = topo['details']['client_switches']
+    num_clients = topo['details']['clients']
+
+    list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
+    list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
+
+    core_switch = f'switch{core_switch_num}'
+    edge_switches = []
+    internal_switches = []
+    server_switch = f'switch{num_switches + 1}'
+
+    for node in nx.nodes(G):
+        nodenum = int(node) + 1
+        if nodenum == core_switch_num:
+            continue
+        if nodenum > num_switches - num_client_switches and nodenum <= num_switches:
+            edge_switches.append(f'switch{nodenum}')
+        else:
+            internal_switches.append(f'switch{nodenum}')
+
+    all_switches = edge_switches + internal_switches + [core_switch] + [server_switch]
+
+    switch_port_num = {switch : 0 for switch in all_switches}
+    adjlist = {}
+    edgelist = set()
+    
+    client_ranges = divider(num_clients, num_client_switches)
+    for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
+        for clientnum in range(prev + 1, upper_bound + 1):
+            switch_port_num, adjlist, edgelist = add_edge(f'client{clientnum}', edge_switches[idx],
+                                                switch_port_num, adjlist, edgelist)
+
+    for u, v in nx.edges(G):
+
+        switchu = f'switch{int(u)+1}'
+        switchv = f'switch{int(v)+1}'
+        add_edge(switchu, switchv, switch_port_num, adjlist, edgelist)
+
+    # Connect the core switch (defined as the switch with the largest number) to the server_switch
+    add_edge(core_switch, server_switch, switch_port_num, adjlist, edgelist)
+    
+    # add the servers to the server switch
+    for server in list_servers:
+        add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
+
     result = {
         "core_switch" : core_switch,
         "internal_switches": internal_switches,
