@@ -1,9 +1,8 @@
 ###
-# This module takes the serialized topology file from pkl/topo/topo_{name}.pkl
-# loads the topology-generating function and executes the function all in Mininet.
+# This module takes the config/custom/topology_information.yml file and 
+# adds all the nodes, hosts and links accordingly.
 ###
 
-from curses.ascii import isdigit
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI

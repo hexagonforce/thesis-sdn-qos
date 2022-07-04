@@ -49,7 +49,7 @@ class DataEncoder(JSONEncoder):
             return o.__dict__
 
 with open(yml,'rb') as yml_file:
-	yml_data = yaml.load(yml_file) # , Loader=yaml.FullLoader
+	yml_data = yaml.load(yml_file, Loader=yaml.FullLoader) # 
 
 config_path = {
 	'hostsfile' : "{}/{}".format(PARDIR, yml_data['nodes_config']['hostsfile']),
@@ -72,11 +72,11 @@ with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
 	for row in csv.reader(csv_file, delimiter='\t'):
 		config_data['sourceQueueMapDict'][row[0]] = row[1:]
 
-print ("\n\n\nsourceQueueMapDict: {}\n\n\n".format(config_data['sourceQueueMapDict']))
+# print ("\n\n\nsourceQueueMapDict: {}\n\n\n".format(config_data['sourceQueueMapDict']))
 
 # Get traffic class
 with open(config_path['traffic_class'], 'rt') as traffic_yml:
-	traffic = yaml.load(traffic_yml)
+	traffic = yaml.load(traffic_yml, Loader=yaml.FullLoader)
 	for protocol, details in traffic.items():
 		config_data['traffic'][protocol] = details
 	# for row in csv.reader(csv_file, delimiter='\t'):
@@ -122,23 +122,23 @@ with open(config_path['clientswitch_file'], 'rt') as csv_file:
 if os.path.exists(js):
 	os.remove(js)
 
-print (f"config: {config_data.keys()}\n\n")
+# print (f"config: {config_data.keys()}\n\n")
 # print (f'exec: {exec_data}\n\n')
 
-for host in config_data['servers_list']:
-	print (f"{type(host)}\t\t{host}")
+# for host in config_data['servers_list']:
+	# print (f"{type(host)}\t\t{host}")
 
 # config_json = json.dumps(config_data, indent=4, cls=DataEncoder)
 # exec_json = json.dumps(exec_data, indent=4)
 
 # print (config_json)
 
-print ('\n\n')
+# print ('\n\n')
 
 # print (exec_json)
 
 with open(js, 'w') as json_file:
-	print (f"\n\nJSON File: {json_file}\n\n")
+	# print (f"\n\nJSON File: {json_file}\n\n")
 	config_json = json.dumps(config_data, indent=4, cls=DataEncoder)
 	json_file.write(config_json)
 	# json.dump(config_data, json_file)

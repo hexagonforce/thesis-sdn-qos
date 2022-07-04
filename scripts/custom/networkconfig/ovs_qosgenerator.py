@@ -9,7 +9,7 @@ def generate_script(interface):
     return f"sudo ovs-vsctl -- set Port {interface} qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=1000000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=0 -- --id=@q1 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=1 -- --id=@q2 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=2\n"
 
 def save_to_conf(basedir, execdir):
-    print (f"BASEDIR: {basedir}")
+    # print (f"BASEDIR: {basedir}")
     yml = f"{basedir}/topology_information.yml"
     usecase_yml = f"{basedir.split('custom')[0]}/classprofile_functionname.yml"
     cases = ["at_core", "at_leaf"]

@@ -14,7 +14,7 @@ filein = open(ifstat, 'rt')
 cmd = filein.read()
 
 with open(TOPO_INFO, 'r') as yml_data:
-    topo_data = yaml.load(yml_data)
+    topo_data = yaml.load(yml_data, Loader=yaml.FullLoader)
 
 core_switch = topo_data['core_switch']
 server_switch = topo_data['server_switch']

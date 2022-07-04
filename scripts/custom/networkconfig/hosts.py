@@ -25,7 +25,7 @@ def generate_server(i, switch, port, protocol, tpdst, priority, proto_queue_id, 
 def save_to_conf(basedir):
 
 	config_file = open(f"{basedir}/hosts.conf", "w")
-	print (f'config file: {config_file}')
+	# print (f'config file: {config_file}')
 	yml = f"{basedir}/topology_information.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)

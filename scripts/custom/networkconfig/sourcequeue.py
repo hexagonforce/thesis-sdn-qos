@@ -45,9 +45,9 @@ def save_to_conf(basedir):
 	l1_switch = 1
 	queue = 0
 
-	print (f"Fat Tree: {fat_tree}")
-	print (f"\nDivider: {divider}")
-	print (f"Core Switch: {core_switch}\n\n")
+	# print (f"Fat Tree: {fat_tree}")
+	# print (f"\nDivider: {divider}")
+	# print (f"Core Switch: {core_switch}\n\n")
 
 	for ip in  range (1, ceil+1):
 		if queue > 2:

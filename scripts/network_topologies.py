@@ -30,6 +30,7 @@ import os
 
 BASEDIR = os.getcwd()
 NUM_SERVERS = 4
+INFTY = 10000000000000
 
 def divider(clients, leaves):
     """
@@ -186,11 +187,50 @@ def mesh(topo):
 def zoo_data(topo):
     import networkx as nx
 
+    def farthest_from_centroid(G):
+        '''
+            This function takes a networkx graph and looks at all the
+            nodes with Latitudes and Longitudes and determines the farthest
+            node from all the other nodes
+        '''
+        def sqdist(lat, lon, avelat, avelon):
+            return (lat - avelat) * (lat - avelat) + (lon - avelon) * (lon - avelon)
+
+        avelat = sum((float(data['Latitude']) for node, data in G.nodes(data=True) if 'Latitude' in data )) / nx.number_of_nodes(G)
+        avelon = sum((float(data['Longitude']) for node, data in G.nodes(data=True) if 'Longitude' in data)) / nx.number_of_nodes(G)
+
+        mindist = INFTY
+        min_node = ''
+        for node, data in G.nodes(data=True):
+            if 'Latitude' in data and 'Longitude' in data:
+                lat = float(data['Latitude'])
+                lon = float(data['Longitude'])
+                if sqdist(lat, lon, avelat, avelon) < mindist:
+                    min_node = node
+                    mindist = sqdist(lat, lon, avelat, avelon)
+
+        return int(min_node)
+
+    def farthest_by_hops(G):
+        dist_table = nx.floyd_warshall(G)
+        res = 0
+        maxdist = -INFTY
+        for id, row in dist_table.items():
+            sumdist = sum(list(row.values()))
+            if sumdist > maxdist:
+                res = id
+                maxdist = sumdist
+        return res
+
     filename = topo['details']['filename']
     filepath = f'{BASEDIR}/zoo_data/{filename}'
     G = nx.read_graphml(filepath)
 
-    core_switch_num = int(topo['details']['core_switch_num'])
+    if 'core_switch_num' in topo['details']:
+        core_switch_num = int(topo['details']['core_switch_num'])
+    else:
+        core_switch_num = int(farthest_by_hops(G)) + 1
+
     num_switches = nx.number_of_nodes(G)
     num_client_switches = topo['details']['client_switches']
     num_clients = topo['details']['clients']
@@ -206,8 +246,9 @@ def zoo_data(topo):
     for node in nx.nodes(G):
         nodenum = int(node) + 1
         if nodenum == core_switch_num:
-            continue
-        if nodenum > num_switches - num_client_switches and nodenum <= num_switches:
+            pass
+        elif len(edge_switches) < num_client_switches:
+            # by default, the nodes that will be connected to the clients are the nodes with the lowest id
             edge_switches.append(f'switch{nodenum}')
         else:
             internal_switches.append(f'switch{nodenum}')
@@ -225,7 +266,6 @@ def zoo_data(topo):
                                                 switch_port_num, adjlist, edgelist)
 
     for u, v in nx.edges(G):
-
         switchu = f'switch{int(u)+1}'
         switchv = f'switch{int(v)+1}'
         add_edge(switchu, switchv, switch_port_num, adjlist, edgelist)

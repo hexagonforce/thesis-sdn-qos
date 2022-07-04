@@ -30,7 +30,7 @@ def save_to_conf(basedir):
 		return 2 * n + 2
 	
 	for idx, client in enumerate(topo['list_clients']):
-		typeidx = idx // (HTTP_SERVERS + VLC_SERVERS) % len(types)
+		typeidx = idx % (HTTP_SERVERS + VLC_SERVERS) // len(types)
 		httpservernum = nth_odd(idx % HTTP_SERVERS)
 		vlcservernum = nth_even(idx % VLC_SERVERS)
 		config_file.write(generate_conf(client, types[typeidx], types[typeidx], httpservernum, vlcservernum))
