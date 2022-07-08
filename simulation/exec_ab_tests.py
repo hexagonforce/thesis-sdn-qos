@@ -24,6 +24,6 @@ def run(net, serverdata, loadconfig):
         cmd = (
             'sudo -u mininet ab -l -r -n 50000 -c 10 -k -t 240 -s 240 '
             f'-q -H "Accept-Encoding: gzip, deflate" http://{server.IP()}/{file} > '
-            f'{BASEDIR}/simulation/test.results/ab-tests/{servername}-{host.IP()}-{loadtype} &'
+            f'{BASEDIR}/simulation/test.results/ab-tests/{clientname}-{servername}-{loadtype} &'
         )
         host.cmd(cmd)

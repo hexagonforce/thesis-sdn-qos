@@ -5,7 +5,7 @@ class_profiles :
     qos_type : basic
     test_case: leaves
   1.b : 
-      description: Basic cbq at the core
-      func_name : basic_cbq_core
-      qos_type : basic
-      test_case: core
+    description: Basic cbq at the core
+    func_name : basic_cbq_core
+    qos_type : basic
+    test_case: core

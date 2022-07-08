@@ -162,3 +162,7 @@ cython_debug/
 pkl/*
 config/custom/*
 zoo_data/*
+simulation/server*
+test.results
+
+*.out

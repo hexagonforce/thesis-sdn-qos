@@ -212,6 +212,10 @@ def zoo_data(topo):
         return int(min_node)
 
     def farthest_by_hops(G):
+        '''
+        This function gives the id of the node of a GraphML graph
+        that has the highest sum of its distances to all other nodes
+        '''
         dist_table = nx.floyd_warshall(G)
         res = 0
         maxdist = -INFTY

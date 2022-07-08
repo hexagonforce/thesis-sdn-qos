@@ -12,7 +12,7 @@ LOADCONF = f'{BASEDIR}/config/custom/load.conf.l3.tab'
 CONTROLLERCONF = f'{BASEDIR}/controller.conf'
 CLASS_PROFILE_FILE = f'{BASEDIR}/config/class_profile_functionname.yml'
 TOPO_FILE = f'{BASEDIR}/config/custom/topology_information.yml'
-METADATA = f'{BASEDIR}/simulation/metadata.yml'
+METADATA = f'{BASEDIR}/simulation/test.results/metadata.yml'
 
 # Utility functions
 def get_qos_type():
@@ -38,12 +38,11 @@ def writemetadata():
     This functions writes the Class Profile and the Topology used for the simulation run.
     '''
     metadata = {
-        'func_name': get_class_profile,
+        'func_name': get_class_profile(),
         'topology': get_yml_data(TOPO_FILE),
     }
-
-    with open(METADATA, 'w') as metadatafile:
-        yaml.dump_all(metadatafile, metadata)
+    with open(METADATA, 'w') as file:
+        yaml.dump(metadata, file)
 
 def setup(serverdata):
     '''
@@ -52,20 +51,20 @@ def setup(serverdata):
     qostype = get_qos_type()
     subprocess.run(['bash', './runscripts.sh'])
     net = create_network()
-    subprocess.run(['sh', '-c', './resetqos.sh 2> /dev/null'])
-    subprocess.Popen(['nohup', 'ryu-manager', 'controller.py', '--config-file', 'controller.conf'])
-    subprocess.run(['sh', './setqos.sh', qostype])
+    subprocess.run(['sh', '-c', './resetqos.sh'])
+    controller = subprocess.run(['sh', '-c', 'ryu-manager controller.py --config-file controller.conf > /dev/null 2> /dev/null &'])
+    subprocess.run(['sh', '-c', f'./setqos.sh > /dev/null {qostype}', ])
     setup_servers.setup_servers(net, serverdata)
-    return net 
+    return net, controller
 
-def runtests(net, serverdata, loadconfigig):
+def runtests(net, serverdata, loadconfig):
     '''
     This function runs all the tests of the research
     '''
     exec_pings.run(net)
     subprocess.run(['sh', '-c', 'simulation/run-ipstat.sh &'])
-    exec_ab_tests.run(net, serverdata, loadconfigig)
-    # exec_vlc_clients.run(net, serverdata, loadconfigig)
+    exec_ab_tests.run(net, serverdata, loadconfig)
+    # exec_vlc_clients.run(net, serverdata, loadconfig)
     # exec_vlc_client_probing.run(net, serverdata, loadconfig)
 
 # Entry point
@@ -78,12 +77,15 @@ if __name__ == '__main__':
             loadconfdata.append(line)
 
     serverdata = get_yml_data(SERVERCONF)
-    
+    print("Started Simulation. Setting up the server...")
     writemetadata()
-    net = setup(serverdata)
+    net, controller = setup(serverdata)
+    print("Setup Complete. Waiting for STP to converge...")
     sleep(30)
+    print("Running tests. This may take a while...")
     runtests(net, serverdata, loadconfdata)
     CLI(net)
     net.stop()
+    os.system("sudo pkill ryu-manager")
 
 

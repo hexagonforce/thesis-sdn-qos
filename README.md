@@ -3,11 +3,12 @@
 This is the documentation for the SDN QoS testing framework written by Josiah Elezar Regencia and William Emmanuel S. Yu.
 
 # Configuration
-Most configuration will be done in `config/class_profile_functionname.yml` and `config/topology_definitions.yml`
+Most configuration will be done in `config/class_profile_functionname.yml` and `config/simulate_topo.yml`
 
 ## Adding custom topology
 First, place in the definition for your network topology in `scripts/network_topologies.py`
-Then, add in the parameters needed for the network topology in `config/topology_definitions.yml`
+Then, add in the parameters needed for the network topology in `config/simulate_topo.yml`
+If you want to use your own GraphML file, the place it in the `zoo_data` directory and 
 
 ## Custom Configuration and Scripts
 The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configuration_ files are generated from the class profile and topology definitions file. More specifically, they are emitted by the calling `scripts/custom/network_configs.py` script.
@@ -21,7 +22,7 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 - `ovs_qosgenerator`
 - `hosts`
 
-`scripts/custom/node_connections.py` and `scripts/custom/nodes_config.py` is supposed to provide information about how the nodes are connected, however, they are not used in Regencia's tests.
+`scripts/custom/node_connections.py` and `scripts/custom/nodes_config.py` is supposed to provide information about how the nodes are connected, however, I have no idea what they do.
 
 # Using the test framework
 Remember to change the directories for `measure/run-ipstat.sh`.
@@ -32,6 +33,8 @@ First, generate the necessary pickle files and configuration files using `runscr
 Then, run `run_mininet.py` to start the Mininet topology.
 Then, run `reset_qos.sh at_leaf` to reset the OVS Switch QoS settings.
 Then start the Ryu controller using `Controller.sh`.
+
+Alternatively, run `simulator.py` to run all the scripts and tests automatically.
 
 # Replicating previous research with apachebenchmark and VLC
 - Start the Python3 http webservers by running appropriate bash commands

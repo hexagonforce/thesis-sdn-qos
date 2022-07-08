@@ -7,7 +7,7 @@ import os
 import yaml
 
 BASEDIR = os.getcwd()
-ifstat = "/home/mininet/thesis-code/simulation/run-ipstat.sh"
+ifstat = f"{BASEDIR}/simulation/run-ipstat.sh"
 TOPO_INFO = f'{BASEDIR}/config/custom/topology_information.yml'
 
 filein = open(ifstat, 'rt')

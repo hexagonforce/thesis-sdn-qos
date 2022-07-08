@@ -21,7 +21,7 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib import dpid as dpid_lib
 from ryu.lib import stplib
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet, ipv4, icmp
+from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu import cfg
 from ryu.app import simple_switch_13
@@ -36,6 +36,8 @@ sys.modules['sdn_algorithms'] = sdn_algorithms
 
 BASEDIR = os.getcwd()
 USECASE_YML = f"{BASEDIR}/config/class_profile_functionname.yml"
+TOPO_YML = f"{BASEDIR}/config/custom/topology_information.yml"
+
 
 class QoSSwitch13(simple_switch_13.SimpleSwitch13):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -61,6 +63,10 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         with open(USECASE_YML, "rb") as yml_file:
             self.usecases = yaml.load(yml_file, Loader=yaml.FullLoader)['class_profiles']
 
+        with open(TOPO_YML, "rb") as yml_file:
+            core_switch = yaml.load(yml_file, Loader=yaml.FullLoader)['core_switch']
+        core_switch_num = ''.join((c for c in core_switch if c.isdigit()))
+    
         if self.case == self.usecases:
             self.logger.info(self.usecases[self.usecase]['description'])
 
@@ -76,10 +82,10 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         with open(nodes_config_filepath, 'r') as nodes_config_file:
             self.nodes_configuration = json.load(nodes_config_file)
             self.switches_list = self.nodes_configuration['switches_list']
-
+        self.nodes_configuration
         self.mac_to_port = {}
         self.stp = kwargs['stplib']
-        config = {dpid_lib.str_to_dpid('0000000000000001'):
+        config = {dpid_lib.str_to_dpid(core_switch_num.zfill(16)):
                     {'bridge': {'priority': 0x8000}},
                     # dpid_lib.str_to_dpid('0000000000000002'):
                     # {'bridge': {'priority': 0xa000}},

@@ -9,10 +9,9 @@ def generate_script(interface):
     return f"sudo ovs-vsctl -- set Port {interface} qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=1000000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=0 -- --id=@q1 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=1 -- --id=@q2 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=2\n"
 
 def save_to_conf(basedir, execdir):
-    # print (f"BASEDIR: {basedir}")
     yml = f"{basedir}/topology_information.yml"
     usecase_yml = f"{basedir.split('custom')[0]}/classprofile_functionname.yml"
-    cases = ["at_core", "at_leaf"]
+    cases = ["core", "leaves"]
     with open (yml, 'rb') as yml_file:
         topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
@@ -22,7 +21,7 @@ def save_to_conf(basedir, execdir):
 
     for case in cases:
         config_file = open(f"{execdir}/run.ovs-vsctl.case.{case}.sh", "w")
-        if case == "at_core":
+        if case == "core":
             to_server_port = ''
             to_core_port = ''
             for node, port in topo['adjlist'][core_switch].items():
@@ -38,10 +37,11 @@ def save_to_conf(basedir, execdir):
             interface2 = f"{server_switch}-eth{to_core_port}"
             config_file.write(generate_script(interface2))
 
-        elif case == "at_leaf":
+        elif case == "leaves":
             for switch in topo['edge_switches'] + topo['internal_switches']:
                 for node, port in topo['adjlist'][switch].items():
                     config_file.write(generate_script(f"{switch}-eth{port}"))
+        config_file.close()
         os.system(f"chmod a+x {execdir}/run.ovs-vsctl.case.{case}.sh")
         
 

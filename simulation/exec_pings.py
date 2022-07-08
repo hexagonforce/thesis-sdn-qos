@@ -9,6 +9,6 @@ def run(net):
     client1 = net.getNodeByName('client1')
     server1 = net.getNodeByName('server1')
     client1.cmd(f'ping -c 50 {server1.IP()} > {BASEDIR}/simulation/test.results/pings/time_to_converge.txt')
-    for server in servers:
+    for server in servers[::2]:
         for client in clients:
             client.cmd(f'ping -c 20 {server.IP()} >> {BASEDIR}/simulation/test.results/pings/{client.name}.txt')

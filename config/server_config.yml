@@ -1,0 +1,20 @@
+# In this file, specify all the necessary files that the simulation
+# needs for the server to be set up properly.
+server1:
+  protocol: http
+  medium: 100KB.jpg
+  high: 10MB.jpg
+server2:
+  protocol: rtsp
+  medium: BigBuckBunnyMedium
+  high: BigBuckBunnyHigh
+  vlm: BBBVLCConfig
+server3:
+  protocol: http
+  medium: 16MB.pdf
+  high: 100MB.pdf
+server4:
+  protocol: rtsp
+  medium: gfriendMedium
+  high: gfriendHigh
+  vlm: GfriendVLCConfig

@@ -9,6 +9,3 @@ do
 		break
 	fi
 done
-
-sudo pkill -f python3
-sudo pkill -f vlc
