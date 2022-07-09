@@ -48,14 +48,14 @@ def setup(serverdata):
     '''
     This function runs the scripts, starts mininet and Ryu, and configures the servers.
     '''
-    qostype = get_qos_type()
-    subprocess.run(['bash', './runscripts.sh'])
+    subprocess.run(['sh', '-c', './runscripts.sh'])
     net = create_network()
     subprocess.run(['sh', '-c', './resetqos.sh'])
-    controller = subprocess.run(['sh', '-c', 'ryu-manager controller.py --config-file controller.conf > /dev/null 2> /dev/null &'])
+    subprocess.run(['sh', '-c', 'ryu-manager controller.py --config-file controller.conf > /dev/null 2> /dev/null &'])
+    qostype = get_qos_type()
     subprocess.run(['sh', '-c', f'./setqos.sh > /dev/null {qostype}', ])
     setup_servers.setup_servers(net, serverdata)
-    return net, controller
+    return net
 
 def runtests(net, serverdata, loadconfig):
     '''
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     serverdata = get_yml_data(SERVERCONF)
     print("Started Simulation. Setting up the server...")
     writemetadata()
-    net, controller = setup(serverdata)
+    net = setup(serverdata)
     print("Setup Complete. Waiting for STP to converge...")
     sleep(30)
     print("Running tests. This may take a while...")

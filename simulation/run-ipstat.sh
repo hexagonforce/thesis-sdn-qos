@@ -1,6 +1,6 @@
 sleeptime=330
 
-sudo -u mininet ifstat -i switch1-eth5 -t -n > /home/mininet/thesis-code/simulation/test.results/ifstat-results.csv &
+sudo -u mininet ifstat -i switch10-eth2 -t -n > /home/mininet/thesis-code/simulation/test.results/ifstat-results.csv &
 
 sleep $sleeptime;
 

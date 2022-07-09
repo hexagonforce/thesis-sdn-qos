@@ -1,4 +1,9 @@
 topology: 
+  zoo_data: 
+    details: 
+      filename: UniC.graphml
+      client_switches: 24
+      clients: 24
   mesh: 
     details: 
       switches: 5
@@ -9,8 +14,3 @@ topology:
       clients : 24
       leaf_switch_layers : 2
       fanout: 3
-  zoo_data: 
-    details: 
-      filename: UniC.graphml
-      client_switches: 24
-      clients: 24
