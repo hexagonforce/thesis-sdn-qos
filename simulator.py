@@ -70,16 +70,18 @@ def runtests(net, serverdata, loadconfig):
 # Entry point
 if __name__ == '__main__':
     # Read all the necessary configuration files
+    print("Started Simulation. Setting up the server...")
+    writemetadata()
+    serverdata = get_yml_data(SERVERCONF)
+
+    net = setup(serverdata)
     loadconfdata = []
     with open(LOADCONF, 'r') as file:
         csvFile = csv.reader(file, delimiter='\t')
         for line in csvFile:
             loadconfdata.append(line)
 
-    serverdata = get_yml_data(SERVERCONF)
-    print("Started Simulation. Setting up the server...")
-    writemetadata()
-    net = setup(serverdata)
+
     print("Setup Complete. Waiting for STP to converge...")
     sleep(30)
     print("Running tests. This may take a while...")
