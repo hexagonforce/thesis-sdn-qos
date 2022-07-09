@@ -300,5 +300,7 @@ if __name__ == '__main__':
     topo_name, details = list(topo['topology'].items())[0]
     topo_func = globals()[topo_name]
     result = topo_func(details)
+    result['topo_name'] = topo_name
+    result['topo_details'] = details
     with open(f'{BASEDIR}/config/custom/topology_information.yml', 'w') as file:
         yaml.dump(result, file)

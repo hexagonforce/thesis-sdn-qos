@@ -1,8 +1,8 @@
 topology: 
   zoo_data: 
     details: 
-      filename: UniC.graphml
-      client_switches: 24
+      filename: Kreonet.graphml
+      client_switches: 12
       clients: 24
   mesh: 
     details: 

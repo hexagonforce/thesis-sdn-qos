@@ -22,7 +22,7 @@ def run(net, serverdata, loadconfig):
         server = net.getNodeByName(servername)
 
         cmd = (
-            'sudo -u mininet ab -l -r -n 50000 -c 10 -k -t 300 -s 240 '
+            'sudo -u mininet ab -l -r -n 50000 -c 10 -k -t 240 -s 240 '
             f'-q -H "Accept-Encoding: gzip, deflate" http://{server.IP()}/{file} > '
             f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype} &'
         )
