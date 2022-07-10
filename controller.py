@@ -73,10 +73,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         self.logger.info(f"Usecases: {self.usecases}")
         self.logger.info(f"Usecase: {self.case}")
 
-        self.usecase_func_pkl = f"{BASEDIR}/pkl/algo/usecase_{self.case}_{self.usecases[self.case]['func_name']}_qosprotocol.pkl"
-
-        with open(self.usecase_func_pkl, 'rb') as func_pkl:
-            self.algo = pickle.load(func_pkl)
+        self.algo = getattr(sdn_algorithms, self.usecases[self.case]['func_name'])
 
         nodes_config_filepath = f"{BASEDIR}/config/custom/usecase_{self.case}_nodes_configuration.json"
         with open(nodes_config_filepath, 'r') as nodes_config_file:

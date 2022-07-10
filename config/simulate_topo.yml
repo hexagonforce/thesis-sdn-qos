@@ -1,8 +1,10 @@
+to_test: fat_tree
+
 topology: 
   zoo_data: 
     details: 
-      filename: Kreonet.graphml
-      client_switches: 12
+      filename: UniC.graphml
+      client_switches: max
       clients: 24
   mesh: 
     details: 

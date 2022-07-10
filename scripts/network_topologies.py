@@ -237,6 +237,8 @@ def zoo_data(topo):
 
     num_switches = nx.number_of_nodes(G)
     num_client_switches = topo['details']['client_switches']
+    if num_client_switches == 'max':
+        num_client_switches = num_switches - 1
     num_clients = topo['details']['clients']
 
     list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
@@ -296,11 +298,17 @@ def zoo_data(topo):
 if __name__ == '__main__':
     TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
     with open(TOPOYML, 'rb') as yml_file:
-        topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-    topo_name, details = list(topo['topology'].items())[0]
+        topoconfig = yaml.load(yml_file, Loader=yaml.FullLoader)
+
+    # Load information about the topology to test
+    topo_name = topoconfig['to_test']
+    details = topoconfig['topology'][topo_name]
     topo_func = globals()[topo_name]
+
+    # Get the nodes and links information
     result = topo_func(details)
     result['topo_name'] = topo_name
     result['topo_details'] = details
+    
     with open(f'{BASEDIR}/config/custom/topology_information.yml', 'w') as file:
         yaml.dump(result, file)

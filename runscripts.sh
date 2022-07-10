@@ -1,6 +1,5 @@
 #!/bin/bash
 
-python3 scripts/serialize.py
 python3 scripts/network_topologies.py
 for file in scripts/custom/*.py; 
 do

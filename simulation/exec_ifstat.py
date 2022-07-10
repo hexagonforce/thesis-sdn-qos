@@ -19,6 +19,6 @@ def run():
     core_switch = f'{core_switch}-eth{core_switch_port}'
     cmd = (
         f'timeout 330s sudo -u mininet ifstat -i {core_switch}'
-        '-t -n > {BASEDIR}/simulation/test.results/ifstat-results.csv &'
+        f'-t -n > {BASEDIR}/simulation/test.results/ifstat-results.csv &'
     )
     subprocess.run(['sh', '-c', cmd])
