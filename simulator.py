@@ -63,8 +63,8 @@ def runtests(net, serverdata, loadconfig):
     This function runs all the tests of the research
     '''
     exec_pings.run(net)
-    exec_ifstat.run()
-    exec_ab_tests.run(net, serverdata, loadconfig)
+    # exec_ifstat.run()
+    # exec_ab_tests.run(net, serverdata, loadconfig)
     # exec_vlc_clients.run(net, serverdata, loadconfig)
     # exec_vlc_client_probing.run(net, serverdata, loadconfig)
 
@@ -82,8 +82,8 @@ if __name__ == '__main__':
         for line in csvFile:
             loadconfdata.append(line)
 
-    print("Setup Complete. Waiting for STP to converge...")
-    sleep(30)
+    print("Setup Complete. Waiting for STP...")
+    sleep(40)
     print("Running tests. This may take a while...")
     writemetadata()
     runtests(net, serverdata, loadconfdata)

@@ -13,7 +13,7 @@ def setup_servers(net, serverdata):
     for servername, data in serverdata.items():
         server = net.getNodeByName(servername)
         if data['protocol'] == 'http':
-            server.cmd(f'python3 -m http.server 80 --directory {SIMULDIR}/{servername} &> controller.out &')
+            server.cmd(f'python3 -m http.server 80 --directory {SIMULDIR}/{servername} > /dev/null 2> /dev/null &')
         elif data['protocol'] == 'rtsp':
             pass # vlcserversetup(server, data)
 

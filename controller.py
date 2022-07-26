@@ -58,20 +58,12 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
 
         self.case = CONF.case.replace("\"", "")
 
-        # self.usecase_yml = f"{BASEDIR}/config/class_profile_functionname.yml"
-
         with open(USECASE_YML, "rb") as yml_file:
             self.usecases = yaml.load(yml_file, Loader=yaml.FullLoader)['class_profiles']
 
         with open(TOPO_YML, "rb") as yml_file:
             core_switch = yaml.load(yml_file, Loader=yaml.FullLoader)['core_switch']
         core_switch_num = ''.join((c for c in core_switch if c.isdigit()))
-    
-        if self.case == self.usecases:
-            self.logger.info(self.usecases[self.usecase]['description'])
-
-        self.logger.info(f"Usecases: {self.usecases}")
-        self.logger.info(f"Usecase: {self.case}")
 
         self.algo = getattr(sdn_algorithms, self.usecases[self.case]['func_name'])
 
@@ -138,7 +130,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        # self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
         
         self.mac_to_port[dpid][src] = in_port
 
@@ -181,7 +173,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         dp = ev.dp
         dpid_str = dpid_lib.dpid_to_str(dp.id)
         msg = 'Receive topology change event. Flush MAC table.'
-        self.logger.debug("[dpid=%s] %s", dpid_str, msg)
+        # self.logger.debug("[dpid=%s] %s", dpid_str, msg)
 
         if dp.id in self.mac_to_port:
             self.delete_flow(dp)
@@ -195,5 +187,5 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
                     stplib.PORT_STATE_LISTEN: 'LISTEN',
                     stplib.PORT_STATE_LEARN: 'LEARN',
                     stplib.PORT_STATE_FORWARD: 'FORWARD'}
-        self.logger.debug("[dpid=%s][port=%d] state=%s",
-                          dpid_str, ev.port_no, of_state[ev.port_state])
+        # self.logger.debug("[dpid=%s][port=%d] state=%s",
+                          # dpid_str, ev.port_no, of_state[ev.port_state])

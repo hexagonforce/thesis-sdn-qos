@@ -28,7 +28,7 @@ def run(net, serverdata, loadconfig):
         )
         cmd2 = (
             'sudo -u mininet wrk --header "Accept-Encoding: gzip, deflate" -c 10 '
-            f'-d 300 --timeout 240 http://{server.IP()}/{file} > '
+            f'-d 240 --timeout 240 http://{server.IP()}/{file} > '
             f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype} 2> /dev/null &'
         )
         host.cmd(cmd)
