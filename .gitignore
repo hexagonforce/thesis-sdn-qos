@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 pkl/*
-config/custom/*
+config/*
 zoo_data/*
 test.results
 
