@@ -303,7 +303,8 @@ if __name__ == '__main__':
     # Load information about the topology to test
     topo_name = topoconfig['to_test']
     details = topoconfig['topology'][topo_name]
-    topo_func = globals()[topo_name]
+    topo_func_name = topoconfig['topology'][topo_name]['func']
+    topo_func = globals()[topo_func_name]
 
     # Get the nodes and links information
     result = topo_func(details)

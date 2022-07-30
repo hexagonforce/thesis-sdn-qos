@@ -1,11 +1,11 @@
 import os
 import time
 from datetime import datetime
+import vlc
 BASEDIR = os.getcwd()
 
 def run(net, serverdata, loadconfig):
 
-    portnum = 4313
     for loadrow in loadconfig:
         clientname = loadrow[0]
         vlcload = loadrow[2].split('-')
@@ -17,14 +17,15 @@ def run(net, serverdata, loadconfig):
         server = net.getNodeByName(servername)
         vlclogfilename = (
             f'{BASEDIR}/simulation/test.results/vlc-clients/run-vlc-client'
-            f'-{loadtype}-{portnum}-{host.IP()}.{datetime.now().strftime("%m%d%Y%H%M%S")}'
+            f'-{loadtype}-{clientname}.{datetime.now().strftime("%m%d%Y%H%M%S")}'
         )
+        results_filename = (
+            f'{BASEDIR}/simulation/test.results/vlc-clients/results-{clientname}-{servername} '
+            f'-{loadtype}.{datetime.now().strftime("%m%d%y_%H%M%S")}.csv'
+        )
+        media_url = f'rtsp://{server.IP()}:5004/{serverdata[servername][loadtype]}'
         cmd = (
-            f'sudo -u mininet cvlc -vvv --file-logging -logfile={vlclogfilename} '
-            f'--intf rc --rc-host={host.IP()}:{portnum} -Vdummy --noaudio --novideo '
-            '--rc-fake-tty --no-sout-display-video --no-sout-display-audio '
-            '--no-playlist-autostart --no-video-deco --no-embedded-video --input-repeat=5 '
-            f'--quiet rtsp://{server.IP()}:5004/{serverdata[servername][loadtype]} &'
+            f'sudo -u mininet python3 {BASEDIR}/simulation/run_vlc_client.py '
+            f'{results_filename} {vlclogfilename} {media_url} &'
         )
-        host.pexec(cmd)
-        portnum += 1
+        host.cmd(cmd)

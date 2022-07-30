@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG,
 logging.info("\n\n")
 logging.info("Starting")
 # Global Variables
-newlinechar ="\r\n"
+newlinechar = b'\r\n'
 host="localhost"
 portint=4313
 timeout = 120
@@ -84,11 +84,11 @@ def getParamValue(string, start, end):
 def queryViaTelnet(session):
     global newlinechar, clientname, portint, runtype, rawdata, timeout, endtime, totalsamples, demuxbytesread, demuxbitrate, demuxcorrupted, framesdisplayed, frameslost, buffersplayed, bufferslost, totdemuxbytesread, totdemuxbitrate, totdemuxcorrupted, totframesdisplayed, totframeslost, totbuffersplayed, totbufferslost
 
-    session.write("get_title".encode('ascii') + b"\r\n")
+    session.write(b"get_title"+ newlinechar)
     title = session.read_until(b">", timeout)
     logging.info(f"queryViaTelnet Current Stream: {title}")
     
-    session.write("stats".encode('ascii') + "\r\n")
+    session.write(b"stats" + newlinechar)
     
     output = session.read_until(b">", timeout)
     logging.info(f"Stats: {output}")
@@ -97,26 +97,26 @@ def queryViaTelnet(session):
         logging.info("Getting Stats. Please Please Please")
         
         if output.strip() == "" or output.strip() == ">":
-            session.write("stop".encode('ascii') + "\r\n")
-            session.write("goto 0".encode('ascii') + b"\r\n")
+            session.write(b"stop" + newlinechar)
+            session.write(b"goto 0" + newlinechar)
             output = session.read_until(b">", timeout )
             logging.info(f"Restart: goto 0: {output}")
     
-            session.write("play".encode('ascii') + b"\r\n")
+            session.write(b"play" + newlinechar)
             output = session.read_until(b">", timeout )
             logging.info(f"Restart: play: {output}")
     
-            session.write("is_playing".encode('ascii') + b"\r\n")
+            session.write(b"is_playing" + newlinechar)
             output = session.read_until(b">", timeout )
             logging.info(f"Restart: is_playing: {output}")
             # Open Output File
             output = session.read_until(b">", timeout)
 
-            session.write("get_title".encode('ascii') + b"\r\n")
+            session.write(b"get_title" + newlinechar)
             title = session.read_until(b">", timeout)
             logging.info(f"queryViaTelnet if output empty Current Stream: {title}")
         
-        session.write("stats".encode('ascii') + b"\r\n")
+        session.write(b"stats" + newlinechar)
         output = session.read_until(b">", timeout)
         logging.info(f"Here Here: Session: {session}\nDatetime Checking Stats: {output}")
 
@@ -173,7 +173,7 @@ def handleSessionEnd(session):
 
     cancel_future_calls()
 
-    session.write("shutdown".encode('ascii') + b"\r\n")
+    session.write(b"shutdown" + newlinechar)
     session.close()
     logging.info("Closing Session")
     
@@ -301,28 +301,28 @@ def main(argv):
     else:
         output = session.read_until(b">", timeout )
         logging.info("Sending Commands...")
-        session.write("stop".encode('ascii') + b"\r\n")
+        session.write(b"stop" + newlinechar)
         output = session.read_until(b">", timeout )
         logging.info("STOP: {}".format(output))
-        session.write("goto 0".encode('ascii') + b"\r\n")
+        session.write(b"goto 0" + newlinechar)
         output = session.read_until(b">", timeout )
         logging.info("goto 0: %s" % output)
         output = session.read_until(b">", timeout )
 
-        session.write("play".encode('ascii') + b"\r\n")
+        session.write(b"play" + newlinechar)
         output = session.read_until(b">", timeout )
         logging.info("play: %s" % output)
 
-        session.write("is_playing".encode('ascii') + b"\r\n")
+        session.write(b"is_playing" + newlinechar)
         output = session.read_until(b">", timeout )
         logging.info("is_playing: %s" % output)
 
-        session.write("get_title".encode('ascii') + b"\r\n")
+        session.write(b"get_title" + newlinechar)
         title = session.read_until(b">", timeout)
         logging.info("Current Stream: {}".format(title))
         # Open Output File
 
-        session.write("stats".encode('ascii') + b"\r\n")
+        session.write(b"stats" + newlinechar)
         output = session.read_until(b">", timeout)
         logging.info("Main Stats: {}".format(output))
         

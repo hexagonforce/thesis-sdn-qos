@@ -21,4 +21,7 @@ def run():
         f'timeout 330s sudo -u mininet ifstat -i {core_switch}'
         f' -t -n > {BASEDIR}/simulation/test.results/ifstat-results.csv &'
     )
-    subprocess.run(['sh', '-c', cmd])
+    csvfile = f'{BASEDIR}/simulation/test.results/ifstat-results.csv'
+    with open(csvfile, 'w') as file:
+        subprocess.Popen(['timeout', '330s', 'sudo', '-u', 'mininet', 'ifstat', 'i', core_switch,
+                        '-t', '-n'], stdout=file)

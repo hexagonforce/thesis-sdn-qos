@@ -41,7 +41,7 @@ def main(argv):
     # elif argv == "Spring":
     #     vlm_file = "SpringVLCConfig.vlm"
 
-    vlm_load = f"load /home/mininet/thesis-code/simulation/{vlm_file}"
+    vlm_load = b"load /home/mininet/thesis-code/simulation/{vlm_file}"
 
     logging.info ("Connecting...")
     try:
@@ -51,18 +51,18 @@ def main(argv):
     else:
         output = session.read_until(b"Password:", timeout)
         logging.info("First output: {}".format(output))
-        session.write("mininet".encode('ascii') + b"\r\n")
+        session.write(b"mininet" + b"\r\n")
         output = session.read_until(b">", timeout )
         logging.info("Second output: {}".format(output))
-        session.write(vlm_load.encode('ascii') + b"\r\n")
+        session.write(vlm_load + b"\r\n")
         eager = session.read_very_eager()
         output = session.read_until(b">", timeout )
         logging.info("Loading BBBVLCConfig output: {}".format(output))
         logging.info("Detailed Output: {}".format(eager))
-        session.write("show media".encode('ascii') + b"\r\n")
+        session.write(b"show media" + b"\r\n")
         media = session.read_very_eager()
         logging.info("Media: {}".format(media))
-        session.write("quit".encode('ascii') + b"\r\n")
+        session.write(b"quit" + b"\r\n")
         
         session.close()
         logging.info("Closing Session")

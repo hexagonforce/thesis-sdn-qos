@@ -49,13 +49,13 @@ def setup(serverdata):
     '''
     This function runs the scripts, starts mininet and Ryu, and configures the servers.
     '''
-    subprocess.run(['sh', '-c', './runscripts.sh'])
+    subprocess.run(['./runscripts.sh'])
     net = create_network()
-    subprocess.run(['sh', '-c', './resetqos.sh'])
+    subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
+    subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
     subprocess.run(['sh', '-c', 'ryu-manager controller.py --config-file controller.conf > /dev/null 2> /dev/null &'])
-    qostype = get_qos_type()
-    subprocess.run(['sh', '-c', f'./setqos.sh > /dev/null {qostype}', ])
-    setup_servers.setup_servers(net, serverdata)
+    subprocess.run(['sh', '-c', f'./setqos.sh {get_qos_type()} > /dev/null', ])
+    setup_servers.run(net, serverdata)
     return net
 
 def runtests(net, serverdata, loadconfig):
@@ -65,7 +65,7 @@ def runtests(net, serverdata, loadconfig):
     exec_pings.run(net)
     # exec_ifstat.run()
     # exec_ab_tests.run(net, serverdata, loadconfig)
-    # exec_vlc_clients.run(net, serverdata, loadconfig)
+    exec_vlc_clients.run(net, serverdata, loadconfig)
     # exec_vlc_client_probing.run(net, serverdata, loadconfig)
 
 # Entry point
@@ -74,21 +74,23 @@ if __name__ == '__main__':
     print("Started Simulation. Setting up the server...")
  
     serverdata = get_yml_data(SERVERCONF)
-
     net = setup(serverdata)
     loadconfdata = []
     with open(LOADCONF, 'r') as file:
         csvFile = csv.reader(file, delimiter='\t')
         for line in csvFile:
             loadconfdata.append(line)
+    writemetadata()
 
     print("Setup Complete. Waiting for STP...")
     sleep(40)
     print("Running tests. This may take a while...")
-    writemetadata()
     runtests(net, serverdata, loadconfdata)
     CLI(net)
     net.stop()
-    os.system("sudo pkill ryu-manager")
+    subprocess.run(["sudo", "pkill", "ryu-manager"])
+    subprocess.run(["sudo", "pkill", "vlc"])
+    subprocess.run(["sudo", "pkill", "cvlc"])
+
 
 

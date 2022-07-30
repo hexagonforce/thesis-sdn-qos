@@ -56,10 +56,10 @@ config_path = {
 config_data['usecase'] = yml_data['case']
 js = "{}/usecase_{}_nodes_configuration.json".format(PARDIR, config_data['usecase'])
 
-# Get Source-Queue Map File
-with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
-	for row in csv.reader(csv_file, delimiter='\t'):
-		config_data['sourceQueueMapDict'][row[0]] = row[1:]
+# # Get Source-Queue Map File
+# with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
+# 	for row in csv.reader(csv_file, delimiter='\t'):
+# 		config_data['sourceQueueMapDict'][row[0]] = row[1:]
 
 # Get traffic class
 with open(config_path['traffic_class'], 'rt') as traffic_yml:

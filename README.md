@@ -3,7 +3,7 @@
 This is the documentation for the SDN QoS testing framework written by Josiah Elezar Regencia and William Emmanuel S. Yu.
 
 # Configuration
-Most configuration will be done in `config/class_profile_functionname.yml` and `config/simulate_topo.yml`
+Most configuration will be done in `config/class_profile_functionname.yml` and `config/simulate_topo.yml`. Refer to `example_configs/`. To get started, copy those files over to `configs/`.
 
 ## Adding custom topology
 First, place in the definition for your network topology in `scripts/network_topologies.py`

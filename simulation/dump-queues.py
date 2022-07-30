@@ -1,3 +1,4 @@
+import subprocess
 import yaml
 import os
 
@@ -13,4 +14,7 @@ all_switches += topo['edge_switches']
 all_switches.append(topo['server_switch'])
 
 for switch in all_switches:
-    os.system(f'sudo ovs-ofctl -O Openflow13 queue-stats {switch} > {os.getcwd()}/simulation/test.results/queuestats/{switch}.txt')
+    queue_stat_textfile = f'{os.getcwd()}/simulation/test.results/queuestats/{switch}.txt'
+    subprocess.run(f'sudo ovs-ofctl -O Openflow13 queue-stats {switch} >')
+    with open(queue_stat_textfile, 'w') as file:
+        subprocess.run(['sudo', 'ovs-ofctl', '-O', 'Openflow13', 'queue-stats', switch], stdout=file)

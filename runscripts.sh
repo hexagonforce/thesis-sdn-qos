@@ -1,4 +1,5 @@
 #!/bin/bash
+[ ! -d "config/custom" ] && mkdir config/custom
 
 python3 scripts/network_topologies.py
 for file in scripts/custom/*.py; 
