@@ -20,12 +20,12 @@ def run(net, serverdata, loadconfig):
             f'-{loadtype}-{clientname}.{datetime.now().strftime("%m%d%Y%H%M%S")}'
         )
         results_filename = (
-            f'{BASEDIR}/simulation/test.results/vlc-clients/results-{clientname}-{servername} '
+            f'{BASEDIR}/simulation/test.results/vlc-clients/results-{clientname}-{servername}'
             f'-{loadtype}.{datetime.now().strftime("%m%d%y_%H%M%S")}.csv'
         )
         media_url = f'rtsp://{server.IP()}:5004/{serverdata[servername][loadtype]}'
         cmd = (
             f'sudo -u mininet python3 {BASEDIR}/simulation/run_vlc_client.py '
-            f'{results_filename} {vlclogfilename} {media_url} &'
+            f'{results_filename} {vlclogfilename} {media_url} 300 &'
         )
         host.cmd(cmd)

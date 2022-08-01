@@ -1,8 +1,7 @@
 from time import sleep
 import yaml, csv
 from run_mininet import create_network
-from simulation import exec_ab_tests, exec_pings, setup_servers
-from simulation import exec_ifstat, exec_vlc_client_probing, exec_vlc_clients
+from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
 import subprocess
 import os
 from mininet.cli import CLI
@@ -13,7 +12,7 @@ LOADCONF = f'{BASEDIR}/config/custom/load.conf.l3.tab'
 CONTROLLERCONF = f'{BASEDIR}/controller.conf'
 CLASS_PROFILE_FILE = f'{BASEDIR}/config/class_profile_functionname.yml'
 TOPO_FILE = f'{BASEDIR}/config/custom/topology_information.yml'
-METADATA = f'{BASEDIR}/simulation/test.results/metadata.yml'
+METADATA = f'{BASEDIR}/simulation/test.results/metadata/'
 
 # Utility functions
 def get_qos_type():
@@ -34,16 +33,15 @@ def get_yml_data(path):
         return yaml.load(file, Loader = yaml.FullLoader)
 
 # Running functions
-def writemetadata():
+def setup_directories():
     '''
-    This functions writes the Class Profile and the Topology used for the simulation run.
+    This function copies over config files to the results directory
     '''
-    metadata = {
-        'func_name': get_class_profile(),
-        'topology': get_yml_data(TOPO_FILE),
-    }
-    with open(METADATA, 'w') as file:
-        yaml.dump(metadata, file)
+    subprocess.run(['rm', '-rf', 'simulation/test.results/'])
+    subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
+    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'queue-stats', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
+    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
+    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/custom/topology_information.yml {METADATA}'])
 
 def setup(serverdata):
     '''
@@ -63,16 +61,17 @@ def runtests(net, serverdata, loadconfig):
     This function runs all the tests of the research
     '''
     exec_pings.run(net)
-    # exec_ifstat.run()
-    # exec_ab_tests.run(net, serverdata, loadconfig)
+    print("Done with pings. Now running traffic tests...")
+    exec_ifstat.run()
+    exec_ab_tests.run(net, serverdata, loadconfig)
     exec_vlc_clients.run(net, serverdata, loadconfig)
-    # exec_vlc_client_probing.run(net, serverdata, loadconfig)
 
 # Entry point
 if __name__ == '__main__':
     # Read all the necessary configuration files
     print("Started Simulation. Setting up the server...")
  
+    setup_directories()
     serverdata = get_yml_data(SERVERCONF)
     net = setup(serverdata)
     loadconfdata = []
@@ -80,7 +79,6 @@ if __name__ == '__main__':
         csvFile = csv.reader(file, delimiter='\t')
         for line in csvFile:
             loadconfdata.append(line)
-    writemetadata()
 
     print("Setup Complete. Waiting for STP...")
     sleep(40)

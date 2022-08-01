@@ -4,7 +4,6 @@ import time
 import sys
 
 BASEDIR = os.getcwd()
-stats = vlc.MediaStats()
 
 from threading import Timer
 class RepeatedTimer(object):
@@ -48,12 +47,12 @@ def init_results_file(filename):
     return file
 
 def write_stat(file, start_time, media):
-    global stats
+    stats = vlc.MediaStats()
     vlc.libvlc_media_get_stats(media, stats)
     file.write((
-        f'{time.time() - start_time},'
-        f'{stats.read_bytes},'
-        f'{stats.demux_bitrate},'
+        f'{time.time() - start_time:.2f},'
+        f'{stats.demux_read_bytes},'
+        f'{stats.demux_bitrate*8000:.6f},'
         f'{stats.demux_corrupted},'
         f'{stats.displayed_pictures},'
         f'{stats.lost_pictures},'
@@ -62,13 +61,12 @@ def write_stat(file, start_time, media):
     ))
 
 def run(results_filename, logfilename, media_url, duration):
-    global stats
     results_file = init_results_file(results_filename)
 
     vlc_instance = vlc.Instance(
         f'-vvv --file-logging --logfile={logfilename} '
         '--vout=vdummy --aout=adummy --codec=dummy --no-sout-display-video --no-sout-display-audio '
-        '--no-playlist-autostart --no-video-deco --no-embedded-video --input-repeat=5 --quiet'
+        '--no-playlist-autostart --no-video-deco --quiet'
     )
     # Set up player
     player = vlc_instance.media_player_new()
@@ -83,7 +81,7 @@ def run(results_filename, logfilename, media_url, duration):
     start_time = time.time()
     rt = RepeatedTimer(5, write_stat, results_file, start_time, media)
     try:
-        time.sleep(duration + 1)
+        time.sleep(int(duration) + 1)
     finally:
         rt.stop()
         results_file.close()

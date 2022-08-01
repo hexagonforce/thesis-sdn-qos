@@ -1,19 +1,26 @@
-import os, subprocess
+import os, subprocess, time
 from simulation.constants import SLEEP_CONST
+from mininet.util import pmonitor
 
 BASEDIR = os.getcwd()
 
 def run(net):
-    subprocess.run(['sh', '-c', f'rm {BASEDIR}/simulation/test.results/pings/*.txt'])
     client1 = net.getNodeByName('client1')
     server1 = net.getNodeByName('server1')
     client1.cmd(f'ping -c 50 {server1.IP()} > {BASEDIR}/simulation/test.results/pings/time_to_converge.txt')
-    # _run_all_pings(net)
+    _run_all_pings(net)
 
 def _run_all_pings(net):
     clients = [host for host in net.hosts if 'client' in host.name]
     servers = [host for host in net.hosts if 'server' in host.name]
 
-    for server in servers[::2]:
-        for client in clients:
-            client.cmd(f'ping -c 20 {server.IP()} >> {BASEDIR}/simulation/test.results/pings/{client.name}.txt')
+    for client in clients:
+        popens = {}
+        outfiles = []
+        for server in servers:
+            outfiles.append(open(f'{BASEDIR}/simulation/test.results/pings/{client.name}-{server.name}.txt', 'w'))
+            popens[server] = client.popen(f'ping -c 20 {server.IP()}', stdout=outfiles[-1])
+        while sum((1 for p in popens.values() if p.poll() is None)) != 0:
+            time.sleep(SLEEP_CONST)
+        for outfile in outfiles:
+            outfile.close()
