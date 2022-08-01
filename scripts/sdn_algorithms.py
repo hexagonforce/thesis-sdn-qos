@@ -33,19 +33,14 @@ def basic_cbq_leaves(event, switch, nodes_config, eth_src, eth_dst, dest_port):
     if not 'client-leaf' in switch['type']:
         test_algo(event)
     elif out_port != ofp.OFPP_FLOOD:
-        for trcls, details in nodes_config['traffic'].items():
-            actions = [ofp_parser.OFPActionSetQueue(queue_id=nodes_config['traffic'][trcls]['proto_queue_id']),
+        for details in nodes_config['traffic'].values():
+            actions = [ofp_parser.OFPActionSetQueue(queue_id=details['proto_queue_id']),
                         ofp_parser.OFPActionOutput(out_port)]
             inst = [ofp_parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
-            match = None
-            if details['nwproto'] == 6:
-                match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
-                                        eth_src=eth_src, eth_dst=eth_dst,
-                                        ip_proto=6)
-            elif details['nwproto'] == 17:
-                match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
-                                        eth_src=eth_src, eth_dst=eth_dst,
-                                        ip_proto=17)
+            nwproto = details['nwproto']
+            match = ofp_parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, 
+                                    eth_src=eth_src, eth_dst=eth_dst,
+                                    ip_proto=nwproto)
             mod = ofp_parser.OFPFlowMod(datapath=dp, buffer_id=msg.buffer_id, 
                                         priority=details['proto_priority'], 
                                         match=match, instructions=inst, table_id=0)
