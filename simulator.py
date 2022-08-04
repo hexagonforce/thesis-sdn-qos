@@ -1,4 +1,6 @@
 from time import sleep
+from datetime import datetime 
+from datetime import timedelta
 import yaml, csv
 from run_mininet import create_network
 from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
@@ -39,7 +41,7 @@ def setup_directories():
     '''
     subprocess.run(['rm', '-rf', 'simulation/test.results/'])
     subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
-    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'queue-stats', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
+    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/custom/topology_information.yml {METADATA}'])
 
@@ -56,15 +58,16 @@ def setup(serverdata):
     setup_servers.run(net, serverdata)
     return net
 
-def runtests(net, serverdata, loadconfig):
+def runtests(net, serverdata, loadconfig, starttime):
     '''
     This function runs all the tests of the research
     '''
-    exec_pings.run(net)
+    exec_pings.test_convergence(net)
+    exec_pings.run_all_pings(net)
     print("Done with pings. Now running traffic tests...")
     exec_ifstat.run()
-    exec_ab_tests.run(net, serverdata, loadconfig)
-    exec_vlc_clients.run(net, serverdata, loadconfig)
+    exec_ab_tests.run(net, serverdata, loadconfig, starttime)
+    exec_vlc_clients.run(net, serverdata, loadconfig, starttime)
 
 # Entry point
 if __name__ == '__main__':
@@ -83,12 +86,14 @@ if __name__ == '__main__':
     print("Setup Complete. Waiting for STP...")
     sleep(40)
     print("Running tests. This may take a while...")
-    runtests(net, serverdata, loadconfdata)
+    starttime = datetime.now() + timedelta(seconds=120)
+    print(type(starttime))
+    runtests(net, serverdata, loadconfdata, starttime)
     CLI(net)
     net.stop()
     subprocess.run(["sudo", "pkill", "ryu-manager"])
     subprocess.run(["sudo", "pkill", "vlc"])
     subprocess.run(["sudo", "pkill", "cvlc"])
-
+    subprocess.run(["sudo", "pkill", "ifstat"])
 
 

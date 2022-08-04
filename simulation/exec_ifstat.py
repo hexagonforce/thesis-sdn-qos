@@ -23,5 +23,5 @@ def run():
     )
     csvfile = f'{BASEDIR}/simulation/test.results/ifstat-results.csv'
     with open(csvfile, 'w') as file:
-        subprocess.Popen(['timeout', '330s', 'sudo', '-u', 'mininet', 'ifstat', '-i', core_switch,
+        subprocess.Popen(['timeout', '600s', 'sudo', '-u', 'mininet', 'ifstat', '-i', core_switch,
                         '-t', '-n'], stdout=file)

@@ -2,6 +2,7 @@ import vlc
 import os
 import time
 import sys
+from datetime import datetime
 
 BASEDIR = os.getcwd()
 
@@ -60,7 +61,7 @@ def write_stat(file, start_time, media):
         f'{stats.lost_abuffers}\n'
     ))
 
-def run(results_filename, logfilename, media_url, duration):
+def run(results_filename, logfilename, media_url, starttime, duration):
     results_file = init_results_file(results_filename)
 
     vlc_instance = vlc.Instance(
@@ -68,10 +69,21 @@ def run(results_filename, logfilename, media_url, duration):
         '--vout=vdummy --aout=adummy --codec=dummy --no-sout-display-video --no-sout-display-audio '
         '--no-playlist-autostart --no-video-deco --quiet'
     )
+
+    starttime = datetime.fromisoformat(starttime)
+
     # Set up player
     player = vlc_instance.media_player_new()
     media = vlc_instance.media_new(media_url)
     player.set_media(media)
+    player.play()
+    time.sleep(1)
+    player.stop()
+    player.set_position(0)
+
+    # Wait for the tests to start
+    while datetime.now() < starttime:
+        time.sleep(1)
 
     # Play the Media
     player.play()

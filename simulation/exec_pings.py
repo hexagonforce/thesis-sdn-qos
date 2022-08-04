@@ -4,13 +4,12 @@ from mininet.util import pmonitor
 
 BASEDIR = os.getcwd()
 
-def run(net):
+def test_convergence(net):
     client1 = net.getNodeByName('client1')
     server1 = net.getNodeByName('server1')
     client1.cmd(f'ping -c 50 {server1.IP()} > {BASEDIR}/simulation/test.results/pings/time_to_converge.txt')
-    _run_all_pings(net)
 
-def _run_all_pings(net):
+def run_all_pings(net):
     clients = [host for host in net.hosts if 'client' in host.name]
     servers = [host for host in net.hosts if 'server' in host.name]
 
