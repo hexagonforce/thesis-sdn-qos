@@ -27,6 +27,7 @@
 
 import yaml
 import os
+import networkx as nx
 
 BASEDIR = os.getcwd()
 NUM_SERVERS = 4
@@ -74,161 +75,42 @@ def add_edge(node1, node2, switch_port_num, adjlist, edgelist):
     edgelist.add((node1, node2, port1, port2))
     return switch_port_num, adjlist, edgelist
 
+def farthest_by_hops(G):
+    '''
+    This function gives the id of the node of a NetworkX graph
+    that has the highest sum of its distances to all other nodes
+    '''
+    dist_table = nx.floyd_warshall(G)
+    res = 0
+    maxdist = -INFTY
+    for id, row in dist_table.items():
+        sumdist = sum(list(row.values()))
+        if sumdist > maxdist:
+            res = id
+            maxdist = sumdist
+    return res
+
 def fat_tree(topo):
-    """
-    Generates a fat_tree topology
-    Arguments: topo is the parsed YAML configuration file from simulate_topo.yml.
-    Outputs: config/custom/topology_information.yml
-    Format: edges are the tuple (node1, node2, port1, port2)
-    """
-    # parameters from the file
-    num_clients = topo['details']['clients']
     layers = topo['details']['leaf_switch_layers']
     fanout = topo['details']['fanout']
+    topo['details']['client_switches'] = fanout ** layers
+    topo['details']['core_switch_num'] = 1
 
-    num_total_switches = (fanout ** (layers+1) - 1) // (fanout - 1) # Sum of geometric series
-    num_edge_switches = fanout ** layers # Last layer
-    num_internal_switches = num_total_switches - num_edge_switches - 1
-
-    # The graph
-    core_switch = 'switch1'
-    internal_switches = [f'switch{x}' for x in range(2, num_internal_switches + 2)]
-    edge_switches = [f'switch{x}' for x in range(num_internal_switches + 2, num_total_switches + 1)]
-    server_switch = f'switch{num_total_switches + 1}'
-
-    list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
-    list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
-    
-    switch_port_num = {switch : 0 for switch in [f'switch{x}' for x in range(1, num_total_switches + 2)]}
-    adjlist = {}
-    edgelist = set()
-
-    #add all the edge switch - client connections
-    client_ranges = divider(num_clients, num_edge_switches)
-    for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
-        for clientnum in range(prev + 1, upper_bound + 1):
-            switch_port_num, adjlist, edgelist = add_edge(f'client{clientnum}', edge_switches[idx],
-                                                switch_port_num, adjlist, edgelist)
-    
-    #add all the tree edges
-    for parent_num in range(1, num_internal_switches + 2):
-        childstart = (parent_num - 1) * fanout + 1 + 1
-        for child_num in range(childstart, childstart + fanout):
-            switch_port_num, adjlist, edgelist = add_edge(f'switch{parent_num}', f'switch{child_num}',
-                                                switch_port_num, adjlist, edgelist)
-
-    switch_port_num, adjlist, edgelist = add_edge(core_switch, server_switch, switch_port_num, adjlist, edgelist)
-    
-    for server in list_servers:
-        switch_port_num, adjlist, edgelist = add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
-
-    result = {
-        "core_switch" : core_switch,
-        "internal_switches": internal_switches,
-        "edge_switches": edge_switches,
-        "server_switch": server_switch,
-        "list_clients": list_clients,
-        "list_servers": list_servers,
-        "adjlist": adjlist,
-        "edgelist": edgelist
-    }
-    return result
+    G = nx.balanced_tree(fanout, layers)
+    return generate_topology(G, topo)
 
 def mesh(topo):
     num_switches = topo['details']['switches']
-    num_client_switches = topo['details']['client_switches']
-    num_clients = topo['details']['clients']
-    assert(num_client_switches < num_switches)
-
-    # Initialize all the clients and switches first
-    core_switch = 'switch1'
-    edge_switches = [f'switch{x}' for x in range(2, num_client_switches + 2)]
-    internal_switches = [f'switch{x}' for x in range(num_client_switches + 2, num_switches + 1)]
-    server_switch = f'switch{num_switches + 1}'
-    all_switches = edge_switches + internal_switches + [core_switch]
-
-    list_clients = [f'client{x}' for x in range(1, num_clients + 1)]
-    list_servers = [f'server{x}' for x in range(1, NUM_SERVERS + 1)]
-
-    switch_port_num = {switch : 0 for switch in [f'switch{x}' for x in range(1, num_switches + 2)]}
-    adjlist = {}
-    edgelist = set()
-
-    client_ranges = divider(num_clients, num_client_switches)
-    for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
-        for clientnum in range(prev + 1, upper_bound + 1):
-            switch_port_num, adjlist, edgelist = add_edge(f'client{clientnum}', edge_switches[idx],
-                                                switch_port_num, adjlist, edgelist)
-
-    # pairwise connect all the switches
-    for a in all_switches:
-        for b in all_switches:
-            if a < b:
-                add_edge(a, b, switch_port_num, adjlist, edgelist)
-
-    # Connect the core switch (defined as the switch with the largest number) to the server_switch
-    add_edge(core_switch, server_switch, switch_port_num, adjlist, edgelist)
-    
-    # add the servers to the server switch
-    for server in list_servers:
-        add_edge(server_switch, server, switch_port_num, adjlist, edgelist)
-    result = {
-        "core_switch" : core_switch,
-        "internal_switches": internal_switches,
-        "edge_switches": edge_switches,
-        "server_switch": server_switch,
-        "list_clients": list_clients,
-        "list_servers": list_servers,
-        "adjlist": adjlist,
-        "edgelist": edgelist
-    }
-    return result
+    G = nx.complete_graph(num_switches)
+    return generate_topology(G, topo)
 
 def zoo_data(topo):
-    import networkx as nx
-
-    def farthest_from_centroid(G):
-        '''
-            This function takes a networkx graph and looks at all the
-            nodes with Latitudes and Longitudes and determines the farthest
-            node from all the other nodes
-        '''
-        def sqdist(lat, lon, avelat, avelon):
-            return (lat - avelat) * (lat - avelat) + (lon - avelon) * (lon - avelon)
-
-        avelat = sum((float(data['Latitude']) for node, data in G.nodes(data=True) if 'Latitude' in data )) / nx.number_of_nodes(G)
-        avelon = sum((float(data['Longitude']) for node, data in G.nodes(data=True) if 'Longitude' in data)) / nx.number_of_nodes(G)
-
-        mindist = INFTY
-        min_node = ''
-        for node, data in G.nodes(data=True):
-            if 'Latitude' in data and 'Longitude' in data:
-                lat = float(data['Latitude'])
-                lon = float(data['Longitude'])
-                if sqdist(lat, lon, avelat, avelon) < mindist:
-                    min_node = node
-                    mindist = sqdist(lat, lon, avelat, avelon)
-
-        return int(min_node)
-
-    def farthest_by_hops(G):
-        '''
-        This function gives the id of the node of a GraphML graph
-        that has the highest sum of its distances to all other nodes
-        '''
-        dist_table = nx.floyd_warshall(G)
-        res = 0
-        maxdist = -INFTY
-        for id, row in dist_table.items():
-            sumdist = sum(list(row.values()))
-            if sumdist > maxdist:
-                res = id
-                maxdist = sumdist
-        return res
-
     filename = topo['details']['filename']
     filepath = f'{BASEDIR}/zoo_data/{filename}'
     G = nx.read_graphml(filepath)
+    return generate_topology(G, topo)
+
+def generate_topology(G, topo):
 
     if 'core_switch_num' in topo['details']:
         core_switch_num = int(topo['details']['core_switch_num'])
@@ -237,7 +119,7 @@ def zoo_data(topo):
 
     num_switches = nx.number_of_nodes(G)
     num_client_switches = topo['details']['client_switches']
-    if num_client_switches == 'max':
+    if num_client_switches == 'max' or num_client_switches > num_switches - 1:
         num_client_switches = num_switches - 1
     num_clients = topo['details']['clients']
 
@@ -249,12 +131,12 @@ def zoo_data(topo):
     internal_switches = []
     server_switch = f'switch{num_switches + 1}'
 
-    for node in nx.nodes(G):
+    for node in reversed(list(G.nodes)):
         nodenum = int(node) + 1
         if nodenum == core_switch_num:
             pass
         elif len(edge_switches) < num_client_switches:
-            # by default, the nodes that will be connected to the clients are the nodes with the lowest id
+            # by default, the nodes that will be connected to the clients are the nodes with the highest ids
             edge_switches.append(f'switch{nodenum}')
         else:
             internal_switches.append(f'switch{nodenum}')
@@ -265,6 +147,7 @@ def zoo_data(topo):
     adjlist = {}
     edgelist = set()
     
+    edge_switches = sorted(edge_switches)
     client_ranges = divider(num_clients, num_client_switches)
     for idx, (prev, upper_bound) in enumerate(zip(client_ranges, client_ranges[1:])):
         for clientnum in range(prev + 1, upper_bound + 1):
