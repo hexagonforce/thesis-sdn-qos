@@ -7,39 +7,9 @@ In other words, the contents of clientswtch.map.tab is a list of clients and the
 import os 
 import yaml
 
-
-def save_to_conf(basedir):
-	path = f"{basedir}/clientswitch.map.tab"
-	yml = f"{basedir}/topology_information.yml"
-	with open (yml, 'rb') as yml_file:
-		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-
-	with open(path, 'w') as config_file:
-		list_clients = topo['list_clients']
-
-		for client in list_clients:
-			switchnum = list(topo["adjlist"][client].keys())[0].replace("switch", "")
-			config_file.write(f"{client}\t{switchnum}\n")
-
-if __name__ == '__main__':
-	save_to_conf(f"{os.getcwd()}/config/custom")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def save_to_conf(basedir, G):
+    list_clients = [node for node, data in G.nodes(data='type') if data=='client']
+    with open(f'{basedir}/clientswitch.map.tab', 'w') as config_file:
+        for client in list_clients:
+            switch_num = list(G[client].keys())[0].replace('switch', '')
+            config_file.write(f'{client}\t{switch_num}\n')

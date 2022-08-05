@@ -23,16 +23,15 @@ def run(net, serverdata, loadconfig, starttime):
         file = currserverdata[loadtype]
         host = net.getNodeByName(clientname)
         server = net.getNodeByName(servername)
-        starttimestring = datetime.strftime(starttime, "%H:%M")
 
         cmd = (
             'sudo -u mininet ab -l -r -n 50000 -c 10 -k -t 300 -s 300 '
             f'-q -H "Accept-Encoding: gzip, deflate" http://{server.IP()}/{file} > '
-            f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype} &' 
+            f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype}.txt &' 
         )
         cmd2 = (
             'sudo -u mininet wrk --header "Accept-Encoding: gzip, deflate" -c 10 '
             f'-d 300 --timeout 300 http://{server.IP()}/{file} > '
-            f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype} 2> /dev/null &'
+            f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype}.txt 2> /dev/null &'
         )
         host.cmd(cmd)

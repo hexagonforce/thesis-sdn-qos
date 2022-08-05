@@ -2,7 +2,8 @@ from time import sleep
 from datetime import datetime 
 from datetime import timedelta
 import yaml, csv
-from run_mininet import create_network
+from run_mininet import create_network_networkx
+import generate_configs
 from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
 import subprocess
 import os
@@ -13,7 +14,6 @@ SERVERCONF = f'{BASEDIR}/config/server_config.yml'
 LOADCONF = f'{BASEDIR}/config/custom/load.conf.l3.tab'
 CONTROLLERCONF = f'{BASEDIR}/controller.conf'
 CLASS_PROFILE_FILE = f'{BASEDIR}/config/class_profile_functionname.yml'
-TOPO_FILE = f'{BASEDIR}/config/custom/topology_information.yml'
 METADATA = f'{BASEDIR}/simulation/test.results/metadata/'
 
 # Utility functions
@@ -43,31 +43,22 @@ def setup_directories():
     subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
     subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
-    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/custom/topology_information.yml {METADATA}'])
 
-def setup(serverdata):
+def setup(serverdata, G):
     '''
     This function runs the scripts, starts mininet and Ryu, and configures the servers.
+    Side effect: writes to the controller.conf file
     '''
-    subprocess.run(['./runscripts.sh'])
-    net = create_network()
+    net = create_network_networkx(G)
+    core_switch = G.graph['core_switch']
+    with open(f'{BASEDIR}/controller.conf', 'a') as controller_config:
+        controller_config.write(f'core_switch="{core_switch}"\n')
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
-    subprocess.run(['sh', '-c', 'ryu-manager controller.py --config-file controller.conf > /dev/null 2> /dev/null &'])
-    subprocess.run(['sh', '-c', f'./setqos.sh {get_qos_type()} > /dev/null', ])
+    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(['./setqos.sh', get_qos_type()], stdout=subprocess.DEVNULL)
     setup_servers.run(net, serverdata)
     return net
-
-def runtests(net, serverdata, loadconfig, starttime):
-    '''
-    This function runs all the tests of the research
-    '''
-    exec_pings.test_convergence(net)
-    exec_pings.run_all_pings(net)
-    print("Done with pings. Now running traffic tests...")
-    exec_ifstat.run()
-    exec_ab_tests.run(net, serverdata, loadconfig, starttime)
-    exec_vlc_clients.run(net, serverdata, loadconfig, starttime)
 
 # Entry point
 if __name__ == '__main__':
@@ -76,7 +67,9 @@ if __name__ == '__main__':
  
     setup_directories()
     serverdata = get_yml_data(SERVERCONF)
-    net = setup(serverdata)
+    G = generate_configs.generate()
+    generate_configs.configure(G)
+    net = setup(serverdata, G)
     loadconfdata = []
     with open(LOADCONF, 'r') as file:
         csvFile = csv.reader(file, delimiter='\t')
@@ -87,10 +80,17 @@ if __name__ == '__main__':
     sleep(40)
     print("Running tests. This may take a while...")
     starttime = datetime.now() + timedelta(seconds=120)
-    print(type(starttime))
-    runtests(net, serverdata, loadconfdata, starttime)
+
+    exec_pings.test_convergence(net)
+    exec_pings.run_all_pings(net)
+    print("Done with pings. Now running traffic tests...")
+    exec_ifstat.run(G)
+    exec_ab_tests.run(net, serverdata, loadconfdata, starttime)
+    exec_vlc_clients.run(net, serverdata, loadconfdata, starttime)
+
     CLI(net)
     net.stop()
+
     subprocess.run(["sudo", "pkill", "ryu-manager"])
     subprocess.run(["sudo", "pkill", "vlc"])
     subprocess.run(["sudo", "pkill", "cvlc"])

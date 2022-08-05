@@ -1,20 +1,14 @@
-#JETR
-
-#! /bin/python
-
-# from networkconfig import range_divider
-from networkconfig import clients, hosts, load_conf
-from networkconfig import sourcequeue, switch_configs, ovs_qosgenerator
+from .networkconfig import clients, hosts, load_conf
+from .networkconfig import sourcequeue, switch_configs, ovs_qosgenerator
 import os
 
 OUTDIR = f"{os.getcwd()}/config/custom"
 EXECDIR = f"{os.getcwd()}/scripts/custom"
-clients.save_to_conf(OUTDIR) #
-load_conf.save_to_conf(OUTDIR) #
-# sourcequeue.save_to_conf(OUTDIR) # Superseded by learning switch + STP combo
-switch_configs.save_to_conf(OUTDIR)  #
-ovs_qosgenerator.save_to_conf(OUTDIR, EXECDIR) #
-hosts.save_to_conf(OUTDIR)
 
-
-
+def generate_all_configs(G):
+    clients.save_to_conf(OUTDIR, G)
+    load_conf.save_to_conf(OUTDIR, G)
+    # sourcequeue.save_to_conf(OUTDIR) # will need later
+    switch_configs.save_to_conf(OUTDIR, G)
+    ovs_qosgenerator.save_to_conf(EXECDIR, G)
+    hosts.save_to_conf(OUTDIR, G)

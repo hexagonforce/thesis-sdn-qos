@@ -2,53 +2,35 @@
 # Modify the generate_script method to change the actual QoS constraints
 #
 
-import os
+import subprocess
 import yaml
 
 def generate_script(interface):
     return f"sudo ovs-vsctl -- set Port {interface} qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=1000000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=0 -- --id=@q1 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=1 -- --id=@q2 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority=2\n"
-
-def save_to_conf(basedir, execdir):
-    yml = f"{basedir}/topology_information.yml"
-    usecase_yml = f"{basedir.split('custom')[0]}/classprofile_functionname.yml"
+        
+def save_to_conf(execdir, G):
     cases = ["core", "leaves"]
-    with open (yml, 'rb') as yml_file:
-        topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-
-    core_switch = topo['core_switch']
-    server_switch = topo['server_switch']
-
+    core_switch = G.graph['core_switch']
+    server_switch = G.graph['server_switch']
+    edge_switches = [node for node, data in G.nodes(data='type') if data=='edge_switch']
+    internal_switches = [node for node, data in G.nodes(data='type') if data=='internal_switch']
 
     for case in cases:
         config_file = open(f"{execdir}/run.ovs-vsctl.case.{case}.sh", "w")
+        config_file.write("#! /usr/bin/bash\n")
         if case == "core":
-            to_server_port = ''
-            to_core_port = ''
-            for node, port in topo['adjlist'][core_switch].items():
-                if node == server_switch:
-                    to_server_port = port
-                    break
-            for node, port in topo['adjlist'][server_switch].items():
-                if node == core_switch:
-                    to_core_port = port
-                    break
-            interface = f"{core_switch}-eth{to_server_port}"
-            config_file.write(generate_script(interface))
-            interface2 = f"{server_switch}-eth{to_core_port}"
-            config_file.write(generate_script(interface2))
+            to_server = G[core_switch][server_switch]['lport']
+            to_core = G[core_switch][server_switch]['rport']
+            config_file.write(generate_script(f"{core_switch}-eth{to_server}"))
+            config_file.write(generate_script(f"{server_switch}-eth{to_core}"))
 
         elif case == "leaves":
-            for switch in topo['edge_switches'] + topo['internal_switches']:
-                for node, port in topo['adjlist'][switch].items():
+            for switch in edge_switches + internal_switches:
+                for neighbor in G[switch]:
+                    if (switch < neighbor):
+                        port = G[switch][neighbor]['lport']
+                    else:
+                        port = G[switch][neighbor]['rport']
                     config_file.write(generate_script(f"{switch}-eth{port}"))
         config_file.close()
-        os.system(f"chmod a+x {execdir}/run.ovs-vsctl.case.{case}.sh")
-        
-
-
-
-
-
-
-
-
+        subprocess.run(['chmod', 'a+x', f'{execdir}/run.ovs-vsctl.case.{case}.sh'])
