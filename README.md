@@ -54,5 +54,4 @@ Alternatively, run `simulator.py` to run all the scripts and tests automatically
 - Destroy the Queue and QoS configs.
 
 # TO DO List:
-- Need to optimize the number of flows installed: currently, we have a flow installed for each source-destination pair, but we want it so that only the destination matters. Let the number of clients = C and Let the number of servers = S. Currently, we have O(C * S) flows, but we want O(C + S) flows. O(C * S) is viable for probably up to 5000 Clients and 5000 servers only.
 - Make number of servers part of the topology definition.
