@@ -169,3 +169,7 @@ simulation/server4
 test.results
 
 *.out
+
+scripts/custom/run.ovs-vsctl.case.core.sh
+scripts/custom/run.ovs-vsctl.case.leaves.sh
+

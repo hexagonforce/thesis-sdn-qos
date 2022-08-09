@@ -9,8 +9,8 @@ import time
 BASEDIR = os.getcwd()
 ABTESTS_DIR = f'{BASEDIR}/simulation/test.results/ab-tests'
 def run(net, serverdata, loadconfig, starttime):
-    while datetime.now() < starttime:
-        time.sleep(1)
+    #while datetime.now() < starttime:
+    #    time.sleep(1)
     for loadrow in loadconfig:
         clientname = loadrow[0]
         httpload = loadrow[1].split('-')
@@ -34,4 +34,4 @@ def run(net, serverdata, loadconfig, starttime):
             f'-d 300 --timeout 300 http://{server.IP()}/{file} > '
             f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype}.txt 2> /dev/null &'
         )
-        host.cmd(cmd)
+        host.cmd(cmd2)

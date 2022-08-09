@@ -78,16 +78,16 @@ def run(results_filename, logfilename, media_url, starttime, duration):
     player.set_media(media)
     player.play()
     time.sleep(1)
-    player.stop()
-    player.set_position(0)
+    #player.stop()
+    #player.set_position(0)
 
     # Wait for the tests to start
-    while datetime.now() < starttime:
-        time.sleep(1)
+    #while datetime.now() < starttime:
+    #    time.sleep(1)
 
     # Play the Media
-    player.play()
-    time.sleep(1) # Takes some time for the video to load
+    #player.play()
+    #time.sleep(1) # Takes some time for the video to load
 
     # Repeatedly run write_stat every 5 seconds, for the specified duration
     start_time = time.time()
