@@ -6,6 +6,7 @@
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.log import setLogLevel, info
+import networkx as nx
 
 import yaml
 import os
@@ -40,6 +41,24 @@ def create_network():
         net.addLink(node1, node2, port1, port2)
 
     info ('*** Starting network\n')
+    net.start()
+    return net
+
+def create_network_networkx(G):
+    net = Mininet(controller=RemoteController)
+
+    net.addController('c0', controller=RemoteController)
+
+    for node in G:
+        if node.startswith('switch'):
+            net.addSwitch(node, protocols=["OpenFlow13"])
+        elif node.startswith('client'):
+            net.addHost(node, ip=f'10.0.0.{dpid(node)}')
+        elif node.startswith('server'):
+            net.addHost(node, ip=f'10.0.1.{dpid(node) + 100}')
+
+    for u, v, data in G.edges(data=True):
+        net.addLink(min(u, v), max(u, v), data['lport'], data['rport'])
     net.start()
     return net
 

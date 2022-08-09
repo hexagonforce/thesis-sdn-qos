@@ -33,13 +33,6 @@ def get_host_entries(host_entries):
                         h_switch_id = int(param[1].strip())
                     except ValueError:
                         raise(ValueError)
-                # elif param[0].strip() == "layered_switches":
-                #     if len(param[1].split(":")) > 1:
-                #         try:
-                #             h_layer_switches = [int(x) for x in param[1].split(":")]
-                #             print ("Layer Switches: {}".format(h_layer_switches))
-                #         except ValueError as err:
-                #             print ("ValueError: {}".format(err))
                 elif param[0].strip() == "port":
                     try:
                         h_port = int(param[1].strip())
@@ -119,31 +112,6 @@ def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list)
                     sw_dpid = param[1].strip()
                 elif param[0].strip() == "type":
                     sw_type = param[1].strip()
-                elif param[0].strip() == "core_port":
-                    try:
-                        sw_core_port = int(param[1].strip())
-                    except ValueError:
-                        raise(ValueError)
-                elif param[0].strip() == "server_port":
-                    server_port_str = param[1].strip()
-                    server_port_str_list = server_port_str.split(",")
-
-                    for server_port_entry in server_port_str_list:
-                        try:
-                            server_port = server_port_entry
-                            sw_server_port.append(server_port)
-                        except ValueError:
-                            raise(ValueError)
-                elif param[0].strip() == "leaf_ports":
-                    leaf_port_str = param[1].strip()
-                    leaf_port_str_list = leaf_port_str.split(",")
-
-                    for leaf_port_entry in leaf_port_str_list:
-                        try:
-                            leaf_port = leaf_port_entry
-                            sw_leaf_ports.append(leaf_port)
-                        except ValueError:
-                            raise(ValueError)
                 elif param[0].strip() == "queues":
                     try:
                         sw_queue_count = int(param[1].strip())
@@ -151,11 +119,6 @@ def get_switch_entries(switches_entries, hosts_list, clients_list, servers_list)
                         raise(ValueError)
                 elif param[0].strip() == "qos":
                     sw_qos_type = param[1].strip()
-                elif param[0].strip() == "qos_port":
-                    try:
-                        sw_qos_port = int(param[1].strip())
-                    except ValueError:
-                        raise(ValueError)
 
         if sw_id > 0 and sw_name != "" and sw_dpid != "" and sw_type != "":
             if sw_type == "core":

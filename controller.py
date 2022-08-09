@@ -36,7 +36,6 @@ sys.modules['sdn_algorithms'] = sdn_algorithms
 
 BASEDIR = os.getcwd()
 USECASE_YML = f"{BASEDIR}/config/class_profile_functionname.yml"
-TOPO_YML = f"{BASEDIR}/config/custom/topology_information.yml"
 
 
 class QoSSwitch13(simple_switch_13.SimpleSwitch13):
@@ -54,17 +53,16 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
 
         CONF = cfg.CONF
         CONF.register_opts([
-            cfg.StrOpt("case", default="0")])
+            cfg.StrOpt("case", default="0"),
+            cfg.StrOpt("core_switch", default="switch1")
+        ])
 
         self.case = CONF.case.replace("\"", "")
+        core_switch = CONF.core_switch.replace("\"", "")
+        core_switch_num = ''.join((c for c in core_switch if c.isdigit()))
 
         with open(USECASE_YML, "rb") as yml_file:
             self.usecases = yaml.load(yml_file, Loader=yaml.FullLoader)['class_profiles']
-
-        with open(TOPO_YML, "rb") as yml_file:
-            core_switch = yaml.load(yml_file, Loader=yaml.FullLoader)['core_switch']
-        core_switch_num = ''.join((c for c in core_switch if c.isdigit()))
-
         self.algo = getattr(sdn_algorithms, self.usecases[self.case]['func_name'])
 
         nodes_config_filepath = f"{BASEDIR}/config/custom/usecase_{self.case}_nodes_configuration.json"
