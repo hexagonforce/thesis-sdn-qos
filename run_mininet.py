@@ -67,6 +67,3 @@ if __name__ == '__main__':
     net = create_network()
     net.stop()
 
-
-
-

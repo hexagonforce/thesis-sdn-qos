@@ -2,7 +2,6 @@
 # Modify the generate_script method to change the actual QoS constraints
 #
 
-import subprocess
 import yaml
 
 def generate_script(interface):
@@ -33,4 +32,3 @@ def save_to_conf(execdir, G):
                         port = G[switch][neighbor]['rport']
                     config_file.write(generate_script(f"{switch}-eth{port}"))
         config_file.close()
-        subprocess.run(['chmod', 'a+x', f'{execdir}/run.ovs-vsctl.case.{case}.sh'])

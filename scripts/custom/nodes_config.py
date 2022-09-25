@@ -79,10 +79,10 @@ def write_all_config_to_json():
 	config_data['clients_list'] = get_host_entries(config_data['host_entries'])[1]
 	config_data['servers_list']  = get_host_entries(config_data['host_entries'])[2]
 	config_data['switches_list'] = get_switch_entries(config_data['switches_entries'], 
-														config_data['hosts_list'], 
-														config_data['clients_list'], 
-														config_data['servers_list']
-													)
+							config_data['hosts_list'], 
+							config_data['clients_list'], 
+							config_data['servers_list']
+							)
 
 	with open(config_path['clientconfig_file'], 'rt') as csv_file:
 		for row in csv.reader(csv_file, delimiter='\t'):

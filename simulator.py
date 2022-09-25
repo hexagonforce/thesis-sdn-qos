@@ -1,13 +1,12 @@
 from time import sleep
 import psutil
-from datetime import datetime 
-from datetime import timedelta
 import yaml, csv
 import subprocess
 import os
 from mininet.cli import CLI
-from run_mininet import create_network_networkx
+
 import generate_configs
+from run_mininet import create_network_networkx
 from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
 
 BASEDIR = os.getcwd()
@@ -71,8 +70,7 @@ def setup(serverdata, G):
     setup_servers.run(net, serverdata)
     return net
 
-# Entry point
-if __name__ == '__main__':
+def main():
     # Read all the necessary configuration files
     print("Started Simulation. Setting up the server...")
     serverdata = get_yml_data(SERVERCONF)
@@ -83,7 +81,7 @@ if __name__ == '__main__':
             loadconfdata.append(line)
 
     setup_directories()
-    G = generate_configs.generate()
+    G = generate_configs.generate_graph()
     generate_configs.configure(G)
     net = setup(serverdata, G)
     
@@ -115,3 +113,6 @@ if __name__ == '__main__':
     subprocess.run(["sudo", "pkill", "ifstat"])
 
 
+# Entry point
+if __name__ == '__main__':
+    main()

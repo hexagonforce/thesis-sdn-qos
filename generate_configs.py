@@ -5,7 +5,7 @@ from scripts import network_topologies
 from scripts.custom import network_configs, nodes_config
 
 BASEDIR = os.getcwd()
-def generate():
+def generate_graph():
     return network_topologies.get_topology_graph()
 
 def configure(G):

@@ -1,7 +1,3 @@
-# FIX THIS PART. MAP PER LAYER OF SWITCHES
-# OUTPUT LIST OF SWITCHES PACKETS FROM A CERTAIN CLIENT WILL DEFINITELY PASS THROUGH (INITIAL)
-# FIX CORE SWITCH
-# PROBLEM: IF MULTIPLE CLIENTS HAVE SIMILAR SWITCHES
 """
 This module emits the source.queue.map.q2 file which is used for source based queueing.
 For each client, list the switches in the shortest path to the core, followed by a queue number.
