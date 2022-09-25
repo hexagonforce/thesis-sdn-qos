@@ -1,6 +1,5 @@
-import os, subprocess, time
+import os
 from simulation.constants import SLEEP_CONST
-from mininet.util import pmonitor
 
 BASEDIR = os.getcwd()
 
@@ -14,12 +13,5 @@ def run_all_pings(net):
     servers = [host for host in net.hosts if 'server' in host.name]
 
     for client in clients:
-        popens = {}
-        outfiles = []
         for server in servers:
-            outfiles.append(open(f'{BASEDIR}/simulation/test.results/pings/{client.name}-{server.name}.txt', 'w'))
-            popens[server] = client.popen(f'ping -c 20 {server.IP()}', stdout=outfiles[-1])
-        while sum((1 for p in popens.values() if p.poll() is None)) != 0:
-            time.sleep(SLEEP_CONST)
-        for outfile in outfiles:
-            outfile.close()
+            client.cmd(f'ping -c 20 {server.IP()} > {BASEDIR}/simulation/test.results/pings/{client.name}-{server.name}.txt')

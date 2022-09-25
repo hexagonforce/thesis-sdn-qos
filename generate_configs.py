@@ -6,8 +6,7 @@ from scripts.custom import network_configs, nodes_config
 
 BASEDIR = os.getcwd()
 def generate():
-    G = network_topologies.get_topology_graph()
-    return G
+    return network_topologies.get_topology_graph()
 
 def configure(G):
     network_configs.generate_all_configs(G) # intention is to pass networkx graph to everyone
@@ -15,4 +14,5 @@ def configure(G):
     nx.write_graphml(G, f'{BASEDIR}/simulation/test.results/metadata/topology.graphml')
 
 if __name__ == '__main__':
-    generate()
+    G = generate()
+    configure(G)

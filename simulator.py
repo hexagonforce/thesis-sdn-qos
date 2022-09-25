@@ -1,13 +1,14 @@
 from time import sleep
+import psutil
 from datetime import datetime 
 from datetime import timedelta
 import yaml, csv
-from run_mininet import create_network_networkx
-import generate_configs
-from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
 import subprocess
 import os
 from mininet.cli import CLI
+from run_mininet import create_network_networkx
+import generate_configs
+from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
 
 BASEDIR = os.getcwd()
 SERVERCONF = f'{BASEDIR}/config/server_config.yml'
@@ -37,7 +38,7 @@ def get_yml_data(path):
 # Running functions
 def setup_directories():
     '''
-    This function copies over config files to the results directory
+    This function resets the simulation/test.results directory
     '''
     subprocess.run(['rm', '-rf', 'simulation/test.results/'])
     subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
@@ -51,8 +52,18 @@ def setup(serverdata, G):
     '''
     net = create_network_networkx(G)
     core_switch = G.graph['core_switch']
-    with open(f'{BASEDIR}/controller.conf', 'a') as controller_config:
-        controller_config.write(f'core_switch="{core_switch}"\n')
+
+    # Sends the information about the core switch of the topology to the Ryu Controller
+    with open(CONTROLLERCONF, 'r+') as controller_config:
+        lines = controller_config.readlines()
+    with open(CONTROLLERCONF, 'w') as controller_config:
+        for line in lines:
+            if line.startswith('core_switch'):
+                controller_config.write(f'core_switch="{core_switch}"\n')
+            else:
+                controller_config.write(line)
+
+    # Creates the directories and sets all the stuff
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
     subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -64,33 +75,40 @@ def setup(serverdata, G):
 if __name__ == '__main__':
     # Read all the necessary configuration files
     print("Started Simulation. Setting up the server...")
- 
-    setup_directories()
     serverdata = get_yml_data(SERVERCONF)
-    G = generate_configs.generate()
-    generate_configs.configure(G)
-    net = setup(serverdata, G)
     loadconfdata = []
     with open(LOADCONF, 'r') as file:
         csvFile = csv.reader(file, delimiter='\t')
         for line in csvFile:
             loadconfdata.append(line)
 
+    setup_directories()
+    G = generate_configs.generate()
+    generate_configs.configure(G)
+    net = setup(serverdata, G)
+    
+
     print("Setup Complete. Waiting for STP...")
     sleep(40)
     print("Running tests. This may take a while...")
-    starttime = datetime.now() + timedelta(seconds=120)
-
+    
     exec_pings.test_convergence(net)
     exec_pings.run_all_pings(net)
+    
     print("Done with pings. Now running traffic tests...")
+    
     exec_ifstat.run(G)
-    exec_ab_tests.run(net, serverdata, loadconfdata, starttime)
-    exec_vlc_clients.run(net, serverdata, loadconfdata, starttime)
+    exec_ab_tests.run(net, serverdata, loadconfdata)
+    exec_vlc_clients.run(net, serverdata, loadconfdata)
+    
+    while True:
+        sleep(5)
+        processes = [x.name() for x in psutil.process_iter()]
+        if processes.count('hey') == 0:
+            sleep(60)
+            break
 
-    CLI(net)
     net.stop()
-
     subprocess.run(["sudo", "pkill", "ryu-manager"])
     subprocess.run(["sudo", "pkill", "vlc"])
     subprocess.run(["sudo", "pkill", "cvlc"])

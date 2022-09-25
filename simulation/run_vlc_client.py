@@ -61,7 +61,7 @@ def write_stat(file, start_time, media):
         f'{stats.lost_abuffers}\n'
     ))
 
-def run(results_filename, logfilename, media_url, starttime, duration):
+def run(results_filename, logfilename, media_url, duration):
     results_file = init_results_file(results_filename)
 
     vlc_instance = vlc.Instance(
@@ -70,24 +70,12 @@ def run(results_filename, logfilename, media_url, starttime, duration):
         '--no-playlist-autostart --no-video-deco --quiet'
     )
 
-    starttime = datetime.fromisoformat(starttime)
-
     # Set up player
     player = vlc_instance.media_player_new()
     media = vlc_instance.media_new(media_url)
     player.set_media(media)
     player.play()
     time.sleep(1)
-    #player.stop()
-    #player.set_position(0)
-
-    # Wait for the tests to start
-    #while datetime.now() < starttime:
-    #    time.sleep(1)
-
-    # Play the Media
-    #player.play()
-    #time.sleep(1) # Takes some time for the video to load
 
     # Repeatedly run write_stat every 5 seconds, for the specified duration
     start_time = time.time()

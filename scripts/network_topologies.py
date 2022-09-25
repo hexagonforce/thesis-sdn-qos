@@ -68,6 +68,7 @@ def farthest_by_hops(G):
 def generate_topology2(G, topo):
     num_switches = nx.number_of_nodes(G)
     
+    # Assign core switch if it has not been assigned previously
     if 'core_switch_num' in topo['details']:
         core_switch_num = int(topo['details']['core_switch_num'])
     else:
@@ -75,6 +76,8 @@ def generate_topology2(G, topo):
 
     core_switch = f'switch{core_switch_num}'
     server_switch = f'switch{num_switches + 1}'
+
+    # Get all the necessary details
     num_client_switches = topo['details']['client_switches']
     if num_client_switches == 'max' or num_client_switches > num_switches - 1:
         num_client_switches = num_switches - 1
@@ -102,8 +105,8 @@ def generate_topology2(G, topo):
     normal_switches.remove(server_switch)
     normal_switches = sorted(normal_switches, key=lambda x: int(x.replace('switch', '')))
     
-    edge_switches = normal_switches[-num_client_switches:]
-    internal_switches = normal_switches[:-num_client_switches]
+    edge_switches = normal_switches[-num_client_switches:] # last few elements
+    internal_switches = normal_switches[:-num_client_switches] # elements that are not edge switches
 
     for edge_switch in edge_switches:
         G.nodes[edge_switch]['type'] = 'edge_switch'
@@ -152,25 +155,6 @@ def zoo_data(topo):
     G = nx.read_graphml(filepath)
     return generate_topology2(G, topo)
 
-def main():
-    TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
-    with open(TOPOYML, 'rb') as yml_file:
-        topoconfig = yaml.load(yml_file, Loader=yaml.FullLoader)
-
-    # Load information about the topology to test
-    topo_name = topoconfig['to_test']
-    details = topoconfig['topology'][topo_name]
-    topo_func_name = topoconfig['topology'][topo_name]['func']
-    topo_func = globals()[topo_func_name]
-
-    # Get the nodes and links information
-    result = topo_func(details)
-    result['topo_name'] = topo_name
-    result['topo_details'] = details
-    
-    with open(f'{BASEDIR}/config/custom/topology_information.yml', 'w') as file:
-        yaml.dump(result, file)
-
 def get_topology_graph():
     TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
     with open(TOPOYML, 'rb') as yml_file:
@@ -186,4 +170,5 @@ def get_topology_graph():
     return G
 
 if __name__ == '__main__':
-    main()
+    G = get_topology_graph()
+    nx.write_graphml(G, f'{BASEDIR}/final_topology.xml')

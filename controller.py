@@ -49,7 +49,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
     """
     def __init__(self, *args, **kwargs):
         super(QoSSwitch13, self).__init__(*args, **kwargs)
-        self.name = "Josiah Eleazar Regencia"
+        self.name = "Hyeong Seon Yoo"
 
         CONF = cfg.CONF
         CONF.register_opts([
@@ -74,11 +74,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         self.stp = kwargs['stplib']
         config = {dpid_lib.str_to_dpid(core_switch_num.zfill(16)):
                     {'bridge': {'priority': 0x8000}},
-                    # dpid_lib.str_to_dpid('0000000000000002'):
-                    # {'bridge': {'priority': 0xa000}},
-                    # dpid_lib.str_to_dpid('0000000000000003'):
-                    # {'bridge': {'priority': 0xa000}},
-                    }
+                 }
         self.stp.set_config(config)
 
     def delete_flow(self, datapath):
