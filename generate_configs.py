@@ -14,5 +14,5 @@ def configure(G):
     nx.write_graphml(G, f'{BASEDIR}/simulation/test.results/metadata/topology.graphml')
 
 if __name__ == '__main__':
-    G = generate()
+    G = generate_graph()
     configure(G)

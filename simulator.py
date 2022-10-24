@@ -65,8 +65,8 @@ def setup(serverdata, G):
     # Creates the directories and sets all the stuff
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
-    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(['./setqos.sh', get_qos_type()], stdout=subprocess.DEVNULL)
+    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stdout=open('ryudebug.txt', 'w'), stderr=open('ryuerr.txt', 'w'))
+    subprocess.run([f'./config/custom/run.ovs-vsctl.case.{get_qos_type()}.sh'], stdout=subprocess.DEVNULL)
     setup_servers.run(net, serverdata)
     return net
 
@@ -87,13 +87,8 @@ def main():
     
 
     print("Setup Complete. Waiting for STP...")
-    sleep(40)
+    sleep(90)
     print("Running tests. This may take a while...")
-    
-    exec_pings.test_convergence(net)
-    exec_pings.run_all_pings(net)
-    
-    print("Done with pings. Now running traffic tests...")
     
     exec_ifstat.run(G)
     exec_ab_tests.run(net, serverdata, loadconfdata)
@@ -103,7 +98,7 @@ def main():
         sleep(5)
         processes = [x.name() for x in psutil.process_iter()]
         if processes.count('hey') == 0:
-            sleep(60)
+            sleep(30)
             break
 
     net.stop()

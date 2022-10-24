@@ -26,6 +26,7 @@ def save_to_conf(basedir, G):
 	types = ['medium', 'high']
 	list_clients = [node for node, data in G.nodes(data='type') if data=='client']
 	list_clients.sort(key= lambda x: int(x.replace('client', '')))
+	#list_clients.reverse() # this is an experiment
 	with open(f"{basedir}/load.conf.l3.tab", "w") as config_file:
 		for idx, client in enumerate(list_clients):
 			typeidx = idx % (HTTP_SERVERS + VLC_SERVERS) // len(types)

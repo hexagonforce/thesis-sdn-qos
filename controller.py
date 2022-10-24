@@ -152,7 +152,6 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         datapath.send_msg(mod2)
 
         #If it's an IP packet, install flows if we know the port
-    
         self.algo(ev, messaging_switch, self.nodes_configuration, src, dst, dest_port)
 
         data = None

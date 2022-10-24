@@ -25,7 +25,7 @@ def vlcserversetup(server, data):
     vlm_file = f"{SIMULDIR}/{data['vlm']}.vlm"
     cmd = (
         f'sudo -u mininet cvlc -vvv --file-logging --logfile={logfilename} '
-        '--stats --color --rtsp-port 5004 --rtsp-throttle-users=0 --rtsp-timeout=300 --rtsp-session-timeout=60'
+        '--stats --color --rtsp-port 5004 --rtsp-throttle-users=0 --rtsp-timeout=300 --rtsp-session-timeout=300'
         f'--network-caching=200000 --file-caching=200000 --vlm-conf={vlm_file} &'
     )
     server.cmd(cmd)
