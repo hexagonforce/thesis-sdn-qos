@@ -1,3 +1,6 @@
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 
 import pickle
@@ -25,7 +28,7 @@ def filter_args(arg_dict):
             res[k] = v
     return res
 
-def add_flow(msg, dp, queue_id, nwproto, priority, in_port, out_port, eth_src, eth_dst):
+def add_flow(msg, queue_id, nwproto, tcp_src, tcp_dst, priority, in_port, out_port, eth_src, eth_dst):
     dp = msg.datapath
     ofp = dp.ofproto
     ofp_parser = dp.ofproto_parser
@@ -43,7 +46,9 @@ def add_flow(msg, dp, queue_id, nwproto, priority, in_port, out_port, eth_src, e
         'eth_type': ether_types.ETH_TYPE_IP,
         'eth_src': eth_src,
         'eth_dst': eth_dst,
-        'ip_proto': nwproto
+        'ip_proto': nwproto,
+        'tcp_src': tcp_src,
+        'tcp_dst': tcp_dst
     } 
     match = ofp_parser.OFPMatch(
         **filter_args(match_args)
@@ -61,49 +66,39 @@ def add_flow(msg, dp, queue_id, nwproto, priority, in_port, out_port, eth_src, e
     )
     dp.send_msg(mod)
 
-def basic_cbq_leaves(event, switch, nodes_config, eth_src, eth_dst, out_port):
+def basic_cbq(event, switch, nodes_config, out_port, mode):
     ''' 
-    Basic Class-based queueing algorithm, enforced at the leaves
+    Basic Class-based queueing algorithm
     '''
     msg = event.msg
     dp = msg.datapath
     ofp = dp.ofproto
     ofp_parser = dp.ofproto_parser
-    in_port = msg.match['in_port']
     
-    # If it's not the leaf we don't apply any QoS flows
-    if not 'client-leaf' in switch['type']:
-        add_flow(msg, dp, None, None, 10, in_port, out_port, eth_src, eth_dst)
-        add_flow(msg, dp, None, None, 10, out_port, in_port, eth_dst, eth_src)
-    elif out_port != ofp.OFPP_FLOOD:
-        for details in nodes_config['traffic'].values():
-            queue_id = details['proto_queue_id']
-            nwproto = details['nwproto']
-            priority = details['proto_priority']
-            add_flow(msg, dp, queue_id, nwproto, priority, in_port, out_port, eth_src, eth_dst)
-            add_flow(msg, dp, queue_id, nwproto, priority, out_port, in_port, eth_dst, eth_src)
-
-        add_flow(msg, dp, switch['queue_count']-1, None, 10, in_port, out_port, eth_src, eth_dst)
-        add_flow(msg, dp, switch['queue_count']-1, None, 10, out_port, in_port, eth_dst, eth_src)
-
-def basic_cbq_core(event, switch, nodes_config, eth_src, eth_dst, out_port):
-    msg = event.msg
-    dp = msg.datapath
-    ofp = dp.ofproto
-    ofp_parser = dp.ofproto_parser
     in_port = msg.match['in_port']
+    pkt = packet.Packet(msg.data)
+    eth_pkt = pkt.get_protocol(ethernet.ethernet)
+    eth_dst = eth_pkt.dst
+    eth_src = eth_pkt.src
 
-    if not 'core' in switch['type']:
-        add_flow(msg, dp, None, None, 10, in_port, out_port, eth_src, eth_dst)
-        add_flow(msg, dp, None, None, 10, out_port, in_port, eth_dst, eth_src)
+    # If it's not the desired mode, we don't apply any QoS flows
+    if not mode in switch['type']:
+        add_flow(msg, None, None, None, None, 10, in_port, out_port, eth_src, eth_dst)
+        add_flow(msg, None, None, None, None, 10, out_port, in_port, eth_dst, eth_src)
     elif out_port != ofp.OFPP_FLOOD:
         for details in nodes_config['traffic'].values():
-            queue_id = details['proto_queue_id']
-            nwproto = details['nwproto']
-            priority = details['proto_priority']
-            add_flow(msg, dp, queue_id, nwproto, priority, in_port, out_port, eth_src, eth_dst)
-            add_flow(msg, dp, queue_id, nwproto, priority, out_port, in_port, eth_dst, eth_src)
+            queue_id = details.get('proto_queue_id', None)
+            nwproto = details.get('nwproto', None)
+            priority = details.get('proto_priority', None)
+            tcp_dst = details.get('tcp_dst', None)
+            add_flow(msg, queue_id, nwproto, None, None, priority, in_port, out_port, eth_src, eth_dst)
+            add_flow(msg, queue_id, nwproto, None, None, priority, out_port, in_port, eth_dst, eth_src)
 
-        add_flow(msg, dp, switch['queue_count']-1, None, 10, in_port, out_port, eth_src, eth_dst)
-        add_flow(msg, dp, switch['queue_count']-1, None, 10, out_port, in_port, eth_dst, eth_src)
+        add_flow(msg, switch['queue_count']-1, None, None, None, 10, in_port, out_port, eth_src, eth_dst)
+        add_flow(msg, switch['queue_count']-1, None, None, None, 10, out_port, in_port, eth_dst, eth_src)
 
+def basic_cbq_core(event, switch, nodes_config, out_port):
+    basic_cbq(event, switch, nodes_config, out_port, 'core')
+
+def basic_cbq_leaves(event, switch, nodes_config, out_port):
+    basic_cbq(event, switch, nodes_config, out_port, 'client-leaf')
