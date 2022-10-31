@@ -1,0 +1,10 @@
+
+# VLC media player VLM command batch
+# http://www.videolan.org/vlc/
+
+new gfriendMedium vod enabled
+setup gfriendMedium input "file:///home/mininet/thesis-sdn-qos/simulation/server4/gfriendMedium.mp4"
+setup gfriendMedium option file-caching=300
+new gfriendHigh vod enabled
+setup gfriendHigh input "file:///home/mininet/thesis-sdn-qos/simulation/server4/gfriendHigh.mp4"
+setup gfriendHigh option file-caching=300

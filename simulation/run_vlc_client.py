@@ -67,6 +67,7 @@ def run(results_filename, logfilename, media_url, duration):
     vlc_instance = vlc.Instance(
         f'-vvv --file-logging --logfile={logfilename} '
         '--vout=vdummy --aout=adummy --codec=dummy --no-sout-display-video --no-sout-display-audio '
+        '--rtsp-timeout=300 --rtsp-session-timeout=300 '
         '--no-playlist-autostart --no-video-deco --quiet'
     )
 
