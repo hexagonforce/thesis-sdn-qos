@@ -17,4 +17,4 @@ server4:
   protocol: rtsp
   medium: gfriendMedium
   high: gfriendHigh
-  vlm: GfriendVLCConfig
+  vlm: gfriendVLCConfig
