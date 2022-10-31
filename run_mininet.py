@@ -45,7 +45,7 @@ def create_network():
     return net
 
 def create_network_networkx(G):
-    net = Mininet(controller=RemoteController)
+    net = Mininet(controller=RemoteController, autoSetMacs=True)
 
     net.addController('c0', controller=RemoteController)
 
@@ -61,9 +61,4 @@ def create_network_networkx(G):
         net.addLink(min(u, v), max(u, v), data['lport'], data['rport'])
     net.start()
     return net
-
-if __name__ == '__main__':
-    setLogLevel ('info')
-    net = create_network()
-    net.stop()
 

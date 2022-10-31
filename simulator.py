@@ -21,6 +21,9 @@ def get_qos_type():
     return get_class_profile()['test_case']
 
 def get_class_profile():
+    '''
+    This reads from the class profile yaml file and gets the corresponding 
+    '''
     class_profile_data = get_yml_data(CLASS_PROFILE_FILE)
     casenum = 0
     with open(CONTROLLERCONF, 'r') as file:
@@ -34,25 +37,32 @@ def get_yml_data(path):
     with open(path, 'r') as file:
         return yaml.load(file, Loader = yaml.FullLoader)
 
-# Running functions
-def setup_directories():
-    '''
-    This function resets the simulation/test.results directory
-    '''
+def main():
+    print("Started Simulation. Setting up the server...")
+
+    # Reset the results directory
     subprocess.run(['rm', '-rf', 'simulation/test.results/'])
     subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
     subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
 
-def setup(serverdata, G):
-    '''
-    This function runs the scripts, starts mininet and Ryu, and configures the servers.
-    Side effect: writes to the controller.conf file
-    '''
+    # Generate topology and configuration files
+    G = generate_configs.generate_graph()
+    generate_configs.configure(G)
+
+    # Read server_config and load.conf.l3.tab
+    serverdata = get_yml_data(SERVERCONF)
+    loadconfdata = []
+    with open(LOADCONF, 'r') as file:
+        csvFile = csv.reader(file, delimiter='\t')
+        for line in csvFile:
+            loadconfdata.append(line)
+    
+    # Set up the network
     net = create_network_networkx(G)
     core_switch = G.graph['core_switch']
 
-    # Sends the information about the core switch of the topology to the Ryu Controller
+    # Sends the information about the core switch of the topology to the Ryu Controller configuration file
     with open(CONTROLLERCONF, 'r+') as controller_config:
         lines = controller_config.readlines()
     with open(CONTROLLERCONF, 'w') as controller_config:
@@ -62,38 +72,32 @@ def setup(serverdata, G):
             else:
                 controller_config.write(line)
 
-    # Creates the directories and sets all the stuff
+    # Setup OpenFlow queue settings
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
-    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stdout=open('ryudebug.txt', 'w'), stderr=open('ryuerr.txt', 'w'))
     subprocess.run([f'./config/custom/run.ovs-vsctl.case.{get_qos_type()}.sh'], stdout=subprocess.DEVNULL)
+
+    # Runs the controller
+    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stderr=open('ryuerr.txt', 'w'))
+
+    # Set up servers in the network
     setup_servers.run(net, serverdata)
-    return net
 
-def main():
-    # Read all the necessary configuration files
-    print("Started Simulation. Setting up the server...")
-    serverdata = get_yml_data(SERVERCONF)
-    loadconfdata = []
-    with open(LOADCONF, 'r') as file:
-        csvFile = csv.reader(file, delimiter='\t')
-        for line in csvFile:
-            loadconfdata.append(line)
-
-    setup_directories()
-    G = generate_configs.generate_graph()
-    generate_configs.configure(G)
-    net = setup(serverdata, G)
-    
-
+    # Wait for STP
     print("Setup Complete. Waiting for STP...")
-    sleep(90)
+    sleep(60)
     print("Running tests. This may take a while...")
-    
+
+    # Execute pings
+    # exec_pings.test_convergence(net)
+    # exec_pings.run_all_pings(net)
+
+    # Execute test suite
     exec_ifstat.run(G)
-    exec_ab_tests.run(net, serverdata, loadconfdata)
     exec_vlc_clients.run(net, serverdata, loadconfdata)
-    
+    exec_ab_tests.run(net, serverdata, loadconfdata)
+
+    # Control the length of simulation
     while True:
         sleep(5)
         processes = [x.name() for x in psutil.process_iter()]
@@ -101,6 +105,8 @@ def main():
             sleep(30)
             break
 
+    # Stop everything
+    # CLI(net)
     net.stop()
     subprocess.run(["sudo", "pkill", "ryu-manager"])
     subprocess.run(["sudo", "pkill", "vlc"])

@@ -129,13 +129,13 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         self.mac_to_port[dpid][src] = in_port
 
         if dst in self.mac_to_port[dpid]:
-            dest_port = self.mac_to_port[dpid][dst]
+            out_port = self.mac_to_port[dpid][dst]
         else:
-            dest_port = ofproto.OFPP_FLOOD
+            out_port = ofproto.OFPP_FLOOD
 
         # Installing the flow
     
-        # If it's an ARP or a LLDP packet then just flood everywhere
+        # Match LLDP and ARP packets to flood everywhere
         messaging_switch = self.switches_list[str(datapath.id)]
 
         last_queue_of_switch = messaging_switch['queue_count']
@@ -152,7 +152,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         datapath.send_msg(mod2)
 
         #If it's an IP packet, install flows if we know the port
-        self.algo(ev, messaging_switch, self.nodes_configuration, src, dst, dest_port)
+        self.algo(ev, messaging_switch, self.nodes_configuration, out_port)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
