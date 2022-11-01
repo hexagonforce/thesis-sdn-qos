@@ -82,10 +82,7 @@ def basic_cbq(event, switch, nodes_config, out_port, mode):
     eth_src = eth_pkt.src
 
     # If it's not the desired mode, we don't apply any QoS flows
-    if not mode in switch['type']:
-        add_flow(msg, None, None, None, None, 10, in_port, out_port, eth_src, eth_dst)
-        add_flow(msg, None, None, None, None, 10, out_port, in_port, eth_dst, eth_src)
-    elif out_port != ofp.OFPP_FLOOD:
+    if mode in switch['type']:
         for details in nodes_config['traffic'].values():
             queue_id = details.get('proto_queue_id', None)
             nwproto = details.get('nwproto', None)
@@ -96,6 +93,10 @@ def basic_cbq(event, switch, nodes_config, out_port, mode):
 
         add_flow(msg, switch['queue_count']-1, None, None, None, 10, in_port, out_port, eth_src, eth_dst)
         add_flow(msg, switch['queue_count']-1, None, None, None, 10, out_port, in_port, eth_dst, eth_src)
+    else:
+        # flood_algo(event)
+        add_flow(msg, 0, None, None, None, 1000, in_port, out_port, eth_src, eth_dst)
+        add_flow(msg, 0, None, None, None, 1000, out_port, in_port, eth_dst, eth_src)
 
 def basic_cbq_core(event, switch, nodes_config, out_port):
     basic_cbq(event, switch, nodes_config, out_port, 'core')
