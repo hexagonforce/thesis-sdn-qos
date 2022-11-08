@@ -81,16 +81,17 @@ def basic_cbq(event, switch, nodes_config, out_port, mode):
     eth_dst = eth_pkt.dst
     eth_src = eth_pkt.src
 
-    # If it's not the desired mode, we don't apply any QoS flows
+    # If it is the desired switch type, we apply the QoS rules.
     if mode in switch['type']:
         for details in nodes_config['traffic'].values():
             queue_id = details.get('proto_queue_id', None)
             nwproto = details.get('nwproto', None)
             priority = details.get('proto_priority', None)
             tcp_dst = details.get('tcp_dst', None)
-            add_flow(msg, queue_id, nwproto, None, None, priority, in_port, out_port, eth_src, eth_dst)
-            add_flow(msg, queue_id, nwproto, None, None, priority, out_port, in_port, eth_dst, eth_src)
-
+            add_flow(msg, queue_id, nwproto, tcp_dst, None, priority, in_port, out_port, eth_src, eth_dst)
+            add_flow(msg, queue_id, nwproto, None, tcp_dst, priority, in_port, out_port, eth_src, eth_dst)
+            add_flow(msg, queue_id, nwproto, tcp_dst, None, priority, out_port, in_port, eth_dst, eth_src)
+            add_flow(msg, queue_id, nwproto, None, tcp_dst, priority, out_port, in_port, eth_dst, eth_src)
         add_flow(msg, switch['queue_count']-1, None, None, None, 10, in_port, out_port, eth_src, eth_dst)
         add_flow(msg, switch['queue_count']-1, None, None, None, 10, out_port, in_port, eth_dst, eth_src)
     else:

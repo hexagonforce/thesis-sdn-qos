@@ -1,4 +1,5 @@
 from time import sleep
+from datetime import datetime
 import psutil
 import yaml, csv
 import subprocess
@@ -85,7 +86,7 @@ def main():
 
     # Wait for STP
     print("Setup Complete. Waiting for STP...")
-    sleep(60)
+    sleep(90)
     print("Running tests. This may take a while...")
 
     # Execute pings
@@ -99,11 +100,11 @@ def main():
 
     # Control the length of simulation
     while True:
-        sleep(5)
-        processes = [x.name() for x in psutil.process_iter()]
-        if processes.count('hey') == 0:
-            sleep(30)
-            break
+      processes = [x.name() for x in psutil.process_iter()]
+      if processes.count('hey') == 0:
+          sleep(220)
+          break
+      sleep(5)
 
     # Stop everything
     # CLI(net)
@@ -112,8 +113,7 @@ def main():
     subprocess.run(["sudo", "pkill", "vlc"])
     subprocess.run(["sudo", "pkill", "cvlc"])
     subprocess.run(["sudo", "pkill", "ifstat"])
+    subprocess.run(['/home/mininet/.local/bin/export_results', f'{datetime.now().isoformat("-")}'])
 
-
-# Entry point
 if __name__ == '__main__':
     main()
