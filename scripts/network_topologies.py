@@ -142,17 +142,20 @@ def fat_tree(topo):
     topo['details']['core_switch_num'] = 1
 
     G = nx.balanced_tree(fanout, layers)
+    G.graph['name'] = f'fat_tree_{fanout}_{layers}'
     return generate_topology2(G, topo)
 
 def mesh(topo):
     num_switches = topo['details']['switches']
     G = nx.complete_graph(num_switches)
+    G.graph['name'] = f'mesh_{num_switches}'
     return generate_topology2(G, topo)
 
 def zoo_data(topo):
     filename = topo['details']['filename']
     filepath = f'{BASEDIR}/zoo_data/{filename}'
     G = nx.read_graphml(filepath)
+    G.graph['name'] = filename.replace('.graphml', '')
     return generate_topology2(G, topo)
 
 def get_topology_graph():
