@@ -3,7 +3,6 @@ from time import sleep
 from datetime import datetime
 from sys import argv
 import shutil
-import psutil
 import yaml
 import csv
 import subprocess
@@ -100,10 +99,10 @@ def main(iterations=1):
     subprocess.run([f'./config/custom/run.ovs-vsctl.case.{get_qos_type()}.sh'], stdout=subprocess.DEVNULL)
 
     # Runs the controller
-    subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stderr=open('ryuerr.txt', 'w'))
+    ryu_manager = subprocess.Popen(['ryu-manager', 'controller.py', '--config-file', 'controller.conf'], stderr=open('ryuerr.txt', 'w'))
 
     # Set up servers in the network
-    setup_servers.run(net, serverdata)
+    server_processes = setup_servers.run(net, serverdata)
 
     # Wait for STP
     print("Setup Complete. Waiting for STP...")
@@ -115,30 +114,33 @@ def main(iterations=1):
     # exec_pings.run_all_pings(net)
 
     # Execute test suite
-    for idx in range(int(iterations)):
-        start_time = datetime.now().replace(microsecond=0)
-        exec_ifstat.run(G)
-        exec_vlc_clients.run(net, serverdata, loadconfdata)
-        exec_ab_tests.run(net, serverdata, loadconfdata)
-
-        # Control the length of simulation
-        while True:
-            processes = [x.name() for x in psutil.process_iter()]
-            if processes.count('hey') == 0:
-                sleep(20)
-                break
-            sleep(5)
-        
-        filename = f'{start_time.isoformat()}-{get_class_profile_num()}-{get_qos_type()}-{G.graph["name"]}'
-        export_results(filename)
-
-    # Stop everything
-    # CLI(net)
-    net.stop()
-    subprocess.run(["sudo", "pkill", "ryu-manager"])
-    subprocess.run(["sudo", "pkill", "vlc"])
-    subprocess.run(["sudo", "pkill", "cvlc"])
-    subprocess.run(["sudo", "pkill", "ifstat"])
-
+    try:
+        for idx in range(int(iterations)):
+            start_time = datetime.now().replace(microsecond=0)
+            exec_ifstat.run(G)
+            vlc_processes = exec_vlc_clients.run(net, serverdata, loadconfdata)
+            hey_processes = exec_ab_tests.run(net, serverdata, loadconfdata)
+            print(f'Executing test {idx}...')
+            # Control the length of simulation
+            while True:
+                running = False
+                for process in vlc_processes + hey_processes:
+                    if process.poll() is None:
+                        running = True
+                        break
+                if not running:
+                    sleep(5)
+                    break
+                sleep(5)
+            
+            filename = f'{start_time.isoformat()}-{get_class_profile_num()}-{get_qos_type()}-{G.graph["name"]}'
+            export_results(filename)
+    except:
+        pass
+    finally:
+        net.stop()
+        ryu_manager.terminate()
+        for process in server_processes:
+            process.terminate()
 if __name__ == '__main__':
     main(*argv[1:])

@@ -86,6 +86,7 @@ def run(results_filename, logfilename, media_url, duration):
     finally:
         rt.stop()
         results_file.close()
+        sys.exit()
 
 if __name__ == '__main__':
     run(*sys.argv[1:])

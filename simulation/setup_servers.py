@@ -1,21 +1,25 @@
-from time import sleep
-import telnetlib
-import socket
-import logging
 import os.path, os
 from datetime import datetime
-
+import shlex
+import subprocess
 
 BASEDIR = os.getcwd()
 SIMULDIR = f"{BASEDIR}/simulation"
 
 def run(net, serverdata):
+    pid_list = []
     for servername, data in serverdata.items():
         server = net.getNodeByName(servername)
         if data['protocol'] == 'http':
-            server.cmd(f'python3 -m http.server 80 --directory {SIMULDIR}/{servername} > /dev/null 2> /dev/null &')
+            p = server.popen(
+                shlex.split(f'python3 -m http.server 80 --directory {SIMULDIR}/{servername}'),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            pid_list.append(p)
         elif data['protocol'] == 'rtsp':
-            vlcserversetup(server, data)
+            pid_list.append(vlcserversetup(server, data))
+    return pid_list
 
 def vlcserversetup(server, data):
     logfilename = (
@@ -28,4 +32,7 @@ def vlcserversetup(server, data):
         '--stats --color --rtsp-port 5004 --rtsp-throttle-users=0 --rtsp-timeout=300 --rtsp-session-timeout=300'
         f'--network-caching=200000 --file-caching=200000 --vlm-conf={vlm_file} &'
     )
-    server.cmd(cmd)
+    p = server.popen(
+        shlex.split(cmd)
+    )
+    return p

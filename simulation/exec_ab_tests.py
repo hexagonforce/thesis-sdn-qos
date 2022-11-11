@@ -1,14 +1,11 @@
-import csv
-import subprocess
+import shlex
 import os
-from pathlib import Path
-import yaml
-from datetime import datetime
-import time
+import subprocess
 
 BASEDIR = os.getcwd()
 ABTESTS_DIR = f'{BASEDIR}/simulation/test.results/ab-tests'
 def run(net, serverdata, loadconfig):
+    pid_list = []
     for loadrow in loadconfig:
         clientname = loadrow[0]
         httpload = loadrow[1].split('-')
@@ -18,13 +15,19 @@ def run(net, serverdata, loadconfig):
         servername = f'server{servernum}'
         currserverdata = serverdata[servername]
 
-        file = currserverdata[loadtype]
+        filename = currserverdata[loadtype]
         host = net.getNodeByName(clientname)
         server = net.getNodeByName(servername)
 
         cmd = (
             'hey -A "Accept-Encoding: gzip, deflate" -c 10 '
-            f'-z 300s -t 300 \'http://{server.IP()}/{file}\' > '
-            f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype}.hey.txt 2> /dev/null &' 
+            f'-z 300s -t 300 \'http://{server.IP()}/{filename}\''
         )
-        host.cmd(cmd)
+
+        hey_process = host.popen(
+            shlex.split(cmd), 
+            stdout=open(f'{ABTESTS_DIR}/{clientname}-{servername}-{loadtype}.hey.txt', 'w'), 
+            stderr=subprocess.DEVNULL
+        )
+        pid_list.append(hey_process)
+    return pid_list

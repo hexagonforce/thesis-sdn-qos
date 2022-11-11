@@ -1,10 +1,12 @@
 import os
 import time
+import shlex
 from datetime import datetime
 
 BASEDIR = os.getcwd()
 
 def run(net, serverdata, loadconfig):
+    pid_list = []
     for loadrow in loadconfig:
         clientname = loadrow[0]
         vlcload = loadrow[2].split('-')
@@ -26,7 +28,12 @@ def run(net, serverdata, loadconfig):
         duration = 300
         cmd = (
             f'sudo -u mininet python3 {BASEDIR}/simulation/run_vlc_client.py '
-            f'{results_filename} {vlclogfilename} {media_url} {duration} 2> {BASEDIR}/simulation/test.results/vlc-clients/{clientname}error.txt &'
+            f'{results_filename} {vlclogfilename} {media_url} {duration}'
         )
-        host.cmd(cmd)
-        time.sleep(1)
+        vlc_process = host.popen(
+            shlex.split(cmd),
+            stderr=open(f'{BASEDIR}/simulation/test.results/vlc-clients/{clientname}error.txt', 'w')
+        )
+        pid_list.append(vlc_process)
+        time.sleep(0.5)
+    return pid_list
