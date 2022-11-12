@@ -61,10 +61,6 @@ def export_results(result_file_name):
 def main(iterations=1):
     print("Started Simulation. Setting up the server...")
 
-    # Reset the results directory
-    subprocess.run(['rm', '-rf', 'simulation/test.results/'])
-    subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
-    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
 
     # Generate topology and configuration files
@@ -116,6 +112,10 @@ def main(iterations=1):
     # Execute test suite
     try:
         for idx in range(int(iterations)):
+            # Reset the results directory
+            subprocess.run(['rm', '-rf', 'simulation/test.results/'])
+            subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
+            subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
             start_time = datetime.now().replace(microsecond=0)
             exec_ifstat.run(G)
             vlc_processes = exec_vlc_clients.run(net, serverdata, loadconfdata)
