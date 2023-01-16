@@ -174,3 +174,4 @@ scripts/custom/run.ovs-vsctl.case.core.sh
 scripts/custom/run.ovs-vsctl.case.leaves.sh
 ryudebug.txt
 ryuerr.txt
+controller.conf
