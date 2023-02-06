@@ -59,6 +59,11 @@ def export_results(result_file_name):
 def main(iterations=1):
     print("Started Simulation. Setting up the server...")
 
+<<<<<<< HEAD
+=======
+    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
+
+>>>>>>> d1e448924e2e42f5bbb926e0cd342bf01eeaec4a
     # Generate topology and configuration files
     G = generate_configs.generate_graph()
     generate_configs.configure(G)
