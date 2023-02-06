@@ -44,16 +44,16 @@ def write_all_config_to_json():
 		yml_data = yaml.load(yml_file, Loader=yaml.FullLoader) # 
 
 	config_path = {
-		'hostsfile' : "{}/{}".format(PARDIR, yml_data['nodes_config']['hostsfile']),
-		'switchesfile' : "{}/{}{}.conf".format(PARDIR, yml_data['nodes_config']['switchesfile'], yml_data['case']),
-		'sourcequeuemapfile' : "{}/{}".format(PARDIR, yml_data['nodes_config']['sourcequeuemapfile']),
+		'hostsfile' : f"{PARDIR}/{yml_data['nodes_config']['hostsfile']}",
+		'switchesfile' : f"{PARDIR}/{yml_data['nodes_config']['switchesfile']}{yml_data['case']}.conf",
+		'sourcequeuemapfile' : f"{PARDIR}/{yml_data['nodes_config']['sourcequeuemapfile']}",
 		'traffic_class' : f"{BASEDIR}/config/traffic_class.yml",
-		'clientconfig_file' : "{}/{}".format(PARDIR, yml_data['exec_config']['clientconfig']),
-		'clientswitch_file' : "{}/{}".format(PARDIR, yml_data['exec_config']['clientswitch'])
+		'clientconfig_file' : f"{PARDIR}/{yml_data['exec_config']['clientconfig']}",
+		'clientswitch_file' : f"{PARDIR}/{yml_data['exec_config']['clientswitch']}",
 	}
 
 	config_data['usecase'] = yml_data['case']
-	js = "{}/usecase_{}_nodes_configuration.json".format(PARDIR, config_data['usecase'])
+	js = f"{PARDIR}/usecase_{config_data['usecase']}_nodes_configuration.json"
 
 	# # Get Source-Queue Map File
 	# with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:

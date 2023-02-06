@@ -12,7 +12,7 @@ import yaml
 import os
 
 BASEDIR = os.getcwd()
-TOPOYML = "{}/config/custom/topology_information.yml".format(BASEDIR)
+TOPOYML = f"{BASEDIR}/config/custom/topology_information.yml"
 
 def dpid(node):
     return int(''.join((c for c in node if c.isdigit())))

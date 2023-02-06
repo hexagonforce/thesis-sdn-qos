@@ -38,7 +38,7 @@ def switch_layers():
     total_switches = 2 ** (layers+1)
     layer_1 = 2 ** layers
     for i in range(1, total_switches+1):
-        switches[i] = 'switch{}'.format(i)
+        switches[i] = f'switch{i}'
 
     keys = list(switches.keys())
     switches_count = int(layer_1)
