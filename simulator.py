@@ -21,10 +21,8 @@ SERVERCONF = f'{BASEDIR}/config/server_config.yml'
 LOADCONF = f'{BASEDIR}/config/custom/load.conf.l3.tab'
 CONTROLLERCONF = f'{BASEDIR}/controller.conf'
 CLASS_PROFILE_FILE = f'{BASEDIR}/config/class_profile_functionname.yml'
-SIMULATION_RESULTS = f'{BASEDIR}/simulation/test.results/'
-RESULTS_ARCHIVE_DIRECTORY = '/home/mininet/results/'
-METADATA = f'{SIMULATION_RESULTS}metadata/'
-
+SIMULATION_RESULTS = f'{BASEDIR}/simulation/test.results'
+RESULTS_ARCHIVE_DIRECTORY = '/home/mininet/results'
 
 # Utility functions
 def get_yml_data(path):
@@ -60,12 +58,6 @@ def export_results(result_file_name):
 
 def main(iterations=1):
     print("Started Simulation. Setting up the server...")
-
-    # Reset the results directory
-    subprocess.run(['rm', '-rf', 'simulation/test.results/'])
-    subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
-    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
-    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {METADATA}'])
 
     # Generate topology and configuration files
     G = generate_configs.generate_graph()
@@ -110,17 +102,24 @@ def main(iterations=1):
     print("Running tests. This may take a while...")
 
     # Execute pings
-    # exec_pings.test_convergence(net)
+    exec_pings.test_convergence(net)
     # exec_pings.run_all_pings(net)
 
     # Execute test suite
     try:
         for idx in range(int(iterations)):
+            # Reset the results directory
+            subprocess.run(['rm', '-rf', 'simulation/test.results/'])
+            subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
+            subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients', 'vlc-server'], cwd=f'{BASEDIR}/simulation/test.results')
+            subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*.yml {SIMULATION_RESULTS}/metadata'])
+
             start_time = datetime.now().replace(microsecond=0)
             exec_ifstat.run(G)
             vlc_processes = exec_vlc_clients.run(net, serverdata, loadconfdata)
             hey_processes = exec_ab_tests.run(net, serverdata, loadconfdata)
             print(f'Executing test {idx}...')
+    
             # Control the length of simulation
             while True:
                 running = False
@@ -135,12 +134,14 @@ def main(iterations=1):
             
             filename = f'{start_time.isoformat()}-{get_class_profile_num()}-{get_qos_type()}-{G.graph["name"]}'
             export_results(filename)
-    except:
-        pass
+    except Exception as e:
+        print("There was an error. The error message is as follows:")
+        print(e)
     finally:
         net.stop()
         ryu_manager.terminate()
         for process in server_processes:
             process.terminate()
+
 if __name__ == '__main__':
     main(*argv[1:])
