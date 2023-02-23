@@ -1,6 +1,6 @@
 # SDN-Framework-main
 
-This is the documentation for the SDN QoS testing framework written by Josiah Elezar Regencia and William Emmanuel S. Yu.
+This is the documentation for the SDN QoS testing framework written by Hyeong Seon Yoo, Josiah Elezar T. Regencia and William Emmanuel S. Yu.
 
 # Configuration
 Most configuration will be done in `config/class_profile_functionname.yml` and `config/simulate_topo.yml`. Refer to `example_configs/`. To get started, copy those files over to `configs/`.
@@ -8,7 +8,7 @@ Most configuration will be done in `config/class_profile_functionname.yml` and `
 ## Adding custom topology
 First, place in the definition for your network topology in `scripts/network_topologies.py`
 Then, add in the parameters needed for the network topology in `config/simulate_topo.yml`
-If you want to use your own GraphML file, the place it in the `zoo_data` directory and 
+If you want to use your own GraphML file, the place it in the `zoo_data` directory, and change `config/simulate_topo.yml` under the `custom` data.
 
 ## Custom Configuration and Scripts
 The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configuration_ files are generated from the class profile and topology definitions file. More specifically, they are emitted by the calling `scripts/custom/network_configs.py` script.
@@ -22,7 +22,7 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 - `ovs_qosgenerator`
 - `hosts`
 
-`scripts/custom/node_connections.py` and `scripts/custom/nodes_config.py` is supposed to provide information about how the nodes are connected, however, I have no idea what they do.
+`scripts/custom/nodes_config.py` simply moves the configuration files generated to `config/custom` to a singular `json` file.
 
 # Using the test framework
 Remember to change the directories for `measure/run-ipstat.sh`.
@@ -34,7 +34,9 @@ Then, run `run_mininet.py` to start the Mininet topology.
 Then, run `reset_qos.sh at_leaf` to reset the OVS Switch QoS settings.
 Then start the Ryu controller using `Controller.sh`.
 
-Alternatively, run `simulator.py` to run all the scripts and tests automatically.
+Alternatively, run `sudo python3 simulator.py` to run all the scripts and tests automatically.
+
+`simulator.py` optionally takes an integer parameter which specifies the number of iterations.
 
 # Replicating previous research with apachebenchmark and VLC
 - Start the Python3 http webservers by running appropriate bash commands
@@ -52,6 +54,3 @@ Alternatively, run `simulator.py` to run all the scripts and tests automatically
 - Stop Ryu Controller.
 - Stop Mininet Topology.
 - Destroy the Queue and QoS configs.
-
-# TO DO List:
-- Make number of servers part of the topology definition.

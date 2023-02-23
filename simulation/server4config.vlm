@@ -1,0 +1,10 @@
+
+# VLC media player VLM command batch
+# http://www.videolan.org/vlc/
+
+new BigBuckBunnySD vod enabled
+setup BigBuckBunnySD input "file:///home/mininet/thesis-sdn-qos/simulation/server4/BigBuckBunnySD.webm"
+setup BigBuckBunnySD option file-caching=300
+new BigBuckBunnyHD vod enabled
+setup BigBuckBunnyHD input "file:///home/mininet/thesis-sdn-qos/simulation/server4/BigBuckBunnyHD.webm"
+setup BigBuckBunnyHD option file-caching=300

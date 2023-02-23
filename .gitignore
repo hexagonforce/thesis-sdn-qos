@@ -166,6 +166,7 @@ simulation/server1
 simulation/server2
 simulation/server3
 simulation/server4
+simulation/logs
 test.results
 
 *.out

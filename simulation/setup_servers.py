@@ -23,7 +23,7 @@ def run(net, serverdata):
 
 def vlcserversetup(server, data):
     logfilename = (
-        f'{SIMULDIR}/test.results/vlc-server/results.run-vlc-server-'
+        f'{SIMULDIR}/server-logs/results.run-vlc-server-'
         f'{server.IP()}.{datetime.now().strftime("%m%d%Y%H%M%S")}.log'
     )
     vlm_file = f"{SIMULDIR}/{data['vlm']}.vlm"

@@ -1,10 +1,10 @@
 # func entry has to be implemented in scripts/network_topologies.py
 # to_test entry is the topology that will be read and run by the simulator
 
-to_test: UniC
+to_test: custom
 
 topology: 
-  UniC: 
+  custom: 
     func: zoo_data
     details: 
       filename: UniC.graphml

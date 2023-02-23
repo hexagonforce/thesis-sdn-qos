@@ -9,13 +9,18 @@
 
 import csv
 import yaml, os
+from pathlib import Path
 
+def get_number_of_servers(basedir):
+	server_config_path = Path(basedir).parent / 'server_config.yml'
+	with open(server_config_path, 'r') as file:
+		serverdata = yaml.safe_load(file)
+	http = sum(map(lambda data: data['protocol'] == 'http', serverdata.values()))
+	rtsp = sum(map(lambda data: data['protocol'] == 'rtsp', serverdata.values()))
+	return http, rtsp
 
 def generate_conf(client, http, vlc, val, val2):
 	return f"{client}\thttp-{http}-{val}\tvod-{vlc}-{val2}\n"
-
-HTTP_SERVERS = 2
-VLC_SERVERS = 2
 
 def nth_odd(n): # 0th odd number is 1
 	return 2 * n + 1
@@ -23,6 +28,7 @@ def nth_even(n): # 0th even number is 2
 	return 2 * n + 2
 
 def save_to_conf(basedir, G):
+	HTTP_SERVERS, VLC_SERVERS = get_number_of_servers(basedir)
 	types = ['medium', 'high']
 	list_clients = [node for node, data in G.nodes(data='type') if data=='client']
 	list_clients.sort(key= lambda x: int(x.replace('client', '')))

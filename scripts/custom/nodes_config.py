@@ -21,7 +21,7 @@ yml = f"{BASEDIR}/config/gen_config.yml"
 def write_all_config_to_json():
 	config_data = {
 		'usecase' : '',
-		'sourceQueueMapDict' : {},
+		'source' : {},
 		'traffic' : {},
 		'host_entries' : {},
 		'switches_entries' : {},
@@ -55,10 +55,10 @@ def write_all_config_to_json():
 	config_data['usecase'] = yml_data['case']
 	js = f"{PARDIR}/usecase_{config_data['usecase']}_nodes_configuration.json"
 
-	# # Get Source-Queue Map File
-	# with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
-	# 	for row in csv.reader(csv_file, delimiter='\t'):
-	# 		config_data['sourceQueueMapDict'][row[0]] = row[1:]
+	# Get Source-Queue Map File
+	with open(config_path['sourcequeuemapfile'], 'rt') as csv_file:
+		for row in csv.reader(csv_file, delimiter='\t'):
+			config_data['source'][row[0]] = row[1]
 
 	# Get traffic class
 	with open(config_path['traffic_class'], 'rt') as traffic_yml:

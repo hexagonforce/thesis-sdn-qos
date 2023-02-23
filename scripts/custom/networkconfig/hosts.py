@@ -9,7 +9,6 @@
 # 	- proto_priority: the priority of the protocol (higher means more prioritized)
 # 	- proto_queue_id: no idea
 
-NUMBER_OF_SERVERS = 6
 
 def dpid(node):
     return int(''.join(c for c in node if c.isdigit()))
