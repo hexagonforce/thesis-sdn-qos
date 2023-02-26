@@ -99,8 +99,7 @@ def main(iterations=1):
 
     print("Done preparing the configuration files.")
 
-    # Test pings once, because it's not necessary to test them all the time
-    exec_pings.run_all_pings(net)
+
 
     # Execute test suite
     try:
@@ -114,6 +113,9 @@ def main(iterations=1):
         print("Setup Complete. Waiting for STP...")
         sleep(60)
         print("Now running tests. This may take a while...")
+
+        # Test pings once, because it's not necessary to test them all the time
+        exec_pings.run_all_pings(net)
 
         for idx in range(int(iterations)):
             # Reset the results directory
