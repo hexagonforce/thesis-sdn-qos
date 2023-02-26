@@ -27,14 +27,14 @@ def save_to_conf(basedir, G):
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-	num_clients = sum(1 for node in G.nodes(data=True) if node['type'] == 'client')
+	num_clients = sum(1 for node in G.nodes(data='type') if node[1] == 'client')
 	queue = 0
 	with open(f"{basedir}/source.queue.map.q2.tab", "w") as config_file:
 		for ip in  range (1, num_clients+1):
 			if queue > 2:
 				queue = 0
 			config_file.write(generate_conf(ip, queue))
-			queue = queue + 1
+			queue = 1 - queue
 
 def main():
 	save_to_conf()
