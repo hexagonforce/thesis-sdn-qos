@@ -1,24 +1,20 @@
 # func entry has to be implemented in scripts/network_topologies.py
-# to_test entry is the topology that will be read and run by the simulator
 
-to_test: custom
-
-topology: 
-  custom: 
-    func: zoo_data
-    details: 
-      filename: UniC.graphml
-      client_switches: max
-      clients: 24
-  mesh: 
-    func: mesh
-    details: 
-      switches: 5
-      client_switches: 4
-      clients: 24
-  fat_tree: 
-    func: fat_tree
-    details: 
-      clients : 24
-      leaf_switch_layers : 2
-      fanout: 3
+custom: 
+  func: zoo_data
+  details: 
+    filename: UniC.graphml
+    client_switches: max
+    clients: 24
+mesh: 
+  func: mesh
+  details: 
+    switches: 5
+    client_switches: 4
+    clients: 24
+fat_tree: 
+  func: fat_tree
+  details: 
+    clients : 24
+    leaf_switch_layers : 2
+    fanout: 3

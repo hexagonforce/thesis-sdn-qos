@@ -214,7 +214,7 @@ def source_cbq(event, switch, nodes_config, out_port, mode):
             'eth_dst': eth_src
         }
         add_flow(msg=msg, out_port=out_port, queue_id=0, match_args=flow5_args, priority=1000)
-        add_flow(msg=msg, in_port=in_port, queue_id=0, match_args=flow6_args, priority=1000)
+        add_flow(msg=msg, out_port=in_port, queue_id=0, match_args=flow6_args, priority=1000)
 
 def source_cbq_core(event, switch, nodes_config, out_port):
     source_cbq(event, switch, nodes_config, out_port, 'core')

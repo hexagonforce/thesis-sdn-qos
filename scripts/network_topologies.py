@@ -65,12 +65,12 @@ def farthest_by_hops(G):
             maxdist = sumdist
     return res
 
-def generate_topology2(G, topo):
+def generate_topology2(G, details):
     num_switches = nx.number_of_nodes(G)
     
     # Assign core switch if it has not been assigned previously
-    if 'core_switch_num' in topo['details']:
-        core_switch_num = int(topo['details']['core_switch_num'])
+    if 'core_switch_num' in details:
+        core_switch_num = int(details['core_switch_num'])
     else:
         core_switch_num = int(farthest_by_hops(G)) + 1
 
@@ -78,10 +78,10 @@ def generate_topology2(G, topo):
     server_switch = f'switch{num_switches + 1}'
 
     # Get all the necessary details
-    num_client_switches = topo['details']['client_switches']
+    num_client_switches = details['client_switches']
     if num_client_switches == 'max' or num_client_switches > num_switches - 1:
         num_client_switches = num_switches - 1
-    num_clients = topo['details']['clients']
+    num_clients = details['clients']
 
     G = nx.relabel_nodes(G, lambda x : f'switch{int(x)+1}')
     G.add_node(server_switch)
@@ -135,43 +135,38 @@ def generate_topology2(G, topo):
     return G
 
 # Actual Topologies
-def fat_tree(topo):
-    layers = topo['details']['leaf_switch_layers']
-    fanout = topo['details']['fanout']
-    topo['details']['client_switches'] = fanout ** layers
-    topo['details']['core_switch_num'] = 1
+def fat_tree(details):
+    layers = details['leaf_switch_layers']
+    fanout = details['fanout']
+    details['client_switches'] = fanout ** layers
+    details['core_switch_num'] = 1
 
     G = nx.balanced_tree(fanout, layers)
     G.graph['name'] = f'fat_tree_{fanout}_{layers}'
-    return generate_topology2(G, topo)
+    return generate_topology2(G, details)
 
-def mesh(topo):
-    num_switches = topo['details']['switches']
+def mesh(details):
+    num_switches = details['switches']
     G = nx.complete_graph(num_switches)
     G.graph['name'] = f'mesh_{num_switches}'
-    return generate_topology2(G, topo)
+    return generate_topology2(G, details)
 
-def zoo_data(topo):
-    filename = topo['details']['filename']
+def zoo_data(details):
+    filename = details['filename']
     filepath = f'{BASEDIR}/zoo_data/{filename}'
     G = nx.read_graphml(filepath)
     G.graph['name'] = filename.replace('.graphml', '')
-    return generate_topology2(G, topo)
+    return generate_topology2(G, details)
 
-def get_topology_graph():
+def get_topology_graph(topology):
     TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
     with open(TOPOYML, 'rb') as yml_file:
         topoconfig = yaml.load(yml_file, Loader=yaml.FullLoader)
 
     # Load information about the topology to test
-    topo_name = topoconfig['to_test']
-    details = topoconfig['topology'][topo_name]
-    topo_func_name = topoconfig['topology'][topo_name]['func']
+    details = topoconfig[topology]['details']
+    topo_func_name = topoconfig[topology]['func']
     topo_func = globals()[topo_func_name]
 
     G = topo_func(details)
     return G
-
-if __name__ == '__main__':
-    G = get_topology_graph()
-    nx.write_graphml(G, f'{BASEDIR}/final_topology.xml')

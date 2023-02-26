@@ -16,9 +16,9 @@ from .networkconfig.get_node_entries import get_switch_entries
 
 BASEDIR = os.getcwd()
 PARDIR = f"{BASEDIR}/config/custom"
-yml = f"{BASEDIR}/config/gen_config.yml"
+GEN_CONFIG = f"{BASEDIR}/config/gen_config.yml"
 
-def write_all_config_to_json():
+def write_all_config_to_json(case):
 	config_data = {
 		'usecase' : '',
 		'source' : {},
@@ -40,19 +40,19 @@ def write_all_config_to_json():
 			def default(self, o):
 				return o.__dict__
 
-	with open(yml,'rb') as yml_file:
-		yml_data = yaml.load(yml_file, Loader=yaml.FullLoader) # 
+	with open(GEN_CONFIG,'rb') as yml_file:
+		gen_config = yaml.load(yml_file, Loader=yaml.FullLoader) # 
 
 	config_path = {
-		'hostsfile' : f"{PARDIR}/{yml_data['nodes_config']['hostsfile']}",
-		'switchesfile' : f"{PARDIR}/{yml_data['nodes_config']['switchesfile']}{yml_data['case']}.conf",
-		'sourcequeuemapfile' : f"{PARDIR}/{yml_data['nodes_config']['sourcequeuemapfile']}",
+		'hostsfile' : f"{PARDIR}/{gen_config['nodes_config']['hostsfile']}",
+		'switchesfile' : f"{PARDIR}/{gen_config['nodes_config']['switchesfile']}{case}.conf",
+		'sourcequeuemapfile' : f"{PARDIR}/{gen_config['nodes_config']['sourcequeuemapfile']}",
 		'traffic_class' : f"{BASEDIR}/config/traffic_class.yml",
-		'clientconfig_file' : f"{PARDIR}/{yml_data['exec_config']['clientconfig']}",
-		'clientswitch_file' : f"{PARDIR}/{yml_data['exec_config']['clientswitch']}",
+		'clientconfig_file' : f"{PARDIR}/{gen_config['exec_config']['clientconfig']}",
+		'clientswitch_file' : f"{PARDIR}/{gen_config['exec_config']['clientswitch']}",
 	}
 
-	config_data['usecase'] = yml_data['case']
+	config_data['usecase'] = case
 	js = f"{PARDIR}/usecase_{config_data['usecase']}_nodes_configuration.json"
 
 	# Get Source-Queue Map File
@@ -94,7 +94,6 @@ def write_all_config_to_json():
 
 	if os.path.exists(js):
 		os.remove(js)
-
 
 	with open(js, 'w') as json_file:
 		config_json = json.dumps(config_data, indent=4, cls=DataEncoder)
