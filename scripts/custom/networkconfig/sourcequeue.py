@@ -22,12 +22,12 @@ def get_switches_path(l1_switch, fat_tree, layers):
 		# print (f"Layer 1 Switch: {l1_switch}\tSwitches: {switches}")
 	return switches
 
-def save_to_conf(basedir):
+def save_to_conf(basedir, G):
 	yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
 	with open (yml, 'rb') as yml_file:
 		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
 
-	num_clients = 100
+	num_clients = sum(1 for node in G.nodes(data=True) if node['type'] == 'client')
 	queue = 0
 	with open(f"{basedir}/source.queue.map.q2.tab", "w") as config_file:
 		for ip in  range (1, num_clients+1):
