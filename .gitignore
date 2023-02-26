@@ -171,8 +171,6 @@ test.results
 
 *.out
 
-scripts/custom/run.ovs-vsctl.case.core.sh
-scripts/custom/run.ovs-vsctl.case.leaves.sh
-ryudebug.txt
-ryuerr.txt
+ryu_debug.txt
+ryu_error.txt
 controller.conf

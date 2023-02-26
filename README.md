@@ -25,18 +25,16 @@ The _Load Configuration_, _Source Queue Grouping Configuration_, _Hosts Configur
 `scripts/custom/nodes_config.py` simply moves the configuration files generated to `config/custom` to a singular `json` file.
 
 # Using the test framework
-Remember to change the directories for `measure/run-ipstat.sh`.
 
-First, generate the necessary pickle files and configuration files using `runscripts.sh`
-<!--Then, run the pcap/oneway_preprocess.py to generate the correct vhost_mapping-->
+First, generate the necessary pickle files and configuration files using `geenrate_configs.py`
 
 Then, run `run_mininet.py` to start the Mininet topology.
 Then, run `reset_qos.sh at_leaf` to reset the OVS Switch QoS settings.
 Then start the Ryu controller using `Controller.sh`.
 
-Alternatively, run `sudo python3 simulator.py` to run all the scripts and tests automatically.
+Alternatively, run `sudo python3 main.py` to run all the scripts and tests automatically.
 
-`simulator.py` optionally takes an integer parameter which specifies the number of iterations.
+`main.py` optionally takes an integer parameter which specifies the number of iterations.
 
 # Replicating previous research with apachebenchmark and VLC
 - Start the Python3 http webservers by running appropriate bash commands
@@ -44,7 +42,7 @@ Alternatively, run `sudo python3 simulator.py` to run all the scripts and tests 
 - Start the ifstat command with `measure/run-ipstat.sh
 - Make the requests. For each client, make 1 HTTP request and 1 VLC request.
     - run the ab_tests
-    - and the 
+    - and the vlc clients.
 - Run the tests for 5 minutes.
 - Stop the HTTP clients.
 - Stop the VLC clients.
