@@ -34,7 +34,7 @@ def save_to_conf(basedir, G):
 			if queue > 2:
 				queue = 0
 			config_file.write(generate_conf(ip, queue))
-			queue = 1 - queue
+			queue = queue + 1
 
 def main():
 	save_to_conf()

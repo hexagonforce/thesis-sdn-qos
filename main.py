@@ -32,26 +32,10 @@ def get_yml_data(path):
     with open(path, 'r') as file:
         return yaml.load(file, Loader = yaml.FullLoader)
 
-def get_class_profile_num():
-    '''
-    This reads from controller.conf
-    '''
-    casenum = 0
-    with open(CONTROLLERCONF, 'r') as file:
-        for line in file:
-            if line.startswith('case'):
-                casenum = line.strip().split('=')[1].strip('"')
-                break
-    return casenum
-
-def get_class_profile():
-    casenum = get_class_profile_num()
+def get_qos_type(casenum):
     class_profile_data = get_yml_data(CLASS_PROFILE_FILE)
     class_profiles = class_profile_data['class_profiles']
-    return class_profiles[casenum]
-
-def get_qos_type():
-    return get_class_profile()['test_case']
+    return class_profiles[casenum]['test_case']
 
 def export_results(result_file_name):
     if not RESULTS_ARCHIVE_DIRECTORY.exists():
@@ -68,8 +52,8 @@ def main(iterations=1):
     # Read the main configuration file
     runconf = get_yml_data(RUNCONF)
     topology = runconf['topology']
-    case = runconf['case']
-
+    casenum = runconf['case']
+    qos_type = get_qos_type(casenum)
     # Read server_config and load.conf.l3.tab
     serverdata = get_yml_data(SERVERCONF)
     loadconfdata = []
@@ -80,7 +64,7 @@ def main(iterations=1):
 
     # Generate topology and configuration files
     G = generate_configs.generate_graph(topology)
-    generate_configs.configure(G, case)
+    generate_configs.configure(G, casenum)
 
     # Set up the network
     net = create_network_networkx(G)
@@ -89,17 +73,15 @@ def main(iterations=1):
     # Sends the information about the core switch of the topology to the Ryu Controller configuration file
     with open(CONTROLLERCONF, 'w') as controller_config:
         controller_config.write(
-            f'[DEFAULT]\ncase="{case}"\ncore_switch="{core_switch}'
+            f'[DEFAULT]\ncase="{casenum}"\ncore_switch="{core_switch}'
         )
 
     # Setup OpenFlow queue settings
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'qos'])
     subprocess.run(['sudo', 'ovs-vsctl', '--all', 'destroy', 'queue'])
-    subprocess.run([f'./config/custom/run.ovs-vsctl.case.{get_qos_type()}.sh'], stdout=subprocess.DEVNULL)
+    subprocess.run([f'./config/custom/run.ovs-vsctl.case.{qos_type}.sh'], stdout=subprocess.DEVNULL)
 
     print("Done preparing the configuration files.")
-
-
 
     # Execute test suite
     try:
@@ -146,7 +128,7 @@ def main(iterations=1):
                     sleep(5)
                     break
                 sleep(5)
-            filename = f'{start_time.isoformat()}-{get_class_profile_num()}-{get_qos_type()}-{G.graph["name"]}'
+            filename = f'{start_time.isoformat()}-{casenum}-{qos_type}-{G.graph["name"]}'
             print(f"Done with test {idx+1}. Now saving test results.")
             export_results(filename)
     except Exception as e:

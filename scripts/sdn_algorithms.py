@@ -1,5 +1,5 @@
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
+from ryu.lib.packet import ethernet, ipv4
 from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 
@@ -167,39 +167,43 @@ def source_cbq(event, switch, nodes_config, out_port, mode):
     eth_dst = eth_pkt.dst
     eth_src = eth_pkt.src
 
+    ip_pkt = pkt.get_protocol(ipv4.ipv4)
+
     if mode in switch['type']:
-        for source, queue_id in nodes_config['source'].items():
-            queue_id = int(queue_id)
-            flow1_args = {
-                'in_port': in_port,
-                'eth_type': ether_types.ETH_TYPE_IP,
-                'eth_src': eth_src,
-                'eth_dst': eth_dst,
-                'ipv4_src': source
-            }
-            flow2_args = {
-                'in_port': out_port,
-                'eth_type': ether_types.ETH_TYPE_IP,
-                'eth_src': eth_src,
-                'eth_dst': eth_dst,
-                'ipv4_dst': source
-            }
-            add_flow(msg=msg, queue_id=queue_id, priority=100, match_args=flow1_args, out_port=out_port)
-            add_flow(msg=msg, queue_id=queue_id, priority=100, match_args=flow1_args, out_port=in_port)
-        flow3_args = {
+        #for source, queue_id in nodes_config['source'].items():
+        # print(ip_pkt.src, ip_pkt.dst)
+        queue_id = nodes_config['source'].get(str(ip_pkt.src), None)
+        if queue_id == None:
+            nodes_config['source'].get(str(ip_pkt.dst), None)
+        queue_id = int(queue_id)
+        flow1_args = {
             'in_port': in_port,
             'eth_type': ether_types.ETH_TYPE_IP,
             'eth_src': eth_src,
             'eth_dst': eth_dst,
         }
-        flow4_args = {
+        flow2_args = {
             'in_port': out_port,
             'eth_type': ether_types.ETH_TYPE_IP,
-            'eth_src': eth_src,
-            'eth_dst': eth_dst,
+            'eth_src': eth_dst,
+            'eth_dst': eth_src,
         }
-        add_flow(msg=msg, queue_id=switch['queue_count']-1, priority=1, match_args=flow3_args, out_port=out_port)
-        add_flow(msg=msg, queue_id=switch['queue_count']-1, priority=1, match_args=flow4_args, out_port=in_port)
+        add_flow(msg=msg, queue_id=queue_id, priority=100, match_args=flow1_args, out_port=out_port)
+        add_flow(msg=msg, queue_id=queue_id, priority=100, match_args=flow2_args, out_port=in_port)
+    # flow3_args = {
+    #     'in_port': in_port,
+    #     'eth_type': ether_types.ETH_TYPE_IP,
+    #     'eth_src': eth_src,
+    #     'eth_dst': eth_dst,
+    # }
+    # flow4_args = {
+    #     'in_port': out_port,
+    #     'eth_type': ether_types.ETH_TYPE_IP,
+    #     'eth_src': eth_dst,
+    #     'eth_dst': eth_src,
+    # }
+    # add_flow(msg=msg, queue_id=switch['queue_count']-1, priority=1, match_args=flow3_args, out_port=out_port)
+    # add_flow(msg=msg, queue_id=switch['queue_count']-1, priority=1, match_args=flow4_args, out_port=in_port)
     else:
         flow5_args = {
             'in_port': in_port,
@@ -213,8 +217,8 @@ def source_cbq(event, switch, nodes_config, out_port, mode):
             'eth_src': eth_dst,
             'eth_dst': eth_src
         }
-        add_flow(msg=msg, out_port=out_port, queue_id=0, match_args=flow5_args, priority=1000)
-        add_flow(msg=msg, out_port=in_port, queue_id=0, match_args=flow6_args, priority=1000)
+        add_flow(msg=msg, out_port=out_port, queue_id=0, match_args=flow5_args, priority=10)
+        add_flow(msg=msg, out_port=in_port, queue_id=0, match_args=flow6_args, priority=10)
 
 def source_cbq_core(event, switch, nodes_config, out_port):
     source_cbq(event, switch, nodes_config, out_port, 'core')
