@@ -1,4 +1,4 @@
-from .networkconfig import clients, hosts, load_conf, sourcequeue, switch_configs, ovs_qosgenerator
+from scripts.custom.networkconfig import clients, hosts, load_conf, sourcequeue, switch_configs, ovs_qosgenerator
 import os
 
 OUTDIR = f"{os.getcwd()}/config/custom"

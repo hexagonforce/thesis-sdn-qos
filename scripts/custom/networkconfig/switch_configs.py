@@ -1,6 +1,6 @@
-import csv
 import yaml
-
+from util.constants import CLASS_PROFILE_FILE
+from util.conf_util import get_yml_data
 ###
 # This module takes both the topology yml file and the class profile yml file.
 # It emits the switches.case.(case number).conf file, which contains the following information:
@@ -50,11 +50,7 @@ def generate_conf(name, dpid, switch_type, qos_type, test_case):
         return f"name={name}\tdpid=00-00-00-00-00-{dpid:02}\ttype={switch_type}\tqos={qos_type}\n"
 
 def save_to_conf(basedir, G):
-    usecase_yml = f"{basedir.split('custom')[0]}class_profile_functionname.yml"
-
-    with open(usecase_yml, 'rb') as yml_file:
-        cases = yaml.load(yml_file, Loader=yaml.FullLoader)
-
+    cases = get_yml_data(CLASS_PROFILE_FILE)
     edge_switches = [node for node, data in G.nodes(data='type') if data=='edge_switch']
     internal_switches = [node for node, data in G.nodes(data='type') if data=='internal_switch']
     core_switch = G.graph['core_switch']

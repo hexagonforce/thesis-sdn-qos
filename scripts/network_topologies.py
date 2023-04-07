@@ -1,33 +1,14 @@
 """
-    Functions in this module should output a yml file containing the client hosts, server hosts, switches,
-    and all the links in the following order:
-
-    First, we connect all the edge swtiches to the clients.
-    Then, we connect all the edges within the switches.
-    Then, we connect a "core" switch (defined to be the switch1) to the server switch
-    Finally, we connect all the server hosts to the server switch.
-
-    To have more switches in the server side, please modify the code yourself, as that
-    is not within the scope of this research framework.
-
-    Switches have the following types: server, core, edge, internal.
-
-    The functions should return the following:
-    result = {
-        "core_switch" : core_switch,
-        "internal_switches": internal_switches,
-        "edge_switches": edge_switches,
-        "server_switch": server_switch,
-        "list_clients": list_clients,
-        "list_servers": list_servers,
-        "adjlist": adjlist,
-        "edgelist": edgelist
-    }
+    Generates a GraphML file that generates the exact graph of the network topology to be tested,
+    complete with the servers, clients, and switches. This information is used to generate the
+    configuration for the other configuration files, and to start the Mininet network.
 """
 
-import yaml
 import os
 import networkx as nx
+
+from util.conf_util import get_yml_data
+from util.constants import TOPOCONF
 
 BASEDIR = os.getcwd()
 NUM_SERVERS = 4
@@ -65,7 +46,7 @@ def farthest_by_hops(G):
             maxdist = sumdist
     return res
 
-def generate_topology2(G, details):
+def generate_topology(G, details):
     num_switches = nx.number_of_nodes(G)
     
     # Assign core switch if it has not been assigned previously
@@ -143,25 +124,23 @@ def fat_tree(details):
 
     G = nx.balanced_tree(fanout, layers)
     G.graph['name'] = f'fat_tree_{fanout}_{layers}'
-    return generate_topology2(G, details)
+    return generate_topology(G, details)
 
 def mesh(details):
     num_switches = details['switches']
     G = nx.complete_graph(num_switches)
     G.graph['name'] = f'mesh_{num_switches}'
-    return generate_topology2(G, details)
+    return generate_topology(G, details)
 
 def zoo_data(details):
     filename = details['filename']
     filepath = f'{BASEDIR}/zoo_data/{filename}'
     G = nx.read_graphml(filepath)
     G.graph['name'] = filename.replace('.graphml', '')
-    return generate_topology2(G, details)
+    return generate_topology(G, details)
 
 def get_topology_graph(topology):
-    TOPOYML = f"{BASEDIR}/config/simulate_topo.yml"
-    with open(TOPOYML, 'rb') as yml_file:
-        topoconfig = yaml.load(yml_file, Loader=yaml.FullLoader)
+    topoconfig = get_yml_data(TOPOCONF)
 
     # Load information about the topology to test
     details = topoconfig[topology]['details']

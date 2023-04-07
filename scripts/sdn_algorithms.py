@@ -3,10 +3,6 @@ from ryu.lib.packet import ethernet, ipv4
 from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 
-import pickle
-import yaml
-import os
-
 def flood_algo(event):
     msg = event.msg
     datapath = msg.datapath

@@ -1,36 +1,30 @@
+'''
+This is the main file of the testing framework.
+Usage: sudo python3 main.py [args].
+
+Arguments:
+    iterations: Number of times the script will run the HTTP and Video streaming tests
+'''
+
 # Python packages
 from time import sleep
 from datetime import datetime
 from sys import argv
-import shutil
-import yaml
-import csv
+from shutil import make_archive, rmtree
 import subprocess
 from pathlib import Path
-from os import environ
+import networkx as nx
 
 # Mininet library
 from mininet.cli import CLI
 
 # Custom code
-import generate_configs
-from run_mininet import create_network_networkx
+from scripts import network_topologies
+from scripts.custom import network_configs, nodes_config
+from run_mininet import start_mininet_from_networkx_graph
 from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
-
-BASEDIR = Path.cwd()
-RUNCONF = BASEDIR / 'config/run_config.yml'
-SERVERCONF = BASEDIR / 'config/server_config.yml'
-LOADCONF = BASEDIR / 'config/custom/load.conf.l3.tab'
-CONTROLLERCONF = BASEDIR / 'controller.conf'
-CLASS_PROFILE_FILE = BASEDIR / 'config/class_profile_functionname.yml'
-SIMULATION_RESULTS = BASEDIR / 'simulation/test.results'
-SIMULATION_LOGS = BASEDIR / 'simulation/server-logs'
-RESULTS_ARCHIVE_DIRECTORY = Path(f"/home/{environ.get('SUDO_USER', 'mininet')}/results")
-
-# Utility functions
-def get_yml_data(path):
-    with open(path, 'r') as file:
-        return yaml.load(file, Loader = yaml.FullLoader)
+from util.conf_util import get_csv_data, get_yml_data
+from util.constants import *
 
 def get_qos_type(casenum):
     class_profile_data = get_yml_data(CLASS_PROFILE_FILE)
@@ -40,34 +34,42 @@ def get_qos_type(casenum):
 def export_results(result_file_name):
     if not RESULTS_ARCHIVE_DIRECTORY.exists():
         RESULTS_ARCHIVE_DIRECTORY.mkdir()
-    shutil.make_archive(
+    make_archive(
         str(RESULTS_ARCHIVE_DIRECTORY / result_file_name), 'zip', 
         root_dir=SIMULATION_RESULTS, base_dir='.'
     )
 
+def reset_test_results_directory():
+    rmtree('simulation/test.results/')
+    subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
+    Path.mkdir('simulation/test.results')
+    for folder_name in ['metadata', 'ab-tests', 'pings', 'vlc-clients']:
+        Path.mkdir(f'simulation/test.results/{folder_name}')
+    subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*ml {SIMULATION_RESULTS}/metadata'])
+
 def main(iterations=1):
-    run_start_time = datetime.now().replace(microsecond=0)
     print("Preparing the necessary configuration files...")
+    run_start_time = datetime.now().replace(microsecond=0)
+    reset_test_results_directory()
 
     # Read the main configuration file
     runconf = get_yml_data(RUNCONF)
     topology = runconf['topology']
     casenum = runconf['case']
     qos_type = get_qos_type(casenum)
+
     # Read server_config and load.conf.l3.tab
     serverdata = get_yml_data(SERVERCONF)
-    loadconfdata = []
-    with open(LOADCONF, 'r') as file:
-        csvFile = csv.reader(file, delimiter='\t')
-        for line in csvFile:
-            loadconfdata.append(line)
+    loadconfdata = get_csv_data(LOADCONF)
 
     # Generate topology and configuration files
-    G = generate_configs.generate_graph(topology)
-    generate_configs.configure(G, casenum)
+    G = network_topologies.get_topology_graph(topology)
+    network_configs.generate_all_configs(G) # intention is to pass networkx graph to everyone
+    nodes_config.write_all_config_to_json(casenum)
+    nx.write_graphml(G, f'{BASEDIR}/config/topology.graphml')
 
     # Set up the network
-    net = create_network_networkx(G)
+    net = start_mininet_from_networkx_graph(G)
     core_switch = G.graph['core_switch']
 
     # Sends the information about the core switch of the topology to the Ryu Controller configuration file
@@ -97,25 +99,19 @@ def main(iterations=1):
         print("Now running tests. This may take a while...")
 
         # Test pings once, because it's not necessary to test them all the time
+        exec_pings.test_convergence(net)
         exec_pings.run_all_pings(net)
 
         for idx in range(int(iterations)):
             # Reset the results directory
-            subprocess.run(['rm', '-rf', 'simulation/test.results/'])
-            subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
-            subprocess.run(['sudo', '-u', 'mininet', 'mkdir', 'metadata', 'ab-tests', 'pings', 'vlc-clients'], cwd=f'{BASEDIR}/simulation/test.results')
-            subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*ml {SIMULATION_RESULTS}/metadata']) # All files ending in ml are metadata
             start_time = datetime.now().replace(microsecond=0)
             
             print(f'Executing test {idx+1}/{iterations}...')
-            # Execute pings
-            exec_pings.test_convergence(net)
 
             # Execute the rest of the tests
             exec_ifstat.run(G)
             vlc_processes = exec_vlc_clients.run(net, serverdata, loadconfdata)
             hey_processes = exec_ab_tests.run(net, serverdata, loadconfdata)
-            
     
             # Stop only when all the processes have exited correctly 
             while True:
@@ -128,9 +124,13 @@ def main(iterations=1):
                     sleep(5)
                     break
                 sleep(5)
-            filename = f'{start_time.isoformat()}-{casenum}-{qos_type}-{G.graph["name"]}'
+            # Save the run and reset the test results directory
             print(f"Done with test {idx+1}. Now saving test results.")
+
+            filename = f'{start_time.isoformat()}-{casenum}-{qos_type}-{G.graph["name"]}'
             export_results(filename)
+            reset_test_results_directory()
+
     except Exception as e:
         print("There was an error. The error message is as follows:")
         print(e)
@@ -139,7 +139,7 @@ def main(iterations=1):
         ryu_manager.terminate()
         for process in server_processes:
             process.terminate()
-        shutil.make_archive(
+        make_archive(
             str(RESULTS_ARCHIVE_DIRECTORY / f'{run_start_time.isoformat()}-logs'), 'zip', 
             root_dir=SIMULATION_LOGS, base_dir='.'
         )

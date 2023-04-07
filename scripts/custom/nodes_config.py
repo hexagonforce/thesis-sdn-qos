@@ -11,12 +11,11 @@ import json
 
 from json import JSONEncoder
 
-from .networkconfig.get_node_entries import get_host_entries
-from .networkconfig.get_node_entries import get_switch_entries
+from scripts.custom.networkconfig.get_node_entries import get_host_entries, get_switch_entries
+from util.constants import GEN_CONFIG, BASEDIR
+from util.conf_util import get_yml_data
 
-BASEDIR = os.getcwd()
-PARDIR = f"{BASEDIR}/config/custom"
-GEN_CONFIG = f"{BASEDIR}/config/gen_config.yml"
+PARDIR = BASEDIR / 'config/custom'
 
 def write_all_config_to_json(case):
 	config_data = {
@@ -39,9 +38,7 @@ def write_all_config_to_json(case):
 	class DataEncoder(JSONEncoder):
 			def default(self, o):
 				return o.__dict__
-
-	with open(GEN_CONFIG,'rb') as yml_file:
-		gen_config = yaml.load(yml_file, Loader=yaml.FullLoader) # 
+	gen_config = get_yml_data(GEN_CONFIG)
 
 	config_path = {
 		'hostsfile' : f"{PARDIR}/{gen_config['nodes_config']['hostsfile']}",
@@ -78,11 +75,12 @@ def write_all_config_to_json(case):
 	config_data['hosts_list'] = get_host_entries(config_data['host_entries'])[0]
 	config_data['clients_list'] = get_host_entries(config_data['host_entries'])[1]
 	config_data['servers_list']  = get_host_entries(config_data['host_entries'])[2]
-	config_data['switches_list'] = get_switch_entries(config_data['switches_entries'], 
-							config_data['hosts_list'], 
-							config_data['clients_list'], 
-							config_data['servers_list']
-							)
+	config_data['switches_list'] = get_switch_entries(
+		config_data['switches_entries'], 
+		config_data['hosts_list'], 
+		config_data['clients_list'], 
+		config_data['servers_list']
+	)
 
 	with open(config_path['clientconfig_file'], 'rt') as csv_file:
 		for row in csv.reader(csv_file, delimiter='\t'):

@@ -2,8 +2,10 @@
 # Modify the generate_script method to change the actual QoS constraints
 #
 
-import yaml, subprocess
+import subprocess
 from pathlib import Path
+from util.conf_util import get_yml_data
+from util.constants import RUNCONF, CLASS_PROFILE_FILE
 
 def generate_script(interface, priorities):
     return (
@@ -13,15 +15,11 @@ def generate_script(interface, priorities):
         f"--id=@q2 create Queue other-config:min-rate=333333334 other-config:max-rate=333333334 other-config:priority={priorities[2]}\n"
     )
 
-
 def get_qos_type():
-    config_path = Path.cwd() / 'config'
-    with open(config_path / 'run_config.yml') as file:
-        temp = yaml.safe_load(file)
-        casenum = temp['case']
-    with open(config_path / 'class_profile_functionname.yml') as file:
-        temp = yaml.safe_load(file)
-        return temp['class_profiles'][casenum]['qos_type']
+    temp = get_yml_data(RUNCONF)
+    class_profile_data = get_yml_data(CLASS_PROFILE_FILE)
+    casenum = temp['case']
+    return class_profile_data['class_profiles'][casenum]['qos_type']
 
 def save_to_conf(execdir, G):
     cases = ["core", "leaves"]

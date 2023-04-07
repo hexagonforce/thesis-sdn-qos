@@ -7,14 +7,13 @@
 # - options 1, 2 and 3 which are http1 http2 http3 servers and vlc1 vlc2 and vlc3 servers.
 # 
 
-import csv
-import yaml, os
+import yaml
 from pathlib import Path
+from util.conf_util import get_yml_data
+from util.constants import SERVERCONF
 
 def get_number_of_servers(basedir):
-	server_config_path = Path(basedir).parent / 'server_config.yml'
-	with open(server_config_path, 'r') as file:
-		serverdata = yaml.safe_load(file)
+	serverdata = get_yml_data(SERVERCONF)
 	http = sum(map(lambda data: data['protocol'] == 'http', serverdata.values()))
 	rtsp = sum(map(lambda data: data['protocol'] == 'rtsp', serverdata.values()))
 	return http, rtsp

@@ -3,9 +3,7 @@ This module emits the source.queue.map.q2 file which is used for source based qu
 For each client, list the switches in the shortest path to the core, followed by a queue number.
 Then, list the core switch, followed by the same queue number.
 """
-import csv
 import yaml
-from . import range_divider
 import math
 
 def generate_conf(ip, queue):
@@ -23,10 +21,6 @@ def get_switches_path(l1_switch, fat_tree, layers):
 	return switches
 
 def save_to_conf(basedir, G):
-	yml = f"{basedir.split('custom')[0]}/simulate_topo.yml"
-	with open (yml, 'rb') as yml_file:
-		topo = yaml.load(yml_file, Loader=yaml.FullLoader)
-
 	num_clients = sum(1 for node in G.nodes(data='type') if node[1] == 'client')
 	queue = 0
 	with open(f"{basedir}/source.queue.map.q2.tab", "w") as config_file:
@@ -35,9 +29,3 @@ def save_to_conf(basedir, G):
 				queue = 0
 			config_file.write(generate_conf(ip, queue))
 			queue = queue + 1
-
-def main():
-	save_to_conf()
-
-if __name__ == '__main__':
-	main()

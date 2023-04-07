@@ -8,13 +8,13 @@ server2:
   protocol: rtsp
   medium: BigBuckBunnyMedium
   high: BigBuckBunnyHigh
-  vlm: BBBVLCConfig
+  vlm: server2config
 server3:
   protocol: http
   medium: 16MB.pdf
   high: 100MB.pdf
 server4:
   protocol: rtsp
-  medium: gfriendMedium
-  high: gfriendHigh
-  vlm: gfriendVLCConfig
+  medium: BigBuckBunnySD
+  high: BigBuckBunnyHD
+  vlm: server4config
