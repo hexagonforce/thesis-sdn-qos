@@ -12,3 +12,10 @@ def get_csv_data(path, delimiter='\t'):
         for line in csvFile:
             ret.append(line)
     return ret
+
+def get_path_of_gen_config(config):
+    data = get_yml_data(config)
+    for k, v in data.items():
+        if config in v:
+            return f'config/custom/{v[config]}'
+    return None

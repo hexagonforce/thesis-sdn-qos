@@ -23,7 +23,7 @@ from scripts import network_topologies
 from scripts.custom import network_configs, nodes_config
 from run_mininet import start_mininet_from_networkx_graph
 from simulation import setup_servers, exec_ab_tests, exec_pings, exec_ifstat, exec_vlc_clients
-from util.conf_util import get_csv_data, get_yml_data
+from util.conf_util import get_csv_data, get_yml_data, get_path_of_gen_config
 from util.constants import *
 
 def get_qos_type(casenum):
@@ -58,15 +58,15 @@ def main(iterations=1):
     casenum = runconf['case']
     qos_type = get_qos_type(casenum)
 
-    # Read server_config and load.conf.l3.tab
-    serverdata = get_yml_data(SERVERCONF)
-    loadconfdata = get_csv_data(LOADCONF)
-
     # Generate topology and configuration files
     G = network_topologies.get_topology_graph(topology)
     network_configs.generate_all_configs(G) # intention is to pass networkx graph to everyone
     nodes_config.write_all_config_to_json(casenum)
     nx.write_graphml(G, f'{BASEDIR}/config/topology.graphml')
+
+    # Read server_config and load.conf.l3.tab
+    serverdata = get_yml_data(SERVERCONF)
+    loadconfdata = get_csv_data(get_path_of_gen_config('clientconfig'))
 
     # Set up the network
     net = start_mininet_from_networkx_graph(G)
