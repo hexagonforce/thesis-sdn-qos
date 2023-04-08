@@ -3,7 +3,6 @@ This module emits the source.queue.map.q2 file which is used for source based qu
 For each client, list the switches in the shortest path to the core, followed by a queue number.
 Then, list the core switch, followed by the same queue number.
 """
-import yaml
 import math
 
 def generate_conf(ip, queue):

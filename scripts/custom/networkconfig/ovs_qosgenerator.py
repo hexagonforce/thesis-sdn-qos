@@ -5,7 +5,7 @@
 import subprocess
 from pathlib import Path
 from util.conf_util import get_yml_data
-from util.constants import RUNCONF, CLASS_PROFILE_FILE
+from util.constants import CONFIG_METADATA, CLASS_PROFILE_FILE
 
 def generate_script(interface, priorities):
     return (
@@ -16,7 +16,7 @@ def generate_script(interface, priorities):
     )
 
 def get_qos_type():
-    temp = get_yml_data(RUNCONF)
+    temp = get_yml_data(CONFIG_METADATA)
     class_profile_data = get_yml_data(CLASS_PROFILE_FILE)
     casenum = temp['case']
     return class_profile_data['class_profiles'][casenum]['qos_type']

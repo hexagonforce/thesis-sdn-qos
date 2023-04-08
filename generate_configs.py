@@ -6,7 +6,7 @@ import os
 
 from scripts import network_topologies
 from scripts.custom import network_configs, nodes_config
-from util.constants import RUNCONF, BASEDIR
+from util.constants import CONFIG_METADATA, BASEDIR
 from util.conf_util import get_yml_data
 
 def configure(G, case):
@@ -15,7 +15,7 @@ def configure(G, case):
     nx.write_graphml(G, f'{BASEDIR}/config/topology.graphml')
 
 if __name__ == '__main__':
-    runconf = get_yml_data(RUNCONF)
+    runconf = get_yml_data(CONFIG_METADATA)
     topology = runconf['topology']
     casenum = runconf['case']
     G = network_topologies.get_topology_graph(topology)

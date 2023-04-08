@@ -1,3 +1,4 @@
+case: 1.a
 nodes_config :
   hostsfile : hosts.conf
   switchesfile : "switches.case."

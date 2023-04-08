@@ -7,12 +7,11 @@
 # - options 1, 2 and 3 which are http1 http2 http3 servers and vlc1 vlc2 and vlc3 servers.
 # 
 
-import yaml
 from pathlib import Path
 from util.conf_util import get_yml_data
 from util.constants import SERVERCONF
 
-def get_number_of_servers(basedir):
+def get_number_of_servers():
 	serverdata = get_yml_data(SERVERCONF)
 	http = sum(map(lambda data: data['protocol'] == 'http', serverdata.values()))
 	rtsp = sum(map(lambda data: data['protocol'] == 'rtsp', serverdata.values()))
@@ -27,7 +26,7 @@ def nth_even(n): # 0th even number is 2
 	return 2 * n + 2
 
 def save_to_conf(basedir, G):
-	HTTP_SERVERS, VLC_SERVERS = get_number_of_servers(basedir)
+	HTTP_SERVERS, VLC_SERVERS = get_number_of_servers()
 	types = ['medium', 'high']
 	list_clients = [node for node, data in G.nodes(data='type') if data=='client']
 	list_clients.sort(key= lambda x: int(x.replace('client', '')))

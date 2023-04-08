@@ -4,11 +4,10 @@ from os import environ
 BASEDIR = Path.cwd()
 
 # User-edited files
-RUNCONF = BASEDIR / 'config/run_config.yml'
 SERVERCONF = BASEDIR / 'config/server_config.yml'
 TOPOCONF = f"{BASEDIR}/config/simulate_topo.yml"
 CLASS_PROFILE_FILE = BASEDIR / 'config/class_profile_functionname.yml'
-GEN_CONFIG = BASEDIR / 'config/gen_config.yml'
+CONFIG_METADATA = BASEDIR / 'config/config_metadata.yml'
 CONTROLLERCONF = BASEDIR / 'controller.conf'
 
 # Simulations and related directories

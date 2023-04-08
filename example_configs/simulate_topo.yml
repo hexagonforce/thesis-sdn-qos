@@ -1,9 +1,9 @@
 # func entry has to be implemented in scripts/network_topologies.py
-
+to_test: custom
 custom: 
   func: zoo_data
   details: 
-    filename: UniC.graphml
+    filename: Savvis.graphml
     client_switches: max
     clients: 24
 mesh: 

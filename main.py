@@ -52,10 +52,11 @@ def main(iterations=1):
     run_start_time = datetime.now().replace(microsecond=0)
     reset_test_results_directory()
 
-    # Read the main configuration file
-    runconf = get_yml_data(RUNCONF)
-    topology = runconf['topology']
+    # Read the main config file and topology config
+    runconf = get_yml_data(CONFIG_METADATA)
+    topoconf = get_yml_data(TOPOCONF)
     casenum = runconf['case']
+    topology = topoconf['to_test']
     qos_type = get_qos_type(casenum)
 
     # Generate topology and configuration files
