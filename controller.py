@@ -69,7 +69,7 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
         with open(nodes_config_filepath, 'r') as nodes_config_file:
             self.nodes_configuration = json.load(nodes_config_file)
             self.switches_list = self.nodes_configuration['switches_list']
-        self.nodes_configuration
+
         self.mac_to_port = {}
         self.stp = kwargs['stplib']
         config = {dpid_lib.str_to_dpid(core_switch_num.zfill(16)):
@@ -183,3 +183,4 @@ class QoSSwitch13(simple_switch_13.SimpleSwitch13):
                     stplib.PORT_STATE_FORWARD: 'FORWARD'}
         # self.logger.debug("[dpid=%s][port=%d] state=%s",
                           # dpid_str, ev.port_no, of_state[ev.port_state])
+
