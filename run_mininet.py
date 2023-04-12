@@ -11,8 +11,6 @@ import networkx as nx
 import yaml
 import os
 
-BASEDIR = os.getcwd()
-
 def dpid(node):
     return int(''.join((c for c in node if c.isdigit())))
 

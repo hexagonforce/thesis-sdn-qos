@@ -14,3 +14,4 @@ CONTROLLERCONF = BASEDIR / 'controller.conf'
 SIMULATION_RESULTS = BASEDIR / 'simulation/test.results'
 SIMULATION_LOGS = BASEDIR / 'simulation/server-logs'
 RESULTS_ARCHIVE_DIRECTORY = Path(f"/home/{environ.get('SUDO_USER', 'mininet')}/results")
+

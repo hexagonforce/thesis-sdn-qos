@@ -40,11 +40,11 @@ def export_results(result_file_name):
     )
 
 def reset_test_results_directory():
-    rmtree('simulation/test.results/')
-    subprocess.run(['sudo', '-u' 'mininet', 'mkdir', 'simulation/test.results'])
-    Path.mkdir('simulation/test.results')
-    for folder_name in ['metadata', 'ab-tests', 'pings', 'vlc-clients']:
-        Path.mkdir(f'simulation/test.results/{folder_name}')
+    if SIMULATION_RESULTS.exists():
+        rmtree(SIMULATION_RESULTS)
+    subprocess.run(['sudo', '-u', 'mininet', 'mkdir', '-p', str(SIMULATION_RESULTS)])
+    for folder_name in ['metadata', 'ab-tests', 'pings', 'vlc-clients']: 
+        subprocess.run(['sudo', '-u', 'mininet', 'mkdir', '-p', f'{SIMULATION_RESULTS / folder_name}'])
     subprocess.run(['sh', '-c', f'cp {BASEDIR}/config/*ml {SIMULATION_RESULTS}/metadata'])
 
 def main(iterations=1):

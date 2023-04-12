@@ -2,8 +2,8 @@
 # and create lists of hosts and lists of switches.
 # Refer to the node_classes.py for more information.
 
-from node_classes import Host
-from node_classes import Switch
+from scripts.custom.networkconfig.node_classes import Host
+from scripts.custom.networkconfig.node_classes import Switch
 
 def get_host_entries(host_entries):
     hosts_list = []
