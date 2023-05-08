@@ -2,7 +2,13 @@
 
 This is the documentation for the SDN QoS testing framework written by Hyeong Seon Yoo, Josiah Elezar T. Regencia and William Emmanuel S. Yu.
 
-# Configuration
+## Publications
+This framework was used to publish the following:
+
+H. S. Yoo and W. E. S. Yu, “Building a QoS Testing Framework for Simulating Real-World Network Topologies in a Software-defined Networking Environment,” in 2022 International Conference on Engineering and Emerging Technologies (ICEET), Oct. 2022, pp. 1–6. doi: 10.1109/ICEET56468.2022.10007108.
+
+
+## Configuration
 Most configuration will be done in `config/class_profile_functionname.yml` and `config/simulate_topo.yml`. Refer to `example_configs/`. To get started, copy those files over to `configs/`.
 
 ## Adding custom topology
@@ -36,7 +42,7 @@ Alternatively, run `sudo python3 main.py` to run all the scripts and tests autom
 
 `main.py` optionally takes an integer parameter which specifies the number of iterations.
 
-# Replicating previous research with apachebenchmark and VLC
+# Replicating previous research with ~~apachebenchmark~~hey and VLC
 - Start the Python3 http webservers by running appropriate bash commands
 - Start the VLC VOD servers by running appropriate bash commands
 - Start the ifstat command with `measure/run-ipstat.sh
@@ -44,9 +50,9 @@ Alternatively, run `sudo python3 main.py` to run all the scripts and tests autom
     - run the ab_tests
     - and the vlc clients.
 - Run the tests for 5 minutes.
-- Stop the HTTP clients.
+- Stop the HTTP clients (hey processes, they should stop automatically).
 - Stop the VLC clients.
-- Stop IFSTAT.
+- Stop `ifstat`.
 - Stop VLC servers.
 - Stop HTTP servers.
 - Stop Ryu Controller.
